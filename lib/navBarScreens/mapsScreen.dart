@@ -1,0 +1,418 @@
+// ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
+
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:location/location.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/mapFilter.dart';
+import 'package:miitti_app/provider/auth_provider.dart';
+import 'package:miitti_app/utils/utils.dart';
+import 'package:miitti_app/widgets/myElevatedButton.dart';
+import 'package:provider/provider.dart';
+
+class MapsScreen extends StatefulWidget {
+  const MapsScreen({super.key});
+
+  @override
+  State<MapsScreen> createState() => _MapsScreenState();
+}
+
+class _MapsScreenState extends State<MapsScreen> {
+  final Location _location = Location();
+
+  List<MiittiActivity> _activities = [];
+
+  CameraPosition myCameraPosition = CameraPosition(
+    target: LatLng(60.1699, 24.9325),
+    zoom: 12,
+  );
+
+  late MapboxMapController controller;
+
+  int showOnMap = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    initializeLocationAndSave();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void initializeLocationAndSave() async {
+    bool? _serviceEnabled;
+    PermissionStatus? _permissionGranted;
+
+    _serviceEnabled = await _location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await _location.requestService();
+      if (!_serviceEnabled) {
+        //Show user a red dialog about opening the service
+      }
+    }
+
+    _permissionGranted = await _location.hasPermission();
+    if (_permissionGranted != PermissionStatus.granted) {
+      _permissionGranted = await _location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        //Show user a red dialog about opening the  location
+      }
+    }
+
+    // Get the current user location
+    LocationData _locationData = await _location.getLocation();
+    LatLng currentLatLng =
+        LatLng(_locationData.latitude!, _locationData.longitude!);
+
+    myCameraPosition = CameraPosition(
+      target: currentLatLng,
+      zoom: 12,
+    );
+
+    if (controller != null) {
+      controller
+          .animateCamera(CameraUpdate.newCameraPosition(myCameraPosition));
+    }
+  }
+
+  void fetchActivities() async {
+    List<MiittiActivity> activities =
+        await Provider.of<AuthProvider>(context, listen: false)
+            .fetchActivities();
+    setState(() {
+      _activities = activities.reversed.toList();
+    });
+    addGeojsonCluster(controller, _activities);
+  }
+
+  static Future<void> addGeojsonCluster(
+    MapboxMapController controller,
+    List<MiittiActivity> myActivities,
+  ) async {
+    final List<Map<String, dynamic>> features = myActivities.map((activity) {
+      return {
+        "type": "Feature",
+        "properties": {
+          "id": activity.activityUid,
+          'activityCategory':
+              'images/${activity.activityCategory.toLowerCase()}.png',
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            activity.activityLong,
+            activity.activityLati,
+            0.0,
+          ],
+        }
+      };
+    }).toList();
+
+    final Map<String, dynamic> geoJson = {
+      "type": "FeatureCollection",
+      "crs": {
+        "type": "name",
+        "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}
+      },
+      "features": features,
+    };
+
+    await controller.addSource(
+      "activities",
+      GeojsonSourceProperties(
+        data: geoJson,
+        cluster: true,
+      ),
+    );
+
+    await controller.addSymbolLayer(
+      "activities",
+      'activities-symbols',
+      SymbolLayerProperties(
+        iconImage: [
+          Expressions.caseExpression,
+          [
+            Expressions.boolean,
+            [Expressions.has, 'point_count'],
+            false
+          ],
+          'images/circlebackground.png',
+          [Expressions.get, 'activityCategory'],
+        ],
+        iconSize: [
+          Expressions.caseExpression,
+          [
+            Expressions.boolean,
+            [Expressions.has, 'point_count'],
+            false
+          ],
+          0.85.r,
+          0.8.r,
+        ],
+        iconAllowOverlap: true,
+        symbolSortKey: 10.0,
+      ),
+    );
+
+    await controller.addSymbolLayer(
+      "activities",
+      "activities-count",
+      SymbolLayerProperties(
+        textField: [Expressions.get, 'point_count_abbreviated'],
+        textColor: '#FFFFFF',
+        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        textSize: [
+          Expressions.step,
+          [Expressions.get, 'point_count'],
+          22.sp,
+          5,
+          24.sp,
+          10,
+          26.sp
+        ],
+      ),
+    );
+  }
+
+  goToActivityDetailsPage(MiittiActivity activity) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ActivityDetailsPage(
+          myActivity: activity,
+        ),
+      ),
+    );
+  }
+
+  _onMapCreated(MapboxMapController controller) {
+    this.controller = controller;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        showOnMap == 1
+            ? showOnList()
+            : MapboxMap(
+                styleString: MapboxStyles.MAPBOX_STREETS,
+                myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
+                onMapCreated: _onMapCreated,
+                onMapClick: (point, latLng) async {
+                  double zoomLevel = controller.cameraPosition!.zoom;
+                  int places = getPlaces(zoomLevel);
+
+                  double roundedLatitude =
+                      double.parse(latLng.latitude.toStringAsFixed(places));
+                  double roundedLong =
+                      double.parse(latLng.longitude.toStringAsFixed(places));
+
+                  for (MiittiActivity activity in _activities) {
+                    double roundedActivityLatitude = double.parse(
+                        activity.activityLati.toStringAsFixed(places));
+                    double roundedActivityLong = double.parse(
+                        activity.activityLong.toStringAsFixed(places));
+
+                    if (roundedActivityLatitude == roundedLatitude &&
+                        roundedActivityLong == roundedLong) {
+                      goToActivityDetailsPage(activity);
+                    }
+                  }
+                },
+                onStyleLoadedCallback: () => fetchActivities(),
+                initialCameraPosition: myCameraPosition,
+                trackCameraPosition: true,
+                tiltGesturesEnabled: false,
+                myLocationEnabled: true,
+                rotateGesturesEnabled: false,
+              ),
+        SafeArea(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              createMainToggleSwitch(
+                text1: 'Näytä kartalla',
+                text2: 'Näytä listalla',
+                initialLabelIndex: showOnMap,
+                onToggle: (index) {
+                  setState(
+                    () {
+                      showOnMap = index!;
+                    },
+                  );
+                },
+              ),
+              GestureDetector(
+                onTap: () async {
+                  Map<String, dynamic>? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MapFilter(),
+                    ),
+                  );
+                  if (result != null) {
+                    setState(() {
+                      fetchActivities();
+                    });
+                  }
+                },
+                child: Container(
+                  height: 60.h,
+                  width: 60.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.lightRedColor,
+                        AppColors.orangeColor,
+                      ],
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.edit_location_alt,
+                    color: Colors.white,
+                    size: 30.r,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget showOnList() {
+    return Container(
+      margin: EdgeInsets.only(top: 60.h),
+      child: ListView.builder(
+        itemCount: _activities.length,
+        itemBuilder: (BuildContext context, int index) {
+          MiittiActivity activity = _activities[index];
+
+          String activityAddress = activity.activityAdress;
+
+          List<String> addressParts = activityAddress.split(',');
+          String cityName = addressParts[0].trim();
+
+          return Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            margin: EdgeInsets.all(10.0.w),
+            child: Container(
+              height: 150.h,
+              decoration: BoxDecoration(
+                color: AppColors.wineColor,
+                border: Border.all(color: AppColors.purpleColor, width: 2.0),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'images/${activity.activityCategory.toLowerCase()}.png',
+                    height: 100.h,
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            activity.activityTitle,
+                            overflow: TextOverflow.ellipsis,
+                            style: Styles.activityNameTextStyle,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_month,
+                              color: AppColors.lightPurpleColor,
+                            ),
+                            SizedBox(width: 4.w),
+                            Flexible(
+                              child: Text(
+                                activity.timeString,
+                                overflow: TextOverflow.ellipsis,
+                                style: Styles.sectionSubtitleStyle,
+                              ),
+                            ),
+                            SizedBox(width: 16.w),
+                            Icon(
+                              Icons.location_on_outlined,
+                              color: AppColors.lightPurpleColor,
+                            ),
+                            SizedBox(width: 4.w),
+                            Flexible(
+                              child: Text(
+                                cityName,
+                                overflow: TextOverflow.ellipsis,
+                                style: Styles.sectionSubtitleStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                        MyElevatedButton(
+                          width: 250.w,
+                          height: 40.h,
+                          onPressed: () {
+                            goToActivityDetailsPage(activity);
+                          },
+                          child: Text(
+                            "Näytä enemmän",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontFamily: 'Rubik',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  int getPlaces(double zoomLevel) {
+    final zoomToDecimalPlaces = {
+      20.0: 9, // Very close view, high precision
+      19.0: 8,
+      18.0: 7,
+      17.0: 6,
+      16.0: 5,
+      15.0: 4,
+      14.0: 3, // Medium zoom level
+      13.0: 2,
+      12.0: 2,
+      11.0: 2,
+      10.0: 2,
+      9.0: 1, // Medium to high zoom level
+      8.0: 1,
+      7.0: 1,
+      6.0: 1,
+      5.0: 0, // Lower zoom level, less precision
+      4.0: 0,
+      3.0: 0,
+    };
+
+    return zoomToDecimalPlaces[zoomLevel.roundToDouble()] ?? 0;
+  }
+}
