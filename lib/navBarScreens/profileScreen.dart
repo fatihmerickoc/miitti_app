@@ -157,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             height: 210.w,
             child: PageView.builder(
                 itemCount: ap.miittiUser.userChoices.length,
-                scrollDirection: Axis.vertical,
+                scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   String question = answeredQuestions[index];
                   String answer = ap.miittiUser.userChoices[question]!;

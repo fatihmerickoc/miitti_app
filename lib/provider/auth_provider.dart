@@ -24,8 +24,6 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  int? _resendToken;
-
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
@@ -77,25 +75,25 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       await _firebaseAuth.verifyPhoneNumber(
-          phoneNumber: phoneNumber,
-          verificationCompleted:
-              (PhoneAuthCredential phoneAuthCredential) async {
-            await _firebaseAuth.signInWithCredential(phoneAuthCredential);
-            _isLoading = false;
-            notifyListeners();
-            print("$phoneNumber signed in");
-          },
-          verificationFailed: (error) {
-            _isLoading = false;
-            notifyListeners();
-            print("$phoneNumber Failed phone verification: $error");
-            throw Exception(error.message);
-          },
-          codeSent: (verificationId, forceResendingToken) {
-            _isLoading = false;
-            _resendToken = forceResendingToken;
-            notifyListeners();
-            print("sending code to $phoneNumber");
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential phoneAuthCredential) async {
+          await _firebaseAuth.signInWithCredential(phoneAuthCredential);
+          _isLoading = false;
+          notifyListeners();
+          debugPrint("$phoneNumber signed in");
+        },
+        verificationFailed: (error) {
+          _isLoading = false;
+          notifyListeners();
+          showSnackBar(context, "Failed phone verification: $error");
+
+          throw Exception(error.message);
+        },
+        codeSent: (verificationId, forceResendingToken) {
+          _isLoading = false;
+          notifyListeners();
+          debugPrint("sending code to $phoneNumber");
+          if (context.mounted) {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => OnBordingScreenSms(
@@ -103,14 +101,15 @@ class AuthProvider extends ChangeNotifier {
                 ),
               ),
             );
-          },
-          codeAutoRetrievalTimeout: (verificationId) {},
-          forceResendingToken: _resendToken,
-          timeout: const Duration(seconds: 12));
+          }
+        },
+        codeAutoRetrievalTimeout: (verificationId) {},
+      );
     } on FirebaseAuthException catch (e) {
       _isLoading = false;
       notifyListeners();
-      print("$phoneNumber failed: $e");
+      debugPrint("Kirjautuminen epäonnistui: ${e.message} (${e.code})");
+      showSnackBar(context, "Kirjautuminen epäonnistui: ${e.message}");
     }
   }
 
@@ -118,20 +117,24 @@ class AuthProvider extends ChangeNotifier {
     required BuildContext context,
     required String verificationId,
     required String userOtp,
-    required Function onSucess,
+    required Function onSuccess,
   }) async {
     _isLoading = true;
     notifyListeners();
     try {
       PhoneAuthCredential creds = PhoneAuthProvider.credential(
-          verificationId: verificationId, smsCode: userOtp);
-      User? user = (await _firebaseAuth.signInWithCredential(creds)).user!;
-      _uid = user.uid;
-      onSucess();
-      _isLoading = false;
-      notifyListeners();
+        verificationId: verificationId,
+        smsCode: userOtp,
+      );
+
+      User? user = (await _firebaseAuth.signInWithCredential(creds)).user;
+      _uid = user?.uid;
+
+      onSuccess();
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, 'Väärä SMS koodi, yritä uudelleen');
+      print("Vahvistus epäonnistui: ${e.message} (${e.code})");
+      showSnackBar(context, 'SMS vahvistus epäonnistui ${e.message}');
+    } finally {
       _isLoading = false;
       notifyListeners();
     }

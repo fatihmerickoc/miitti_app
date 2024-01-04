@@ -120,7 +120,7 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
         context: context,
         verificationId: widget.verificationId,
         userOtp: userOtp,
-        onSucess: () {
+        onSuccess: () {
           ap.checkExistingUser().then((value) async {
             if (value == true) {
               ap.getDataFromFirestore().then(

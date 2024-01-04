@@ -132,7 +132,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
             height: 210.w,
             child: PageView.builder(
                 itemCount: widget.user.userChoices.length,
-                scrollDirection: Axis.vertical,
+                scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   String question = answeredQuestions[index];
                   String answer = widget.user.userChoices[question]!;
@@ -353,7 +353,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
               },
             ),
           ),
-          widget.comingFromAdmin!
+          widget.comingFromAdmin != null
               ? Container()
               : Container(
                   margin: EdgeInsets.symmetric(
