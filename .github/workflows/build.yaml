@@ -1,0 +1,28 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.5'  # Specify the Flutter version you are using
+
+    - name: Install Dependencies
+      run: flutter pub get
+
+    - name: Build
+      run: flutter build apk  # Adjust the build command as per your project setup
+
+    - name: Run Tests
+      run: flutter test  # Adjust the test command as per your project setup
