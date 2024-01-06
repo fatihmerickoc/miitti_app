@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
+import 'package:miitti_app/constants/userReport.dart';
 import 'package:miitti_app/createMiittiActivity/activityPageFinal.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';
@@ -249,6 +250,40 @@ class AuthProvider extends ChangeNotifier {
       showSnackBar(context, e.message.toString());
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> reportUser(
+      String message, String reportedId, String senderId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      DocumentSnapshot documentSnapshot =
+          await _fireStore.collection('reportedUsers').doc(reportedId).get();
+
+      UserReport report;
+      if (documentSnapshot.exists) {
+        report =
+            UserReport.fromMap(documentSnapshot.data() as Map<String, dynamic>);
+        report.reasons.add("$senderId: $message");
+      } else {
+        report = UserReport(
+          uid: reportedId,
+          reasons: ["$senderId: $message"],
+        );
+      }
+      await _fireStore
+          .collection('reportedUsers')
+          .doc(reportedId)
+          .set(report.toMap());
+    } catch (e) {
+      print("Reporting failed: $e");
+    } finally {
+      Timer(const Duration(seconds: 1), () {
+        _isLoading = false;
+        notifyListeners();
+      });
     }
   }
 
