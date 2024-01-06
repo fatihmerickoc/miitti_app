@@ -13,7 +13,9 @@ import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityPageFinal.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
+import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
+import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,6 +82,31 @@ class AuthProvider extends ChangeNotifier {
           await _firebaseAuth.signInWithCredential(phoneAuthCredential);
           _isLoading = false;
           notifyListeners();
+          verifyOtp(
+              context: context,
+              verificationId: phoneAuthCredential.verificationId!,
+              userOtp: phoneAuthCredential.smsCode!,
+              onSuccess: () {
+                checkExistingUser().then((value) async {
+                  if (value == true) {
+                    getDataFromFirestore().then(
+                      (value) => saveUserDataToSP().then(
+                        (value) => setSignIn().then(
+                          (value) => Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => const IndexPage()),
+                              (Route<dynamic> route) => false),
+                        ),
+                      ),
+                    );
+                  } else {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const OnboardingScreen()),
+                        (Route<dynamic> route) => false);
+                  }
+                });
+              });
           debugPrint("$phoneNumber signed in");
         },
         verificationFailed: (error) {
