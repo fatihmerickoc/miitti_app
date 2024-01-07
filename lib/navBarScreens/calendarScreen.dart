@@ -437,9 +437,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               fetchDataFromFirebase().then((value) {
                                 buildOtherActivities();
                               });
-                            } else {
-                              PushNotifications.sendAcceptedNotification(
-                                  user, activity);
                             }
                           },
                           child: Text(
@@ -465,6 +462,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             if (operationCompleted) {
                               fetchDataFromFirebase()
                                   .then((value) => buildOtherActivities());
+                            } else {
+                              PushNotifications.sendAcceptedNotification(
+                                  user, activity);
                             }
                           },
                           child: Text(

@@ -285,7 +285,8 @@ class AuthProvider extends ChangeNotifier {
           print("User is null");
         } else {
           print("Checking filters of ${_miittiUser?.userName}");
-          if (daysSince(activity.activityTime) < -7) {
+          if (daysSince(activity.activityTime) <
+              (activity.timeDecidedLater ? -7 : -1)) {
             removeActivity(activity.activityUid);
             return false;
           }
