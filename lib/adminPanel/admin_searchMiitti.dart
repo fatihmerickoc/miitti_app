@@ -132,8 +132,9 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
                   String cityName = addressParts[0].trim();
 
                   return Container(
-                    height: 150.h,
-                    margin: EdgeInsets.symmetric(horizontal: 10.w),
+                    height: 160.h,
+                    margin:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                     decoration: BoxDecoration(
                       color: AppColors.wineColor,
                       border:

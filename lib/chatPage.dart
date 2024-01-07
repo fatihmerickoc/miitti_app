@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/message_tile.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
+import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -202,6 +204,13 @@ class _ChatPageState extends State<ChatPage> {
         'time': DateTime.now().millisecondsSinceEpoch,
       };
       ap.sendMessage(widget.activity.activityUid, chatMessageMap);
+
+      var receivers = await ap.fetchUsersByUids(widget.activity.participants);
+      for (MiittiUser receiver in receivers) {
+        if (receiver.uid == ap.uid) continue;
+        PushNotifications.sendMessageNotification(receiver.fcmToken,
+            ap.miittiUser.userName, widget.activity, messageController.text);
+      }
 
       setState(() {
         messageController.clear();

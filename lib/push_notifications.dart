@@ -176,4 +176,15 @@ class PushNotifications {
       print("$s");
     }
   }
+
+  static void sendMessageNotification(String receiverToken, String senderName,
+      MiittiActivity activity, String message) async {
+    sendNotification(
+      receiverToken,
+      "Uusi viesti miitissä ${activity.activityTitle}",
+      "$senderName: $message",
+      "message",
+      activity.activityUid,
+    );
+  }
 }

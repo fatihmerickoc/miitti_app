@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
@@ -80,6 +81,21 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return ActivityDetailsPage(myActivity: snapshot.data!);
+              } else if (snapshot.hasError) {
+                print("Error: ${snapshot.error}");
+                return const IndexPage();
+              } else {
+                return const CircularProgressIndicator();
+              }
+            });
+      case ("message"):
+        print("Message clicked ${payload["myData"]}");
+        return FutureBuilder<MiittiActivity>(
+            future: Provider.of<AuthProvider>(context, listen: false)
+                .getSingleActivity(payload["myData"]),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return ChatPage(activity: snapshot.data!);
               } else if (snapshot.hasError) {
                 print("Error: ${snapshot.error}");
                 return const IndexPage();
