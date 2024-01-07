@@ -11,6 +11,7 @@ import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
+import 'package:miitti_app/utils/utils.dart';
 
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
@@ -149,15 +150,66 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                 child: Column(
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Image.asset(
-                          'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                          height: 90.h,
+                        Row(
+                          children: [
+                            Image.asset(
+                              'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
+                              height: 90.h,
+                            ),
+                            Flexible(
+                              child: Text(
+                                widget.myActivity.activityTitle,
+                                style: Styles.sectionTitleStyle,
+                              ),
+                            ),
+                          ],
                         ),
-                        Flexible(
-                          child: Text(
-                            widget.myActivity.activityTitle,
-                            style: Styles.sectionTitleStyle,
+                        GestureDetector(
+                          onTap: () {
+                            TextEditingController controller =
+                                TextEditingController();
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text("Ilmianna käyttäjä: "),
+                                content: TextField(
+                                  decoration: InputDecoration(
+                                      hintText: "Ilmiantamisen syy"),
+                                  controller: controller,
+                                ),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text("Peruuta")),
+                                  TextButton(
+                                      onPressed: () {
+                                        AuthProvider ap =
+                                            Provider.of<AuthProvider>(context,
+                                                listen: true);
+
+                                        ap.reportActivity(
+                                            controller.text,
+                                            widget.myActivity.activityUid,
+                                            ap.uid);
+
+                                        Navigator.of(context).pop();
+                                        showSnackBar(
+                                            context, "Miitti ilmiannettu");
+                                      },
+                                      child: Text("Lähetä"))
+                                ],
+                              ),
+                            );
+                            controller.dispose();
+                          },
+                          child: Icon(
+                            Icons.highlight_off,
+                            size: 30.r,
+                            color: Colors.white,
                           ),
                         ),
                       ],
@@ -253,7 +305,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         Text(
                           widget.myActivity.isMoneyRequired
                               ? 'Sisäänpääsymaksu'
-                              : 'Ei sisäänpääsymaksu',
+                              : 'Ei sisäänpääsymaksua',
                           style: Styles.sectionSubtitleStyle,
                         ),
                         SizedBox(

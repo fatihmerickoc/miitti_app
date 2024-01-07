@@ -25,7 +25,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
 
   @override
   void initState() {
-    getAllTheActivities();
+    showAllMiitit == 0 ? getAllTheActivities() : getReportedActivities();
     super.initState();
   }
 
@@ -33,6 +33,13 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
   Future<void> getAllTheActivities() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     _miittiActivities = await ap.fetchActivities();
+    setState(() {});
+  }
+
+  //Fetching all the users from Google Firebase and assigning the list with them
+  Future<void> getReportedActivities() async {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    _miittiActivities = await ap.fetchReportedActivities();
     setState(() {});
   }
 
@@ -57,7 +64,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
   Future<void> removeActivity(String activityId) async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     await ap.removeActivity(activityId);
-    getAllTheActivities();
+    showAllMiitit == 0 ? getAllTheActivities() : getReportedActivities();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -103,6 +110,9 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
                 setState(
                   () {
                     showAllMiitit = index!;
+                    showAllMiitit == 0
+                        ? getAllTheActivities()
+                        : getReportedActivities();
                   },
                 );
               },

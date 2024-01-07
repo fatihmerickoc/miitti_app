@@ -99,6 +99,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                                       controller.text, widget.user.uid, ap.uid);
 
                                   Navigator.of(context).pop();
+                                  showSnackBar(context, "Käyttäjä ilmiannettu");
                                 },
                                 child: Text("Lähetä"))
                           ],
