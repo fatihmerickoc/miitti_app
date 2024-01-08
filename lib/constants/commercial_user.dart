@@ -1,6 +1,5 @@
 class CommercialUser {
   String hyperlink;
-  String address;
   String businessId;
   String profilePicture;
   String name;
@@ -10,7 +9,6 @@ class CommercialUser {
     required this.name,
     required this.profilePicture,
     required this.hyperlink,
-    required this.address,
     required this.businessId,
     required this.description,
   });
@@ -21,7 +19,6 @@ class CommercialUser {
       profilePicture: map['profilePicture'] ?? '',
       hyperlink: map['hyperlink'],
       businessId: map['businessId'],
-      address: map['address'],
       description: map['description'],
     );
   }
