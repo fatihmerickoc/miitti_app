@@ -5,9 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:miitti_app/chatPage.dart';
+import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/commercialScreens/commercial_user_profile.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -18,40 +20,39 @@ import 'package:provider/provider.dart';
 
 import '../constants/miittiUser.dart';
 
-class ActivityDetailsPage extends StatefulWidget {
+class ComActDetailsPage extends StatefulWidget {
   final bool didGotInvited;
   final bool? comingFromAdmin;
 
-  ActivityDetailsPage({
+  ComActDetailsPage({
     required this.myActivity,
     this.comingFromAdmin,
     this.didGotInvited = false,
     super.key,
   });
 
-  PersonActivity myActivity;
+  CommercialActivity myActivity;
 
   @override
-  State<ActivityDetailsPage> createState() => _ActivityDetailsPageState();
+  State<ComActDetailsPage> createState() => _ActivityDetailsPageState();
 }
 
-class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
+class _ActivityDetailsPageState extends State<ComActDetailsPage> {
   late CameraPosition myCameraPosition;
   late MapboxMapController myController;
 
   bool isAlreadyJoined = false;
 
-  bool isAlreadyRequested = false;
-
   late Future<List<MiittiUser>> filteredUsers;
-
+  late CommercialUser company;
   int participantCount = 0;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
-    checkIfRequested();
     checkIfJoined();
+    company = await Provider.of<AuthProvider>(context, listen: false)
+        .getCommercialUser(widget.myActivity.admin);
     filteredUsers = fetchUsersJoinedActivity();
     fetchUsersJoinedActivity().then((users) {
       setState(() {
@@ -214,47 +215,73 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         ),
                       ],
                     ),
-                    FutureBuilder(
-                      future: filteredUsers,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<List<MiittiUser>> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          participantCount = snapshot.data!.length;
-                          return SizedBox(
-                            height: 75.0.h,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                MiittiUser user = snapshot.data![index];
-                                return Padding(
-                                  padding: EdgeInsets.only(left: 16.0.w),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  UserProfileEditScreen(
-                                                      user: user)));
-                                    },
-                                    child: CircleAvatar(
-                                      backgroundImage:
-                                          NetworkImage(user.profilePicture),
-                                      backgroundColor: AppColors.purpleColor,
-                                      radius: 25.r,
-                                    ),
-                                  ),
-                                );
-                              },
+                    Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 16.0.w),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          CommercialProfileScreen(
+                                              user: company)));
+                            },
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(company.profilePicture),
+                              backgroundColor: AppColors.purpleColor,
+                              radius: 25.r,
                             ),
-                          );
-                        } else {
-                          return CircularProgressIndicator(
-                            color: AppColors.purpleColor,
-                          );
-                        }
-                      },
+                          ),
+                        ),
+                        FutureBuilder(
+                          future: filteredUsers,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<List<MiittiUser>> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              participantCount = snapshot.data!.length;
+                              return SizedBox(
+                                height: 75.0.h,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    MiittiUser user = snapshot.data![index];
+                                    return Padding(
+                                      padding: EdgeInsets.only(left: 16.0.w),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      UserProfileEditScreen(
+                                                          user: user)));
+                                        },
+                                        child: CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(user.profilePicture),
+                                          backgroundColor:
+                                              AppColors.purpleColor,
+                                          radius: 25.r,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            } else {
+                              return CircularProgressIndicator(
+                                color: AppColors.purpleColor,
+                              );
+                            }
+                          },
+                        ),
+                      ],
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0.w),
@@ -337,11 +364,13 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
     );
   }
 
-  checkIfJoined() async {
+  void checkIfJoined() async {
+    if (isAlreadyJoined) return;
+
     final ap = Provider.of<AuthProvider>(context, listen: false);
     final activityUid = widget.myActivity.activityUid;
 
-    await ap.checkIfUserJoined(activityUid).then((joined) {
+    await ap.checkIfUserJoined(activityUid, commercial: true).then((joined) {
       if (joined) {
         setState(() {
           isAlreadyJoined = true;
@@ -350,31 +379,15 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
     });
   }
 
-  checkIfRequested() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    final activityUid = widget.myActivity.activityUid;
-
-    await ap.checkIfUserRequested(activityUid).then((participated) {
-      if (participated) {
-        setState(() {
-          isAlreadyRequested = true;
-          isAlreadyJoined = false;
-        });
-      } else {
-        setState(() {
-          //   checkIfJoined();
-        });
-      }
-    });
-  }
-
-  void sendActivityRequest() async {
-    if (!isAlreadyRequested) {
+  void joinActivity() async {
+    checkIfJoined();
+    if (!isAlreadyJoined) {
       final ap = Provider.of<AuthProvider>(context, listen: false);
-      await ap.sendActivityRequest(widget.myActivity.activityUid);
-      PushNotifications.sendRequestNotification(ap, widget.myActivity);
+      await ap.joinActivity(widget.myActivity.activityUid);
+      PushNotifications.sendAcceptedNotification(
+          ap.miittiUser, widget.myActivity);
       setState(() {
-        isAlreadyRequested = true;
+        isAlreadyJoined = true;
       });
     }
   }
@@ -404,14 +417,14 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
       return MyElevatedButton(
         height: 50.h,
         onPressed: () {
-          if (!isAlreadyRequested && !isAlreadyJoined) {
-            sendActivityRequest();
+          if (!isAlreadyJoined) {
+            joinActivity();
           }
           if (isAlreadyJoined) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatPage(activity: widget.myActivity),
+                builder: (context) => ComChatPage(activity: widget.myActivity),
               ),
             );
           }
@@ -439,7 +452,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatPage(
+                builder: (context) => ComChatPage(
                   activity: widget.myActivity,
                 ),
               ),
@@ -465,19 +478,13 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   String getButtonText() {
     if (participantCount < widget.myActivity.personLimit) {
-      if (isAlreadyRequested) {
-        return 'Odottaa hyväksyntää';
-      }
       if (isAlreadyJoined) {
-        return 'Siirry keskusteluun';
+        return 'Siirry infokanavalle';
       }
       return 'Osallistun';
     } else {
-      if (isAlreadyRequested) {
-        return 'Odottaa hyväksyntää';
-      }
       if (isAlreadyJoined) {
-        return 'Siirry keskusteluun';
+        return 'Siirry infokanavalle';
       }
       return 'Täynnä';
     }

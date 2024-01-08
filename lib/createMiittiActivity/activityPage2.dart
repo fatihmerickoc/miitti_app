@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 
@@ -16,8 +16,8 @@ class ActivityPage2 extends StatefulWidget {
     required this.controller,
   }) : super(key: key);
 
-  final MiittiActivity activity;
-  final Function(MiittiActivity) onActivityDataChanged;
+  final PersonActivity activity;
+  final Function(PersonActivity) onActivityDataChanged;
   final PageController controller;
 
   @override

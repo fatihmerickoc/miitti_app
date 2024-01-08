@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
@@ -24,7 +24,7 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen> {
   //List of Activities that user has been joined or sended a request to join
-  List<MiittiActivity> _myJoinedActivities = [];
+  List<PersonActivity> _myJoinedActivities = [];
 
   //List of Users that requested to join our activity
   List<Map<String, dynamic>> _otherRequests = [];
@@ -74,7 +74,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget buildActivityItem(
-    MiittiActivity activity,
+    PersonActivity activity,
     bool isAdmin,
     bool isWaiting,
     int index,
@@ -347,7 +347,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget buildUserItem(Map<String, dynamic> userData, int index) {
     final ap = Provider.of<AuthProvider>(context);
     final MiittiUser user = userData['user'];
-    final MiittiActivity activity = userData['activity'];
+    final PersonActivity activity = userData['activity'];
     return Container(
       height: 150.h,
       margin: EdgeInsets.all(10.0.w),
@@ -431,7 +431,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           onPressed: () async {
                             bool operationCompleted =
                                 await ap.updateUserJoiningActivity(
-                                    activity.activityUid, user.uid, true);
+                                    activity.activityUid, user.uid, false);
                             if (!operationCompleted) {
                               _otherRequests.removeAt(index);
                               fetchDataFromFirebase().then((value) {
@@ -458,7 +458,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           onPressed: () async {
                             bool operationCompleted =
                                 await ap.updateUserJoiningActivity(
-                                    activity.activityUid, user.uid, false);
+                                    activity.activityUid, user.uid, true);
                             if (operationCompleted) {
                               fetchDataFromFirebase()
                                   .then((value) => buildOtherActivities());
@@ -540,7 +540,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             itemCount: _myJoinedActivities.length,
             itemBuilder: (BuildContext context, int index) {
               //getting the single activity from the list
-              MiittiActivity singleActivity = _myJoinedActivities[index];
+              PersonActivity singleActivity = _myJoinedActivities[index];
 
               final ap = Provider.of<AuthProvider>(context);
               String userId = ap.uid;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -19,7 +19,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
   int showAllMiitit = 0;
 
   //All Users
-  List<MiittiActivity> _miittiActivities = [];
+  List<PersonActivity> _miittiActivities = [];
 
   int participantCount = 0;
 
@@ -125,7 +125,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
               child: ListView.builder(
                 itemCount: _miittiActivities.length,
                 itemBuilder: (BuildContext context, int index) {
-                  MiittiActivity activity = _miittiActivities[index];
+                  PersonActivity activity = _miittiActivities[index];
 
                   List<String> addressParts =
                       activity.activityAdress.split(',');

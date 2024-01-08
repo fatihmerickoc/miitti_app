@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+// #region depedencies
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -8,10 +9,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:miitti_app/chatPage.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/constants/report.dart';
+import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/createMiittiActivity/activityPageFinal.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';
@@ -19,8 +26,11 @@ import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
 import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// #endregion
 
 class AuthProvider extends ChangeNotifier {
+// #region Variables
+
   bool _isSignedIn = false;
   bool get isSignedIn => _isSignedIn;
 
@@ -36,29 +46,16 @@ class AuthProvider extends ChangeNotifier {
   MiittiUser? _miittiUser;
   MiittiUser get miittiUser => _miittiUser!;
 
-  MiittiActivity? _miittiActivity;
-  MiittiActivity get miittiActivity => _miittiActivity!;
+  PersonActivity? _miittiActivity;
+  PersonActivity get miittiActivity => _miittiActivity!;
 
   AuthProvider() {
     checkSign();
   }
 
-  Future<void> setUserStatus() async {
-    try {
-      DateTime now = DateTime.now().toUtc();
-      String timestampString = now.toIso8601String();
-      await _fireStore
-          .collection('users')
-          .doc(_uid)
-          .update({'userStatus': timestampString});
-      print("Userstatus set");
-    } catch (e, s) {
-      if (_uid == null) print("UID is null");
-      print('Got an error setting user status $e and my uid is $_uid');
-      print('$s');
-    }
-  }
+// #endregion
 
+// #region SignIn
   Future<bool> checkSign() async {
     final SharedPreferences s = await SharedPreferences.getInstance();
     _isSignedIn = s.getBool('is_signedin') ?? false;
@@ -167,92 +164,9 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+  // #endregion
 
-  Future<bool> checkExistingUser() async {
-    DocumentSnapshot snapshot =
-        await _fireStore.collection('users').doc(_uid).get();
-    if (snapshot.exists) {
-      return true;
-    }
-    return false;
-  }
-
-  void saveUserDatatoFirebase({
-    required BuildContext context,
-    required MiittiUser userModel,
-    required File? image,
-    required Function onSucess,
-  }) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      await uploadUserImage(_firebaseAuth.currentUser!.uid, image)
-          .then((value) {
-        userModel.profilePicture = value;
-      }).onError((error, stackTrace) {});
-      userModel.userPhoneNumber = _firebaseAuth.currentUser!.phoneNumber!;
-      userModel.uid = _firebaseAuth.currentUser!.uid;
-      _miittiUser = userModel;
-
-      await _fireStore
-          .collection('users')
-          .doc(_uid)
-          .set(userModel.toMap())
-          .then((value) {
-        onSucess();
-        _isLoading = false;
-        notifyListeners();
-      }).onError(
-        (error, stackTrace) {},
-      );
-    } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString());
-      print("Userdata to firebase error: $e");
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  void saveMiittiActivityDataToFirebase({
-    required BuildContext context,
-    required MiittiActivity activityModel,
-  }) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      activityModel.admin = _miittiUser!.uid;
-      activityModel.adminAge = calculateAge(_miittiUser!.userBirthday);
-      activityModel.adminGender = _miittiUser!.userGender;
-      activityModel.activityUid = generateCustomId();
-      activityModel.participants.add(_miittiUser!.uid);
-
-      _miittiActivity = activityModel;
-
-      await _fireStore
-          .collection('activities')
-          .doc(activityModel.activityUid)
-          .set(activityModel.toMap())
-          .then((value) {
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => ActivityPageFinal(
-                miittiActivity: _miittiActivity!,
-              ),
-            ),
-            (Route<dynamic> route) => false);
-
-        _isLoading = false;
-        notifyListeners();
-      }).onError(
-        (error, stackTrace) {},
-      );
-    } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString());
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
+// #region Report
   Future<void> reportUser(
       String message, String reportedId, String senderId) async {
     try {
@@ -325,7 +239,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<MiittiActivity>> fetchReportedActivities() async {
+  Future<List<PersonActivity>> fetchReportedActivities() async {
     try {
       QuerySnapshot querySnapshot =
           await _fireStore.collection('reportedActivities').get();
@@ -334,12 +248,12 @@ class AuthProvider extends ChangeNotifier {
       //you get activityDoc from firebase from 'activities' collection by using reportedId as doc name
       //you get MiittiActivity from activity like that: MiittiActivity.fromMap(activityDoc.data() as Map<String, dynamic>))
 
-      List<MiittiActivity> list = [];
+      List<PersonActivity> list = [];
 
       for (QueryDocumentSnapshot report in querySnapshot.docs) {
         DocumentSnapshot<Map<String, dynamic>> doc =
             await _fireStore.collection("activities").doc(report.id).get();
-        list.add(MiittiActivity.fromMap(doc.data() as Map<String, dynamic>));
+        list.add(PersonActivity.fromMap(doc.data() as Map<String, dynamic>));
       }
 
       return list;
@@ -349,51 +263,51 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> sendActivityRequest(String activityId) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
+// #endregion
 
-      await _fireStore.collection('activities').doc(activityId).update({
-        'requests': FieldValue.arrayUnion([_uid])
-      }).then((value) {
-        print("User joined the activity successfully");
-      }).catchError((error) {
-        print("Error joining the activity: $error");
-      });
-    } catch (e) {
-      print('Error while joining activity: $e');
-    } finally {
-      Timer(const Duration(seconds: 1), () {
+// #region Activities
+
+  void saveMiittiActivityDataToFirebase({
+    required BuildContext context,
+    required PersonActivity activityModel,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      activityModel.admin = _miittiUser!.uid;
+      activityModel.adminAge = calculateAge(_miittiUser!.userBirthday);
+      activityModel.adminGender = _miittiUser!.userGender;
+      activityModel.activityUid = generateCustomId();
+      activityModel.participants.add(_miittiUser!.uid);
+
+      _miittiActivity = activityModel;
+
+      await _fireStore
+          .collection('activities')
+          .doc(activityModel.activityUid)
+          .set(activityModel.toMap())
+          .then((value) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => ActivityPageFinal(
+                miittiActivity: _miittiActivity!,
+              ),
+            ),
+            (Route<dynamic> route) => false);
+
         _isLoading = false;
         notifyListeners();
-      });
+      }).onError(
+        (error, stackTrace) {},
+      );
+    } on FirebaseAuthException catch (e) {
+      showSnackBar(context, e.message.toString());
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  Future<void> joinActivity(String activityId) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      await _fireStore.collection('activities').doc(activityId).update({
-        'participants': FieldValue.arrayUnion([_uid])
-      }).then((value) {
-        print("User joined the activity successfully");
-      }).catchError((error) {
-        print("Error joining the activity: $error");
-      });
-    } catch (e) {
-      print('Error while joining activity: $e');
-    } finally {
-      Timer(const Duration(seconds: 1), () {
-        _isLoading = false;
-        notifyListeners();
-      });
-    }
-  }
-
-  Future<List<MiittiActivity>> fetchActivities() async {
+  Future<List<PersonActivity>> fetchActivities() async {
     try {
       FilterSettings filterSettings = FilterSettings();
       await filterSettings.loadPreferences();
@@ -401,9 +315,9 @@ class AuthProvider extends ChangeNotifier {
       QuerySnapshot querySnapshot =
           await _fireStore.collection('activities').get();
 
-      List<MiittiActivity> activities = querySnapshot.docs
+      List<PersonActivity> activities = querySnapshot.docs
           .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
+              PersonActivity.fromMap(doc.data() as Map<String, dynamic>))
           .where((activity) {
         if (_miittiUser == null) {
           print("User is null");
@@ -439,7 +353,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<MiittiActivity>> fetchUserActivities() async {
+  Future<List<PersonActivity>> fetchUserActivities() async {
     try {
       QuerySnapshot querySnapshot = await _fireStore
           .collection('activities')
@@ -451,16 +365,16 @@ class AuthProvider extends ChangeNotifier {
           .where('requests', arrayContains: uid)
           .get();
 
-      List<MiittiActivity> activities = [];
+      List<PersonActivity> activities = [];
 
       for (var doc in querySnapshot.docs) {
         activities
-            .add(MiittiActivity.fromMap(doc.data() as Map<String, dynamic>));
+            .add(PersonActivity.fromMap(doc.data() as Map<String, dynamic>));
       }
 
       for (var doc in requestSnapshot.docs) {
         activities
-            .add(MiittiActivity.fromMap(doc.data() as Map<String, dynamic>));
+            .add(PersonActivity.fromMap(doc.data() as Map<String, dynamic>));
       }
 
       DocumentSnapshot documentSnapshot =
@@ -475,7 +389,7 @@ class AuthProvider extends ChangeNotifier {
               await _fireStore.collection('activities').doc(activityId).get();
 
           if (activitySnapshot.exists) {
-            MiittiActivity activity = MiittiActivity.fromMap(
+            PersonActivity activity = PersonActivity.fromMap(
                 activitySnapshot.data() as Map<String, dynamic>);
             activities.add(activity);
           }
@@ -486,33 +400,6 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       print('Error fetching user activities: $e');
       return [];
-    }
-  }
-
-  Future<void> removeUser(String userId) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      await _fireStore
-          .collection('users')
-          .doc(userId)
-          .delete()
-          .then((value) {});
-
-      if (!adminId.contains(_firebaseAuth.currentUser!.uid) &&
-          _firebaseAuth.currentUser!.uid.isNotEmpty) {
-        await _firebaseAuth.currentUser?.delete();
-      }
-
-      SharedPreferences s = await SharedPreferences.getInstance();
-      _isSignedIn = false;
-      _isLoading = false;
-      s.clear();
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print("Error removing user from the app $e");
     }
   }
 
@@ -536,35 +423,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> removeUserFromActivity(
-    String activityId,
-    bool isRequested,
-  ) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      if (!isRequested) {
-        await _fireStore.collection('activities').doc(activityId).update({
-          'participants': FieldValue.arrayRemove([uid])
-        });
-      } else {
-        await _fireStore.collection('activities').doc(activityId).update({
-          'requests': FieldValue.arrayRemove([uid])
-        });
-      }
-
-      print("User removed from activity successfully.");
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print('Error removing user from activity: $e');
-    }
-  }
-
-  Future<List<MiittiActivity>> fetchAdminActivities() async {
+  Future<List<PersonActivity>> fetchAdminActivities() async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -573,9 +432,9 @@ class AuthProvider extends ChangeNotifier {
           .where('admin', isEqualTo: uid)
           .get();
 
-      List<MiittiActivity> activities = querySnapshot.docs
+      List<PersonActivity> activities = querySnapshot.docs
           .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
+              PersonActivity.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
       _isLoading = false;
@@ -600,14 +459,14 @@ class AuthProvider extends ChangeNotifier {
           .where('admin', isEqualTo: uid)
           .get();
 
-      List<MiittiActivity> activities = querySnapshot.docs
+      List<PersonActivity> activities = querySnapshot.docs
           .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
+              PersonActivity.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
       List<Map<String, dynamic>> usersAndActivityIds = [];
 
-      for (MiittiActivity activity in activities) {
+      for (PersonActivity activity in activities) {
         List<MiittiUser> users = await fetchUsersByUids(activity.requests);
         usersAndActivityIds.addAll(users.map((user) => {
               'user': user,
@@ -627,102 +486,90 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<MiittiActivity> getSingleActivity(String activityId) async {
+  Future<PersonActivity> getSingleActivity(String activityId) async {
     _isLoading = true;
     notifyListeners();
     DocumentSnapshot doc =
         await _fireStore.collection("activities").doc(activityId).get();
-    MiittiActivity activity =
-        MiittiActivity.fromMap(doc.data() as Map<String, dynamic>);
+    PersonActivity activity =
+        PersonActivity.fromMap(doc.data() as Map<String, dynamic>);
     _isLoading = false;
     notifyListeners();
     return activity;
   }
 
-  Future<bool> updateUserJoiningActivity(
-    String activityId,
-    String userId,
-    bool isOnlyDelete,
-  ) async {
+  Future<Widget> getDetailsPage(String activityId) async {
     _isLoading = true;
     notifyListeners();
-    bool operationCompleted = false;
+    Widget widget;
+    DocumentSnapshot personDoc =
+        await _fireStore.collection("activities").doc(activityId).get();
+    if (personDoc.exists) {
+      widget = ActivityDetailsPage(
+          myActivity:
+              PersonActivity.fromMap(personDoc.data() as Map<String, dynamic>));
+    } else {
+      DocumentSnapshot commercialDoc = await _fireStore
+          .collection("commercialActivities")
+          .doc(activityId)
+          .get();
+      widget = ComActDetailsPage(
+          myActivity: CommercialActivity.fromMap(
+              commercialDoc.data() as Map<String, dynamic>));
+    }
+    _isLoading = false;
+    notifyListeners();
+    return widget;
+  }
 
+// #endregion
+
+// #region UsersInActivities
+
+  Future<void> sendActivityRequest(String activityId) async {
     try {
-      final activityRef = _fireStore.collection('activities').doc(activityId);
+      _isLoading = true;
+      notifyListeners();
 
-      await _fireStore.runTransaction((transaction) async {
-        final activitySnapshot = await transaction.get(activityRef);
-        if (!activitySnapshot.exists) {
-          print('Activity does not exist.');
-          return;
-        }
-
-        final activityData = activitySnapshot.data();
-        final List<dynamic> participants = activityData?['participants'];
-        final List<dynamic> requests = activityData?['requests'];
-
-        // Remove user ID from requests
-        requests.remove(userId);
-
-        // Add user ID to participants if not already present
-        if (!participants.contains(userId) && !isOnlyDelete) {
-          participants.add(userId);
-          operationCompleted = true;
-        }
-
-        transaction.update(activityRef, {
-          'participants': participants,
-          'requests': requests,
-        });
+      await _fireStore.collection('activities').doc(activityId).update({
+        'requests': FieldValue.arrayUnion([_uid])
+      }).then((value) {
+        print("User joined the activity successfully");
+      }).catchError((error) {
+        print("Error joining the activity: $error");
       });
-
-      _isLoading = false;
-      notifyListeners();
     } catch (e) {
-      _isLoading = false;
-      notifyListeners();
       print('Error while joining activity: $e');
-    }
-    return operationCompleted;
-  }
-
-  Future<List<MiittiUser>> fetchUsersByActivityId(String activityId) async {
-    try {
-      // Fetch activity by id
-      DocumentSnapshot docSnapshot =
-          await _fireStore.collection('activities').doc(activityId).get();
-      if (!docSnapshot.exists) {
-        throw Exception("Activity not found");
-      }
-      MiittiActivity activity =
-          MiittiActivity.fromMap(docSnapshot.data() as Map<String, dynamic>);
-
-      // Fetch participants (users) using user ids from the activity
-      List<MiittiUser> users = await fetchUsersByUids(activity.participants);
-
-      return users;
-    } catch (e) {
-      print("Error fetching users by activity id: $e");
-      return [];
+    } finally {
+      Timer(const Duration(seconds: 1), () {
+        _isLoading = false;
+        notifyListeners();
+      });
     }
   }
 
-  Future<List<MiittiUser>> fetchUsersByUids(Set<String> userIds) async {
+  Future<void> joinActivity(String activityId) async {
     try {
-      List<MiittiUser> users = [];
-      for (final uid in userIds) {
-        DocumentSnapshot docSnapshot =
-            await _fireStore.collection('users').doc(uid).get();
-        if (docSnapshot.exists) {
-          users.add(
-              MiittiUser.fromMap(docSnapshot.data() as Map<String, dynamic>));
-        }
-      }
-      return users;
+      _isLoading = true;
+      notifyListeners();
+
+      await _fireStore
+          .collection('commercialActivities')
+          .doc(activityId)
+          .update({
+        'participants': FieldValue.arrayUnion([_uid])
+      }).then((value) {
+        print("User joined the activity successfully");
+      }).catchError((error) {
+        print("Error joining the activity: $error");
+      });
     } catch (e) {
-      print("Error fetching users: $e");
-      return [];
+      print('Error while joining activity: $e');
+    } finally {
+      Timer(const Duration(seconds: 1), () {
+        _isLoading = false;
+        notifyListeners();
+      });
     }
   }
 
@@ -743,7 +590,7 @@ class AuthProvider extends ChangeNotifier {
             .update({'invitedActivities': user.invitedActivities.toList()});
 
         if (accepted) {
-          await updateUserJoiningActivity(activityId, uid, false);
+          await updateUserJoiningActivity(activityId, uid, true);
           operationCompleted = true;
         }
       }
@@ -796,15 +643,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> checkIfUserJoined(String activityUid) async {
+  Future<bool> checkIfUserJoined(String activityUid,
+      {bool commercial = false}) async {
     final snapshot = await FirebaseFirestore.instance
-        .collection('activities')
+        .collection(commercial ? 'commercialActivities' : 'activities')
         .doc(activityUid)
         .get();
 
     if (snapshot.exists) {
       final activity =
-          MiittiActivity.fromMap(snapshot.data() as Map<String, dynamic>);
+          PersonActivity.fromMap(snapshot.data() as Map<String, dynamic>);
       return activity.participants.contains(uid);
     }
 
@@ -819,11 +667,121 @@ class AuthProvider extends ChangeNotifier {
 
     if (snapshot.exists) {
       final activity =
-          MiittiActivity.fromMap(snapshot.data() as Map<String, dynamic>);
+          PersonActivity.fromMap(snapshot.data() as Map<String, dynamic>);
       return activity.requests.contains(uid);
     }
 
     return false;
+  }
+
+  Future<bool> updateUserJoiningActivity(
+    String activityId,
+    String userId,
+    bool accept,
+  ) async {
+    _isLoading = true;
+    notifyListeners();
+    bool operationCompleted = false;
+
+    try {
+      final activityRef = _fireStore.collection('activities').doc(activityId);
+
+      await _fireStore.runTransaction((transaction) async {
+        final activitySnapshot = await transaction.get(activityRef);
+        if (!activitySnapshot.exists) {
+          print('Activity does not exist.');
+          return;
+        }
+
+        final activityData = activitySnapshot.data();
+        final List<dynamic> participants = activityData?['participants'];
+        final List<dynamic> requests = activityData?['requests'];
+
+        // Remove user ID from requests
+        requests.remove(userId);
+
+        // Add user ID to participants if not already present
+        if (!participants.contains(userId) && accept) {
+          participants.add(userId);
+          operationCompleted = true;
+        }
+
+        transaction.update(activityRef, {
+          'participants': participants,
+          'requests': requests,
+        });
+      });
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error while joining activity: $e');
+    }
+    return operationCompleted;
+  }
+
+  Future<void> removeUserFromActivity(
+    String activityId,
+    bool isRequested,
+  ) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (!isRequested) {
+        await _fireStore.collection('activities').doc(activityId).update({
+          'participants': FieldValue.arrayRemove([uid])
+        });
+      } else {
+        await _fireStore.collection('activities').doc(activityId).update({
+          'requests': FieldValue.arrayRemove([uid])
+        });
+      }
+
+      print("User removed from activity successfully.");
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error removing user from activity: $e');
+    }
+  }
+
+  Future getGroupAdmin(String activityId) async {
+    DocumentReference d = _fireStore.collection('activities').doc(activityId);
+    DocumentSnapshot documentSnapshot = await d.get();
+    return documentSnapshot['admin'];
+  }
+
+// #endregion
+
+// #region Chatting
+
+  Future<Widget> getChatPage(String activityId) async {
+    _isLoading = true;
+    notifyListeners();
+    Widget widget;
+    DocumentSnapshot personDoc =
+        await _fireStore.collection("activities").doc(activityId).get();
+    if (personDoc.exists) {
+      widget = ChatPage(
+          activity:
+              PersonActivity.fromMap(personDoc.data() as Map<String, dynamic>));
+    } else {
+      DocumentSnapshot commercialDoc = await _fireStore
+          .collection("commercialActivities")
+          .doc(activityId)
+          .get();
+      widget = ComChatPage(
+          activity: CommercialActivity.fromMap(
+              commercialDoc.data() as Map<String, dynamic>));
+    }
+    _isLoading = false;
+    notifyListeners();
+    return widget;
   }
 
   getChats(String activityId) async {
@@ -833,12 +791,6 @@ class AuthProvider extends ChangeNotifier {
         .collection('messages')
         .orderBy('time', descending: true)
         .snapshots();
-  }
-
-  Future getGroupAdmin(String activityId) async {
-    DocumentReference d = _fireStore.collection('activities').doc(activityId);
-    DocumentSnapshot documentSnapshot = await d.get();
-    return documentSnapshot['admin'];
   }
 
   sendMessage(String activityId, Map<String, dynamic> chatMessageData) async {
@@ -853,6 +805,55 @@ class AuthProvider extends ChangeNotifier {
       "recentMessageSender": chatMessageData['sender'],
       "recentMessageTime": chatMessageData['time'].toString(),
     });
+  }
+
+// #endregion
+
+// #region ThisUser
+
+  Future<bool> checkExistingUser() async {
+    DocumentSnapshot snapshot =
+        await _fireStore.collection('users').doc(_uid).get();
+    if (snapshot.exists) {
+      return true;
+    }
+    return false;
+  }
+
+  void saveUserDatatoFirebase({
+    required BuildContext context,
+    required MiittiUser userModel,
+    required File? image,
+    required Function onSucess,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await uploadUserImage(_firebaseAuth.currentUser!.uid, image)
+          .then((value) {
+        userModel.profilePicture = value;
+      }).onError((error, stackTrace) {});
+      userModel.userPhoneNumber = _firebaseAuth.currentUser!.phoneNumber!;
+      userModel.uid = _firebaseAuth.currentUser!.uid;
+      _miittiUser = userModel;
+
+      await _fireStore
+          .collection('users')
+          .doc(_uid)
+          .set(userModel.toMap())
+          .then((value) {
+        onSucess();
+        _isLoading = false;
+        notifyListeners();
+      }).onError(
+        (error, stackTrace) {},
+      );
+    } on FirebaseAuthException catch (e) {
+      showSnackBar(context, e.message.toString());
+      print("Userdata to firebase error: $e");
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<String> uploadUserImage(String uid, File? image) async {
@@ -927,6 +928,92 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
+  Future<void> setUserStatus() async {
+    try {
+      DateTime now = DateTime.now().toUtc();
+      String timestampString = now.toIso8601String();
+      await _fireStore
+          .collection('users')
+          .doc(_uid)
+          .update({'userStatus': timestampString});
+      print("Userstatus set");
+    } catch (e, s) {
+      if (_uid == null) print("UID is null");
+      print('Got an error setting user status $e and my uid is $_uid');
+      print('$s');
+    }
+  }
+
+  Future userSignOut() async {
+    SharedPreferences s = await SharedPreferences.getInstance();
+    await _firebaseAuth.signOut();
+    _isSignedIn = false;
+    notifyListeners();
+    s.clear();
+  }
+
+  Future<void> updateUserInfo(MiittiUser updatedUser, File? imageFile) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (imageFile != null) {
+        await uploadUserImage(_firebaseAuth.currentUser!.uid, imageFile)
+            .then((value) {
+          updatedUser.profilePicture = value;
+        }).onError((error, stackTrace) {
+          print("HATA UPDATEUSERINFO: $error");
+        });
+      }
+
+      await _fireStore
+          .collection('users')
+          .doc(_uid)
+          .update(updatedUser.toMap())
+          .then((value) {
+        _miittiUser = updatedUser;
+        _isLoading = false;
+        notifyListeners();
+      });
+
+      // Update the user in the provider
+
+      notifyListeners();
+    } on FirebaseAuthException catch (e) {
+      print('Error updating user info: ${e.message}');
+    }
+  }
+
+  Future<void> removeUser(String userId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _fireStore
+          .collection('users')
+          .doc(userId)
+          .delete()
+          .then((value) {});
+
+      if (!adminId.contains(_firebaseAuth.currentUser!.uid) &&
+          _firebaseAuth.currentUser!.uid.isNotEmpty) {
+        await _firebaseAuth.currentUser?.delete();
+      }
+
+      SharedPreferences s = await SharedPreferences.getInstance();
+      _isSignedIn = false;
+      _isLoading = false;
+      s.clear();
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print("Error removing user from the app $e");
+    }
+  }
+
+// #endregion
+
+// #region Users
+
   Future<List<MiittiUser>> fetchUsers() async {
     QuerySnapshot querySnapshot = await _fireStore.collection('users').get();
 
@@ -970,42 +1057,62 @@ class AuthProvider extends ChangeNotifier {
     return user;
   }
 
-  Future<void> updateUserInfo(MiittiUser updatedUser, File? imageFile) async {
+  Future<CommercialUser> getCommercialUser(String id) async {
     _isLoading = true;
     notifyListeners();
+    DocumentSnapshot doc =
+        await _fireStore.collection("commercialUsers").doc(id).get();
+    CommercialUser user =
+        CommercialUser.fromMap(doc.data() as Map<String, dynamic>);
+    _isLoading = false;
+    notifyListeners();
+    return user;
+  }
+
+  Future<List<MiittiUser>> fetchUsersByActivityId(String activityId) async {
     try {
-      if (imageFile != null) {
-        await uploadUserImage(_firebaseAuth.currentUser!.uid, imageFile)
-            .then((value) {
-          updatedUser.profilePicture = value;
-        }).onError((error, stackTrace) {
-          print("HATA UPDATEUSERINFO: $error");
-        });
+      // Fetch activity by id
+      DocumentSnapshot personSnapshot =
+          await _fireStore.collection('activities').doc(activityId).get();
+      if (personSnapshot.exists) {
+        PersonActivity activity = PersonActivity.fromMap(
+            personSnapshot.data() as Map<String, dynamic>);
+
+        // Fetch participants (users) using user ids from the activity
+        return await fetchUsersByUids(activity.participants);
+      } else {
+        DocumentSnapshot commercialSnapshot = await _fireStore
+            .collection('commercialActivities')
+            .doc(activityId)
+            .get();
+
+        CommercialActivity commercialActivity = CommercialActivity.fromMap(
+            commercialSnapshot.data() as Map<String, dynamic>);
+
+        return await fetchUsersByUids(commercialActivity.participants);
       }
-
-      await _fireStore
-          .collection('users')
-          .doc(_uid)
-          .update(updatedUser.toMap())
-          .then((value) {
-        _miittiUser = updatedUser;
-        _isLoading = false;
-        notifyListeners();
-      });
-
-      // Update the user in the provider
-
-      notifyListeners();
-    } on FirebaseAuthException catch (e) {
-      print('Error updating user info: ${e.message}');
+    } catch (e) {
+      print("Error fetching users by activity id: $e");
+      return [];
     }
   }
 
-  Future userSignOut() async {
-    SharedPreferences s = await SharedPreferences.getInstance();
-    await _firebaseAuth.signOut();
-    _isSignedIn = false;
-    notifyListeners();
-    s.clear();
+  Future<List<MiittiUser>> fetchUsersByUids(Set<String> userIds) async {
+    try {
+      List<MiittiUser> users = [];
+      for (final uid in userIds) {
+        DocumentSnapshot docSnapshot =
+            await _fireStore.collection('users').doc(uid).get();
+        if (docSnapshot.exists) {
+          users.add(
+              MiittiUser.fromMap(docSnapshot.data() as Map<String, dynamic>));
+        }
+      }
+      return users;
+    } catch (e) {
+      print("Error fetching users: $e");
+      return [];
+    }
   }
+// #endregion
 }

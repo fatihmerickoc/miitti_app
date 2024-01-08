@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/mapFilter.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -25,7 +25,7 @@ class MapsScreen extends StatefulWidget {
 class _MapsScreenState extends State<MapsScreen> {
   final Location _location = Location();
 
-  List<MiittiActivity> _activities = [];
+  List<PersonActivity> _activities = [];
 
   CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
@@ -84,7 +84,7 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   void fetchActivities() async {
-    List<MiittiActivity> activities =
+    List<PersonActivity> activities =
         await Provider.of<AuthProvider>(context, listen: false)
             .fetchActivities();
     setState(() {
@@ -95,7 +95,7 @@ class _MapsScreenState extends State<MapsScreen> {
 
   static Future<void> addGeojsonCluster(
     MapboxMapController controller,
-    List<MiittiActivity> myActivities,
+    List<PersonActivity> myActivities,
   ) async {
     final List<Map<String, dynamic>> features = myActivities.map((activity) {
       return {
@@ -182,7 +182,7 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  goToActivityDetailsPage(MiittiActivity activity) {
+  goToActivityDetailsPage(PersonActivity activity) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -216,7 +216,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   double roundedLong =
                       double.parse(latLng.longitude.toStringAsFixed(places));
 
-                  for (MiittiActivity activity in _activities) {
+                  for (PersonActivity activity in _activities) {
                     double roundedActivityLatitude = double.parse(
                         activity.activityLati.toStringAsFixed(places));
                     double roundedActivityLong = double.parse(
@@ -298,7 +298,7 @@ class _MapsScreenState extends State<MapsScreen> {
       child: ListView.builder(
         itemCount: _activities.length,
         itemBuilder: (BuildContext context, int index) {
-          MiittiActivity activity = _activities[index];
+          PersonActivity activity = _activities[index];
 
           String activityAddress = activity.activityAdress;
 

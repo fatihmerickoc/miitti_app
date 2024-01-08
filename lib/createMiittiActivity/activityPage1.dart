@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 
@@ -15,8 +15,8 @@ class ActivityPage1 extends StatefulWidget {
     required this.controller,
   }) : super(key: key);
 
-  final MiittiActivity activity;
-  final Function(MiittiActivity) onActivityDataChanged;
+  final PersonActivity activity;
+  final Function(PersonActivity) onActivityDataChanged;
   final PageController controller;
 
   @override

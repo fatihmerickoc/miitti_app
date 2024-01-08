@@ -63,7 +63,7 @@ class Styles {
 List<Activity> activities = [
   Activity(name: 'Sulkapallo', emojiData: '🏸'),
   Activity(name: 'Bailaamaan', emojiData: '🎉'),
-  Activity(name: 'Festarille', emojiData: '💃'),
+  Activity(name: 'Festareille', emojiData: '💃'),
   Activity(name: 'Golf', emojiData: '⛳️'),
   Activity(name: 'Hengailla', emojiData: '💬'),
   Activity(name: 'Jalkapallo', emojiData: '⚽️'),
@@ -143,5 +143,5 @@ final List<String> adminId = [
   '43uacOhSQKOBxXEsEzTucaN7b5B2',
   'PCgz01aA7nbGAQigFsKyFnrHpMF2',
   'cyn5uJdDskdwGaZDvmNtztfxsRm2',
-  'TI4jAfRnjnUWM46zwsL4pYUrF3Z2'
+  'TI4jAfRnjnUWM46zwsL4pYUrF3Z2',
 ];

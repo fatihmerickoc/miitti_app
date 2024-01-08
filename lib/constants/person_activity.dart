@@ -1,23 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/utils/utils.dart';
 
-class MiittiActivity {
-  String activityTitle;
-  String activityDescription;
-  String activityCategory;
-  String admin;
-  String activityUid;
-
-  double activityLong;
-  double activityLati;
-  String activityAdress;
+class PersonActivity extends MiittiActivity {
   Timestamp activityTime;
   bool timeDecidedLater;
-  bool isMoneyRequired;
-
-  int personLimit;
-
-  Set<String> participants;
 
   Set<String> requests;
 
@@ -30,19 +17,19 @@ class MiittiActivity {
         : timestampToString(activityTime);
   }
 
-  MiittiActivity({
-    required this.activityTitle,
-    required this.activityDescription,
-    required this.activityCategory,
-    required this.admin,
-    required this.activityUid,
-    required this.activityLong,
-    required this.activityLati,
-    required this.activityAdress,
+  PersonActivity({
+    required super.activityTitle,
+    required super.activityDescription,
+    required super.activityCategory,
+    required super.admin,
+    required super.activityUid,
+    required super.activityLong,
+    required super.activityLati,
+    required super.activityAdress,
     required this.activityTime,
-    required this.isMoneyRequired,
-    required this.personLimit,
-    required this.participants,
+    required super.isMoneyRequired,
+    required super.personLimit,
+    required super.participants,
     required this.requests,
     required this.adminGender,
     required this.adminAge,
@@ -70,13 +57,13 @@ class MiittiActivity {
     };
   }
 
-  static MiittiActivity fromMap(Map<String, dynamic> map) {
+  static PersonActivity fromMap(Map<String, dynamic> map) {
     var at = map['activityTime'];
 
     if (at is String) {
       at = Timestamp.fromDate(DateTime(2023, 12, 1, 12, 08));
     }
-    return MiittiActivity(
+    return PersonActivity(
       activityTitle: map['activityTitle'],
       activityDescription: map['activityDescription'],
       activityCategory: map['activityCategory'],
