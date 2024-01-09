@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
-import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -19,7 +21,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
   int showAllMiitit = 0;
 
   //All Users
-  List<PersonActivity> _miittiActivities = [];
+  List<MiittiActivity> _miittiActivities = [];
 
   int participantCount = 0;
 
@@ -68,7 +70,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Miitin poistaminen onnistui!'),
+          content: const Text('Miitin poistaminen onnistui!'),
           backgroundColor: Colors.green[600],
         ),
       );
@@ -125,7 +127,7 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
               child: ListView.builder(
                 itemCount: _miittiActivities.length,
                 itemBuilder: (BuildContext context, int index) {
-                  PersonActivity activity = _miittiActivities[index];
+                  MiittiActivity activity = _miittiActivities[index];
 
                   List<String> addressParts =
                       activity.activityAdress.split(',');
@@ -196,11 +198,15 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
                                     () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ActivityDetailsPage(
-                                                  myActivity: activity,
-                                                  comingFromAdmin: true,
-                                                ))),
+                                            builder: (context) => activity
+                                                    is PersonActivity
+                                                ? ActivityDetailsPage(
+                                                    myActivity: activity,
+                                                    comingFromAdmin: true,
+                                                  )
+                                                : ComActDetailsPage(
+                                                    myActivity: activity
+                                                        as CommercialActivity))),
                                   ),
                                   SizedBox(
                                     width: 10.w,

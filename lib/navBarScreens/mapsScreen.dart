@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/mapFilter.dart';
@@ -25,7 +28,7 @@ class MapsScreen extends StatefulWidget {
 class _MapsScreenState extends State<MapsScreen> {
   final Location _location = Location();
 
-  List<PersonActivity> _activities = [];
+  List<MiittiActivity> _activities = [];
 
   CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
@@ -84,7 +87,7 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   void fetchActivities() async {
-    List<PersonActivity> activities =
+    List<MiittiActivity> activities =
         await Provider.of<AuthProvider>(context, listen: false)
             .fetchActivities();
     setState(() {
@@ -95,7 +98,7 @@ class _MapsScreenState extends State<MapsScreen> {
 
   static Future<void> addGeojsonCluster(
     MapboxMapController controller,
-    List<PersonActivity> myActivities,
+    List<MiittiActivity> myActivities,
   ) async {
     final List<Map<String, dynamic>> features = myActivities.map((activity) {
       return {
@@ -182,13 +185,15 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  goToActivityDetailsPage(PersonActivity activity) {
+  goToActivityDetailsPage(MiittiActivity activity) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ActivityDetailsPage(
-          myActivity: activity,
-        ),
+        builder: (context) => activity is PersonActivity
+            ? ActivityDetailsPage(
+                myActivity: activity,
+              )
+            : ComActDetailsPage(myActivity: activity as CommercialActivity),
       ),
     );
   }
@@ -216,7 +221,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   double roundedLong =
                       double.parse(latLng.longitude.toStringAsFixed(places));
 
-                  for (PersonActivity activity in _activities) {
+                  for (MiittiActivity activity in _activities) {
                     double roundedActivityLatitude = double.parse(
                         activity.activityLati.toStringAsFixed(places));
                     double roundedActivityLong = double.parse(
@@ -298,7 +303,7 @@ class _MapsScreenState extends State<MapsScreen> {
       child: ListView.builder(
         itemCount: _activities.length,
         itemBuilder: (BuildContext context, int index) {
-          PersonActivity activity = _activities[index];
+          MiittiActivity activity = _activities[index];
 
           String activityAddress = activity.activityAdress;
 

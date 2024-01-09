@@ -11,6 +11,7 @@ class PersonActivity extends MiittiActivity {
   String adminGender;
   int adminAge;
 
+  @override
   String get timeString {
     return timeDecidedLater
         ? "Sovitaan myöhemmin"
@@ -58,11 +59,6 @@ class PersonActivity extends MiittiActivity {
   }
 
   static PersonActivity fromMap(Map<String, dynamic> map) {
-    var at = map['activityTime'];
-
-    if (at is String) {
-      at = Timestamp.fromDate(DateTime(2023, 12, 1, 12, 08));
-    }
     return PersonActivity(
       activityTitle: map['activityTitle'],
       activityDescription: map['activityDescription'],
@@ -72,7 +68,7 @@ class PersonActivity extends MiittiActivity {
       activityLong: map['activityLong'],
       activityLati: map['activityLati'],
       activityAdress: map['activityAdress'],
-      activityTime: at,
+      activityTime: map['activityTime'],
       isMoneyRequired: map['isMoneyRequired'],
       personLimit: map['personLimit'],
       participants: Set<String>.from(map['participants']),

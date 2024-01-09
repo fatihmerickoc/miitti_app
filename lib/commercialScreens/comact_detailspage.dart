@@ -17,6 +17,7 @@ import 'package:miitti_app/utils/utils.dart';
 
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/miittiUser.dart';
 
@@ -218,7 +219,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                     Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(left: 16.0.w),
+                          padding: EdgeInsets.only(left: 16.0.w, right: 8.0.w),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -233,6 +234,13 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                                   NetworkImage(company.profilePicture),
                               backgroundColor: AppColors.purpleColor,
                               radius: 25.r,
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: Icon(
+                                  Icons.verified,
+                                  color: AppColors.purpleColor,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -298,6 +306,23 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                     Expanded(
                       child: SizedBox(),
                     ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0.w),
+                      child: InkWell(
+                          child: Text(
+                            widget.myActivity.linkTitle,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Rubik',
+                              fontSize: 17.0.sp,
+                              color: AppColors.lightPurpleColor,
+                            ),
+                          ),
+                          onTap: () async {
+                            await launchUrl(
+                                Uri.parse(widget.myActivity.hyperlink));
+                          }),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -331,8 +356,8 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                         ),
                         Text(
                           widget.myActivity.isMoneyRequired
-                              ? 'Sisäänpääsymaksu'
-                              : 'Ei sisäänpääsymaksua',
+                              ? 'Pääsymaksu'
+                              : 'Ei pääsymaksua',
                           style: Styles.sectionSubtitleStyle,
                         ),
                         SizedBox(
@@ -419,8 +444,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
         onPressed: () {
           if (!isAlreadyJoined) {
             joinActivity();
-          }
-          if (isAlreadyJoined) {
+          } else {
             Navigator.push(
               context,
               MaterialPageRoute(

@@ -55,40 +55,57 @@ class Styles {
 
   static TextStyle sectionSubtitleStyle = TextStyle(
     fontFamily: 'Rubik',
-    fontSize: 15.sp,
+    fontSize: 14.sp,
     color: AppColors.whiteColor,
   );
 }
 
 List<Activity> activities = [
-  Activity(name: 'Sulkapallo', emojiData: '🏸'),
-  Activity(name: 'Bailaamaan', emojiData: '🎉'),
+  Activity(name: 'Mailapelit', emojiData: '🏸'),
+  Activity(name: 'Bilettään', emojiData: '🎉'),
   Activity(name: 'Festareille', emojiData: '💃'),
   Activity(name: 'Golf', emojiData: '⛳️'),
-  Activity(name: 'Hengailla', emojiData: '💬'),
-  Activity(name: 'Jalkapallo', emojiData: '⚽️'),
+  Activity(name: 'Hengailemaan', emojiData: '💬'),
+  Activity(name: 'Pallopelit', emojiData: '⚽️'),
   Activity(name: 'Kahville', emojiData: '☕️'),
-  Activity(name: 'Keilaamaan', emojiData: '🎳'),
   Activity(name: 'Konserttiin', emojiData: '🎫'),
-  Activity(name: 'Koripallo', emojiData: '🏀'),
   Activity(name: 'Lasilliselle', emojiData: '🥂'),
   Activity(name: 'Lautapelit', emojiData: '🎲'),
   Activity(name: 'Leffaan', emojiData: '🎥'),
-  Activity(name: 'Lentopallo', emojiData: '🏐'),
   Activity(name: 'Liikkumaan', emojiData: '👟'),
   Activity(name: 'Matkaseuraa', emojiData: '🧳'),
-  Activity(name: 'Museoon', emojiData: '🏛️'),
   Activity(name: 'Opiskelu', emojiData: '📚'),
   Activity(name: 'Pelaamaan', emojiData: '🕹️'),
   Activity(name: 'Pyöräilemään', emojiData: '🚲'),
   Activity(name: 'Seikkailemaan', emojiData: '🚀'),
   Activity(name: 'Skeittamaan', emojiData: '🛹'),
   Activity(name: 'Syömään', emojiData: '🍔'),
-  Activity(name: 'Taidenäyttelyyn', emojiData: '🎨'),
+  Activity(name: 'Näyttelyyn', emojiData: '🏛️'),
   Activity(name: 'Teatteriin', emojiData: '🎭'),
   Activity(name: 'Uimaan', emojiData: '🏊‍♂️'),
   Activity(name: 'Ulkoilemaan', emojiData: '🌳'),
   Activity(name: 'Valokuvaamaan', emojiData: '📸'),
+  Activity(name: 'Laskettelemaan', emojiData: '🏂'),
+  Activity(name: 'Retkeilemään', emojiData: '🏕️'),
+  Activity(name: "Salille", emojiData: '🏋️'),
+  Activity(name: "Jäälle", emojiData: '⛸️'),
+  Activity(name: "Roadtripille", emojiData: '🚘'),
+  Activity(name: "Kiipeilemään", emojiData: '🧗‍♂️'),
+];
+
+List<Activity> commercialActivities = [
+  Activity(name: 'Liikunta', emojiData: '👟'),
+  Activity(name: 'Bileet', emojiData: '🎉'),
+  Activity(name: 'Festivaalit', emojiData: '💃'),
+  Activity(name: 'Konsertti', emojiData: '🎫'),
+  Activity(name: 'Ruoka', emojiData: '🍔'),
+  Activity(name: 'Kahvila', emojiData: '☕️'),
+  Activity(name: 'Taidenäyttely', emojiData: '🎨'),
+  Activity(name: 'Työpaja', emojiData: '🔨'),
+  Activity(name: 'Verkostoituminen', emojiData: '💬'),
+  Activity(name: 'Muu kulttuuritapahtuma', emojiData: '🎭'),
+  Activity(name: 'Muu tapahtuma', emojiData: '🥂'),
+  Activity(name: 'Muu aktiviteetti', emojiData: '🎲'),
 ];
 
 final List<String> questionOrder = [
@@ -112,7 +129,7 @@ final List<String> questionOrder = [
 final List<String> languages = [
   '🇫🇮',
   '🇸🇪',
-  '🇬🇧',
+  '🇪🇳',
 ];
 
 final List<String> cities = [

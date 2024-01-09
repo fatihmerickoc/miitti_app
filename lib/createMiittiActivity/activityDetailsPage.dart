@@ -304,8 +304,8 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         ),
                         Text(
                           widget.myActivity.isMoneyRequired
-                              ? 'Sisäänpääsymaksu'
-                              : 'Ei sisäänpääsymaksua',
+                              ? 'Pääsymaksu'
+                              : 'Ei Pääsymaksua',
                           style: Styles.sectionSubtitleStyle,
                         ),
                         SizedBox(

@@ -5,8 +5,10 @@ import 'package:miitti_app/utils/utils.dart';
 class CommercialActivity extends MiittiActivity {
   Timestamp startTime;
   Timestamp endTime;
+  String linkTitle;
   String hyperlink;
 
+  @override
   String get timeString {
     return "${timestampToString(startTime)} - ${timestampToString(endTime)}";
   }
@@ -25,35 +27,25 @@ class CommercialActivity extends MiittiActivity {
       required super.isMoneyRequired,
       required super.personLimit,
       required super.participants,
-      required this.hyperlink});
+      required this.hyperlink,
+      required this.linkTitle});
 
   static CommercialActivity fromMap(Map<String, dynamic> map) {
-    var st = map['startTime'];
-    var et = map['endTime'];
-
-    if (st is String) {
-      st = Timestamp.fromDate(DateTime(2023, 12, 1, 12, 08));
-    }
-
-    if (et is String) {
-      et = Timestamp.fromDate(DateTime(2023, 12, 1, 12, 08));
-    }
-
     return CommercialActivity(
-      activityTitle: map['activityTitle'],
-      activityDescription: map['activityDescription'],
-      activityCategory: map['activityCategory'],
-      admin: map['admin'],
-      activityUid: map['activityUid'],
-      activityLong: map['activityLong'],
-      activityLati: map['activityLati'],
-      activityAdress: map['activityAdress'],
-      startTime: st,
-      endTime: et,
-      isMoneyRequired: map['isMoneyRequired'],
-      personLimit: map['personLimit'],
-      participants: Set<String>.from(map['participants']),
-      hyperlink: map['hyperLink'],
-    );
+        activityTitle: map['activityTitle'],
+        activityDescription: map['activityDescription'],
+        activityCategory: map['activityCategory'],
+        admin: map['admin'],
+        activityUid: map['activityUid'],
+        activityLong: map['activityLong'],
+        activityLati: map['activityLati'],
+        activityAdress: map['activityAdress'],
+        startTime: map['startTime'] ?? Timestamp.now(),
+        endTime: map['endTime'] ?? Timestamp.now(),
+        isMoneyRequired: map['isMoneyRequired'],
+        personLimit: map['personLimit'],
+        participants: Set<String>.from(map['participants'] ?? []),
+        hyperlink: map['hyperLink'],
+        linkTitle: map['linkTitle']);
   }
 }

@@ -37,7 +37,7 @@ class _OnBoardingScreenInfoState extends State<OnBoardingScreenInfo> {
   final List<String> languages = [
     '🇫🇮',
     '🇸🇪',
-    '🇬🇧',
+    '🇪🇳',
   ];
 
   @override

@@ -4,6 +4,7 @@ class CommercialUser {
   String profilePicture;
   String name;
   String description;
+  String linkTitle;
 
   CommercialUser({
     required this.name,
@@ -11,6 +12,7 @@ class CommercialUser {
     required this.hyperlink,
     required this.businessId,
     required this.description,
+    required this.linkTitle,
   });
 
   factory CommercialUser.fromMap(Map<String, dynamic> map) {
@@ -20,6 +22,7 @@ class CommercialUser {
       hyperlink: map['hyperlink'],
       businessId: map['businessId'],
       description: map['description'],
+      linkTitle: map['linkTitle'],
     );
   }
 }

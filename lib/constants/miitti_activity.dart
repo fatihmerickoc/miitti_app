@@ -27,4 +27,6 @@ abstract class MiittiActivity {
     required this.personLimit,
     required this.participants,
   });
+
+  String get timeString;
 }

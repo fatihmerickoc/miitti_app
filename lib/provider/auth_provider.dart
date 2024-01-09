@@ -15,6 +15,7 @@ import 'package:miitti_app/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/constants/report.dart';
@@ -307,7 +308,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<PersonActivity>> fetchActivities() async {
+  Future<List<MiittiActivity>> fetchActivities() async {
     try {
       FilterSettings filterSettings = FilterSettings();
       await filterSettings.loadPreferences();
@@ -315,7 +316,7 @@ class AuthProvider extends ChangeNotifier {
       QuerySnapshot querySnapshot =
           await _fireStore.collection('activities').get();
 
-      List<PersonActivity> activities = querySnapshot.docs
+      List<MiittiActivity> activities = querySnapshot.docs
           .map((doc) =>
               PersonActivity.fromMap(doc.data() as Map<String, dynamic>))
           .where((activity) {
@@ -345,7 +346,29 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }).toList();
 
-      return activities;
+      QuerySnapshot commercialQuery =
+          await _fireStore.collection('commercialActivities').get();
+
+      List<MiittiActivity> comActivities = commercialQuery.docs
+          .map((doc) =>
+              CommercialActivity.fromMap(doc.data() as Map<String, dynamic>))
+          .where((activity) {
+        if (_miittiUser == null) {
+          print("User is null");
+        } else {
+          print("Checking filters of ${_miittiUser?.userName}");
+          if (daysSince(activity.endTime) < -1) {
+            removeActivity(activity.activityUid);
+            return false;
+          }
+        }
+
+        return true;
+      }).toList();
+
+      List<MiittiActivity> list = List<MiittiActivity>.from(activities);
+      list.addAll(List<MiittiActivity>.from(comActivities));
+      return list;
     } catch (e, s) {
       print('Error fetching activities: $e');
       print(s);
@@ -353,10 +376,15 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<PersonActivity>> fetchUserActivities() async {
+  Future<List<MiittiActivity>> fetchUserActivities() async {
     try {
       QuerySnapshot querySnapshot = await _fireStore
           .collection('activities')
+          .where('participants', arrayContains: uid)
+          .get();
+
+      QuerySnapshot commercialSnapshot = await _fireStore
+          .collection('commercialActivities')
           .where('participants', arrayContains: uid)
           .get();
 
@@ -365,15 +393,21 @@ class AuthProvider extends ChangeNotifier {
           .where('requests', arrayContains: uid)
           .get();
 
-      List<PersonActivity> activities = [];
+      List<PersonActivity> personActivities = [];
+      List<CommercialActivity> commercialActivities = [];
 
       for (var doc in querySnapshot.docs) {
-        activities
+        personActivities
             .add(PersonActivity.fromMap(doc.data() as Map<String, dynamic>));
       }
 
+      for (var doc in commercialSnapshot.docs) {
+        commercialActivities.add(
+            CommercialActivity.fromMap(doc.data() as Map<String, dynamic>));
+      }
+
       for (var doc in requestSnapshot.docs) {
-        activities
+        personActivities
             .add(PersonActivity.fromMap(doc.data() as Map<String, dynamic>));
       }
 
@@ -391,12 +425,14 @@ class AuthProvider extends ChangeNotifier {
           if (activitySnapshot.exists) {
             PersonActivity activity = PersonActivity.fromMap(
                 activitySnapshot.data() as Map<String, dynamic>);
-            activities.add(activity);
+            personActivities.add(activity);
           }
         }
       }
 
-      return activities;
+      List<MiittiActivity> list = List<MiittiActivity>.from(personActivities);
+      list.addAll(List<MiittiActivity>.from(commercialActivities));
+      return list;
     } catch (e) {
       print('Error fetching user activities: $e');
       return [];
@@ -651,8 +687,9 @@ class AuthProvider extends ChangeNotifier {
         .get();
 
     if (snapshot.exists) {
-      final activity =
-          PersonActivity.fromMap(snapshot.data() as Map<String, dynamic>);
+      final activity = commercial
+          ? CommercialActivity.fromMap(snapshot.data() as Map<String, dynamic>)
+          : PersonActivity.fromMap(snapshot.data() as Map<String, dynamic>);
       return activity.participants.contains(uid);
     }
 

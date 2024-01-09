@@ -3,7 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/chatPage.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
@@ -24,7 +28,7 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen> {
   //List of Activities that user has been joined or sended a request to join
-  List<PersonActivity> _myJoinedActivities = [];
+  List<MiittiActivity> _myJoinedActivities = [];
 
   //List of Users that requested to join our activity
   List<Map<String, dynamic>> _otherRequests = [];
@@ -74,7 +78,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget buildActivityItem(
-    PersonActivity activity,
+    MiittiActivity activity,
     bool isAdmin,
     bool isWaiting,
     int index,
@@ -107,10 +111,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ActivityDetailsPage(
-                    myActivity: activity,
-                    didGotInvited: isInvited,
-                  ),
+                  builder: (context) => activity is PersonActivity
+                      ? ActivityDetailsPage(
+                          myActivity: activity,
+                          didGotInvited: isInvited,
+                        )
+                      : ComActDetailsPage(
+                          myActivity: activity as CommercialActivity),
                 ),
               );
             },
@@ -227,6 +234,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             Flexible(
                               child: Text(
                                 activity.timeString,
+                                overflow: TextOverflow.ellipsis,
                                 style: Styles.sectionSubtitleStyle,
                               ),
                             ),
@@ -315,9 +323,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ChatPage(
-                                        activity: activity,
-                                      ),
+                                      builder: (context) =>
+                                          activity is PersonActivity
+                                              ? ChatPage(
+                                                  activity: activity,
+                                                )
+                                              : ComChatPage(
+                                                  activity: activity
+                                                      as CommercialActivity),
                                     ),
                                   );
                                 }
@@ -540,7 +553,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             itemCount: _myJoinedActivities.length,
             itemBuilder: (BuildContext context, int index) {
               //getting the single activity from the list
-              PersonActivity singleActivity = _myJoinedActivities[index];
+              MiittiActivity singleActivity = _myJoinedActivities[index];
 
               final ap = Provider.of<AuthProvider>(context);
               String userId = ap.uid;
@@ -549,11 +562,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
               bool isAdmin = singleActivity.admin == userId;
 
               //checking if the user is in the activity's request list
-              bool isWaiting = singleActivity.requests.contains(userId);
+              bool isWaiting = singleActivity is PersonActivity
+                  ? singleActivity.requests.contains(userId)
+                  : false;
 
               //checking if the user has been invited into other activities
-              bool isInvited = !singleActivity.requests.contains(userId) &&
-                  !singleActivity.participants.contains(userId);
+              bool isInvited = singleActivity is PersonActivity
+                  ? !singleActivity.requests.contains(userId) &&
+                      !singleActivity.participants.contains(userId)
+                  : false;
 
               return buildActivityItem(
                   singleActivity, isAdmin, isWaiting, index, isInvited);

@@ -60,6 +60,14 @@ class MiittiUser {
   }
 
   Map<String, dynamic> toMap() {
+    var ul = userLanguages.toList();
+    if (ul.contains('🇬🇧')) {
+      int index = ul.indexOf('🇬🇧');
+      ul[index] = '🇪🇳';
+    }
+
+    userLanguages = ul.toSet();
+
     return {
       'userName': userName,
       'userEmail': userEmail,
@@ -70,12 +78,20 @@ class MiittiUser {
       'userFavoriteActivities': userFavoriteActivities.toList(),
       'userChoices': userChoices,
       'userGender': userGender,
-      'userLanguages': userLanguages.toList(),
+      'userLanguages': ul,
       'profilePicture': profilePicture,
       'invitedActivities': invitedActivities.toList(),
       'userStatus': userStatus,
       'userSchool': userSchool,
       'fcmToken': fcmToken,
     };
+  }
+
+  Set<String> fixLanguages(List<String> list) {
+    if (list.contains('🇬🇧')) {
+      int index = list.indexOf('🇬🇧');
+      list[index] = '🇪🇳';
+    }
+    return list.toSet();
   }
 }

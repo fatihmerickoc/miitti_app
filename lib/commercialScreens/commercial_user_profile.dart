@@ -10,6 +10,7 @@ import 'package:miitti_app/push_notifications.dart';
 
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CommercialProfileScreen extends StatefulWidget {
   final CommercialUser user;
@@ -113,6 +114,40 @@ class _UserProfileEditScreenState extends State<CommercialProfileScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+          SizedBox(
+            height: 10.h,
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0.w),
+            child: InkWell(
+                child: Text(
+                  widget.user.linkTitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Rubik',
+                    fontSize: 17.0.sp,
+                    color: AppColors.lightPurpleColor,
+                  ),
+                ),
+                onTap: () async {
+                  await launchUrl(Uri.parse(widget.user.hyperlink));
+                }),
+          ),
+          SizedBox(
+            height: 10.h,
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0.w),
+            child: Text(
+              widget.user.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Rubik',
+                fontSize: 17.0.sp,
+                color: AppColors.whiteColor,
+              ),
             ),
           ),
           SizedBox(
