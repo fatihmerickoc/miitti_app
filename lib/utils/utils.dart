@@ -194,8 +194,8 @@ String genderToString(Gender gender) {
 int calculateAge(String birthDateString) {
   // Parse the birth date string into a DateTime object
   List<String> dateParts = birthDateString.split('/');
-  int day = int.parse(dateParts[0]);
-  int month = int.parse(dateParts[1]);
+  int month = int.parse(dateParts[0]);
+  int day = int.parse(dateParts[1]);
   int year = int.parse(dateParts[2]);
   DateTime birthDate = DateTime(year, month, day);
 
@@ -203,7 +203,7 @@ int calculateAge(String birthDateString) {
   Duration difference = DateTime.now().difference(birthDate);
 
   // Calculate the age of the person in years
-  int age = (difference.inDays / 365).floor();
+  int age = difference.inDays ~/ 365;
 
   return age;
 }

@@ -11,9 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
+import 'package:miitti_app/constants/report.dart';
 import 'package:miitti_app/createMiittiActivity/activityPageFinal.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
+import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
+import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -80,6 +83,31 @@ class AuthProvider extends ChangeNotifier {
           await _firebaseAuth.signInWithCredential(phoneAuthCredential);
           _isLoading = false;
           notifyListeners();
+          verifyOtp(
+              context: context,
+              verificationId: phoneAuthCredential.verificationId!,
+              userOtp: phoneAuthCredential.smsCode!,
+              onSuccess: () {
+                checkExistingUser().then((value) async {
+                  if (value == true) {
+                    getDataFromFirestore().then(
+                      (value) => saveUserDataToSP().then(
+                        (value) => setSignIn().then(
+                          (value) => Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => const IndexPage()),
+                              (Route<dynamic> route) => false),
+                        ),
+                      ),
+                    );
+                  } else {
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const OnboardingScreen()),
+                        (Route<dynamic> route) => false);
+                  }
+                });
+              });
           debugPrint("$phoneNumber signed in");
         },
         verificationFailed: (error) {
@@ -222,6 +250,102 @@ class AuthProvider extends ChangeNotifier {
       showSnackBar(context, e.message.toString());
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> reportUser(
+      String message, String reportedId, String senderId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      DocumentSnapshot documentSnapshot =
+          await _fireStore.collection('reportedUsers').doc(reportedId).get();
+
+      Report report;
+      if (documentSnapshot.exists) {
+        report = Report.fromMap(
+            documentSnapshot.data() as Map<String, dynamic>, true);
+        report.reasons.add("$senderId: $message");
+      } else {
+        report = Report(
+          reportedId: reportedId,
+          reasons: ["$senderId: $message"],
+          isUser: true,
+        );
+      }
+      await _fireStore
+          .collection('reportedUsers')
+          .doc(reportedId)
+          .set(report.toMap());
+    } catch (e) {
+      print("Reporting failed: $e");
+    } finally {
+      Timer(const Duration(seconds: 1), () {
+        _isLoading = false;
+        notifyListeners();
+      });
+    }
+  }
+
+  Future<void> reportActivity(
+      String message, String reportedId, String senderId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      DocumentSnapshot documentSnapshot = await _fireStore
+          .collection('reportedActivities')
+          .doc(reportedId)
+          .get();
+
+      Report report;
+      if (documentSnapshot.exists) {
+        report = Report.fromMap(
+            documentSnapshot.data() as Map<String, dynamic>, false);
+        report.reasons.add("$senderId: $message");
+      } else {
+        report = Report(
+          reportedId: reportedId,
+          reasons: ["$senderId: $message"],
+          isUser: false,
+        );
+      }
+      await _fireStore
+          .collection('reportedActivities')
+          .doc(reportedId)
+          .set(report.toMap());
+    } catch (e) {
+      print("Reporting failed: $e");
+    } finally {
+      Timer(const Duration(seconds: 1), () {
+        _isLoading = false;
+        notifyListeners();
+      });
+    }
+  }
+
+  Future<List<MiittiActivity>> fetchReportedActivities() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _fireStore.collection('reportedActivities').get();
+
+      //Create list of miittiactivities by getting reportedId value from each document in querysnapshot
+      //you get activityDoc from firebase from 'activities' collection by using reportedId as doc name
+      //you get MiittiActivity from activity like that: MiittiActivity.fromMap(activityDoc.data() as Map<String, dynamic>))
+
+      List<MiittiActivity> list = [];
+
+      for (QueryDocumentSnapshot report in querySnapshot.docs) {
+        DocumentSnapshot<Map<String, dynamic>> doc =
+            await _fireStore.collection("activities").doc(report.id).get();
+        list.add(MiittiActivity.fromMap(doc.data() as Map<String, dynamic>));
+      }
+
+      return list;
+    } catch (e) {
+      print('Error fetching reported activities: $e');
+      return [];
     }
   }
 
