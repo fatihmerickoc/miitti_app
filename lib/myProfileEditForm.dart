@@ -474,8 +474,10 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                               }));
                     });
                   } else {
-                    showSnackBar(context,
-                        'Varmista, että täytät kaikki tyhjät kohdat ja yritä uudeelleen!');
+                    showSnackBar(
+                        context,
+                        'Varmista, että täytät kaikki tyhjät kohdat ja yritä uudeelleen!',
+                        Colors.red.shade800);
                   }
                 },
                 child: isLoading == true

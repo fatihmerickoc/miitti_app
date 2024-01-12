@@ -83,9 +83,9 @@ class _OnBoardingScreenEmailState extends State<OnBoardingScreenEmail> {
                     );
                   } else {
                     showSnackBar(
-                      context,
-                      'Sähköposti on tyhjä tai se on väärässä muodossa!',
-                    );
+                        context,
+                        'Sähköposti on tyhjä tai se on väärässä muodossa!',
+                        Colors.red.shade800);
                   }
                 },
                 child: Text(

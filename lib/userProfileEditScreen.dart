@@ -6,6 +6,7 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
+import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 
@@ -28,6 +29,8 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
 
   List<Activity> filteredActivities = [];
 
+  String userReportReason = "";
+
   @override
   void initState() {
     super.initState();
@@ -40,8 +43,8 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading =
-        Provider.of<AuthProvider>(context, listen: true).isLoading;
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: true);
+    final isLoading = ap.isLoading;
 
     List<String> answeredQuestions = questionOrder
         .where((question) => widget.user.userChoices.containsKey(question))
@@ -70,49 +73,6 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                     ),
                   ),
                   buildUserStatus(),
-                  GestureDetector(
-                    onTap: () {
-                      TextEditingController controller =
-                          TextEditingController();
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text("Ilmianna käyttäjä: "),
-                          content: TextField(
-                            decoration:
-                                InputDecoration(hintText: "Ilmiantamisen syy"),
-                            controller: controller,
-                          ),
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text("Peruuta")),
-                            TextButton(
-                                onPressed: () {
-                                  AuthProvider ap = Provider.of<AuthProvider>(
-                                      context,
-                                      listen: true);
-
-                                  ap.reportUser(
-                                      controller.text, widget.user.uid, ap.uid);
-
-                                  Navigator.of(context).pop();
-                                  showSnackBar(context, "Käyttäjä ilmiannettu");
-                                },
-                                child: Text("Lähetä"))
-                          ],
-                        ),
-                      );
-                      controller.dispose();
-                    },
-                    child: Icon(
-                      Icons.highlight_off,
-                      size: 30.r,
-                      color: Colors.white,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -175,7 +135,6 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
             height: 210.w,
             child: PageView.builder(
                 itemCount: widget.user.userChoices.length,
-                scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   String question = answeredQuestions[index];
                   String answer = widget.user.userChoices[question]!;
@@ -415,6 +374,84 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                           ),
                   ),
                 ),
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return ConfirmDialog(
+                      title: 'Varmistus',
+                      leftButtonText: 'Ilmianna',
+                      mainText: 'Oletko varma, haluatko ilmianna käyttäjä?',
+                      mainContent: Padding(
+                        padding: EdgeInsets.only(top: 8.0.h),
+                        child: TextFormField(
+                          style: TextStyle(
+                            fontSize: 17.sp,
+                            color: Colors.white,
+                            fontFamily: 'Rubik',
+                          ),
+                          onChanged: (text) {
+                            userReportReason = text;
+                          },
+                          decoration: InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            hintText: 'Ilmiantamisen syy:',
+                            counterStyle: TextStyle(
+                              color: Colors.white,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            hintStyle: TextStyle(
+                              fontSize: 17.sp,
+                              color: Colors.white70,
+                              fontFamily: 'Rubik',
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ).then((confirmed) {
+                  if (confirmed != null &&
+                      confirmed &&
+                      userReportReason != "") {
+                    ap.reportUser(userReportReason, widget.user.uid, ap.uid);
+
+                    Navigator.of(context).pop();
+                    showSnackBar(
+                        context, "Käyttäjä ilmiannettu", Colors.green.shade800);
+                  } else if (userReportReason == "") {
+                    showSnackBar(
+                        context,
+                        "Ilmiantamisen syy ei voi olla tyhjä!",
+                        Colors.red.shade800);
+                  } else {}
+                });
+              },
+              child: Text(
+                "Ilmianna käyttäjä",
+                style: TextStyle(
+                  fontFamily: 'Rubik',
+                  fontSize: 19.sp,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

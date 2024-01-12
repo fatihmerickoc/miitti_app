@@ -218,10 +218,11 @@ class _FilterScreenState extends State<FilterScreen> {
                   if (confirmed != null && confirmed) {
                     print("MERHABA");
                     ap.removeUser(ap.miittiUser.uid).then((value) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Tilisi on poistettu onnistuneesti'),
-                        backgroundColor: Colors.green.shade800,
-                      ));
+                      showSnackBar(
+                        context,
+                        'Tilisi on poistettu onnistuneesti',
+                        Colors.green.shade800,
+                      );
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (context) => HomePage()),
                           (Route<dynamic> route) => false);

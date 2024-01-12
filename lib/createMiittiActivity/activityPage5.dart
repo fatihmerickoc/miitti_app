@@ -147,7 +147,9 @@ class _ActivityPage5State extends State<ActivityPage5> {
                   storeData();
                 } else {
                   showSnackBar(
-                      context, 'Aika ei voi olla tyhjä, yritä uudeelleen');
+                      context,
+                      'Aika ei voi olla tyhjä, yritä uudeelleen',
+                      Colors.red.shade800);
                 }
               },
               child: isLoading

@@ -26,7 +26,8 @@ class _AdminRegistrationState extends State<AdminSignIn> {
         MaterialPageRoute(builder: (context) => AdminHomePage()),
       );
     } else {
-      showSnackBar(context, 'Väärä tunnukset, yritä uudelleen!');
+      showSnackBar(
+          context, 'Väärä tunnukset, yritä uudelleen!', Colors.red.shade800);
     }
   }
 

@@ -81,7 +81,9 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
                       verifyOtp(context, otpCode!);
                     } else {
                       showSnackBar(
-                          context, 'SMS koodi on tyhjä, yritä uudelleen!');
+                          context,
+                          'SMS koodi on tyhjä, yritä uudelleen!',
+                          Colors.red.shade800);
                     }
                   },
                 ),
@@ -95,7 +97,9 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
                     verifyOtp(context, otpCode!);
                   } else {
                     showSnackBar(
-                        context, 'SMS koodi on tyhjä, yritä uudelleen!');
+                        context,
+                        'SMS koodi on tyhjä, yritä uudelleen!',
+                        Colors.red.shade800);
                   }
                 },
                 child: isLoading

@@ -113,7 +113,8 @@ class AuthProvider extends ChangeNotifier {
         verificationFailed: (error) {
           _isLoading = false;
           notifyListeners();
-          showSnackBar(context, "Failed phone verification: $error");
+          showSnackBar(context, "Failed phone verification: $error",
+              Colors.red.shade800);
 
           throw Exception(error.message);
         },
@@ -137,7 +138,8 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       debugPrint("Kirjautuminen epäonnistui: ${e.message} (${e.code})");
-      showSnackBar(context, "Kirjautuminen epäonnistui: ${e.message}");
+      showSnackBar(context, "Kirjautuminen epäonnistui: ${e.message}",
+          Colors.red.shade800);
     }
   }
 
@@ -161,7 +163,8 @@ class AuthProvider extends ChangeNotifier {
       onSuccess();
     } on FirebaseAuthException catch (e) {
       print("Vahvistus epäonnistui: ${e.message} (${e.code})");
-      showSnackBar(context, 'SMS vahvistus epäonnistui ${e.message}');
+      showSnackBar(context, 'SMS vahvistus epäonnistui ${e.message}',
+          Colors.red.shade800);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -206,7 +209,7 @@ class AuthProvider extends ChangeNotifier {
         (error, stackTrace) {},
       );
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString());
+      showSnackBar(context, e.message.toString(), Colors.red.shade800);
       print("Userdata to firebase error: $e");
       _isLoading = false;
       notifyListeners();
@@ -247,7 +250,7 @@ class AuthProvider extends ChangeNotifier {
         (error, stackTrace) {},
       );
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString());
+      showSnackBar(context, e.message.toString(), Colors.red.shade800);
       _isLoading = false;
       notifyListeners();
     }

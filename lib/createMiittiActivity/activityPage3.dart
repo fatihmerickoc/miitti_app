@@ -144,8 +144,10 @@ class _ActivityPage3State extends State<ActivityPage3> {
                     curve: Curves.linear,
                   );
                 } else {
-                  showSnackBar(context,
-                      'Tapaamispaikka ei voi olla tyhjä, yritä uudeelleen');
+                  showSnackBar(
+                      context,
+                      'Tapaamispaikka ei voi olla tyhjä, yritä uudeelleen',
+                      Colors.red.shade800);
                 }
               },
               child: isLoading

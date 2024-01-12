@@ -5,6 +5,7 @@ import 'package:miitti_app/adminPanel/admin_homePage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
+import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class AdminUserInfo extends StatefulWidget {
@@ -108,12 +109,9 @@ class _AdminUserInfoState extends State<AdminUserInfo> {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     await ap.removeUser(widget.user.uid);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Käyttäjän poistaminen onnistui!'),
-          backgroundColor: Colors.green.shade800,
-        ),
-      );
+      showSnackBar(
+          context, 'Käyttäjän poistaminen onnistui!', Colors.green.shade800);
+
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => AdminHomePage()),
           (Route<dynamic> route) => false);

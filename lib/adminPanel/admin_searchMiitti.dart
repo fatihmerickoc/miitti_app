@@ -66,12 +66,8 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
     await ap.removeActivity(activityId);
     showAllMiitit == 0 ? getAllTheActivities() : getReportedActivities();
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Miitin poistaminen onnistui!'),
-          backgroundColor: Colors.green[600],
-        ),
-      );
+      showSnackBar(
+          context, 'Miitin poistaminen onnistui!', Colors.green.shade600);
     }
   }
 

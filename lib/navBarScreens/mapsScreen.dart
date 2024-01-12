@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
 
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -193,8 +194,32 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
+  void _onFeatureTapped({required LatLng coordinates}) {
+    double zoomLevel = controller.cameraPosition!.zoom;
+    int places = getPlaces(zoomLevel);
+
+    double roundedLatitude =
+        double.parse(coordinates.latitude.toStringAsFixed(places));
+    double roundedLong =
+        double.parse(coordinates.longitude.toStringAsFixed(places));
+
+    for (MiittiActivity activity in _activities) {
+      double roundedActivityLatitude =
+          double.parse(activity.activityLati.toStringAsFixed(places));
+      double roundedActivityLong =
+          double.parse(activity.activityLong.toStringAsFixed(places));
+
+      if (roundedActivityLatitude == roundedLatitude &&
+          roundedActivityLong == roundedLong) {
+        goToActivityDetailsPage(activity);
+      }
+    }
+  }
+
   _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
+    controller.onFeatureTapped.add(
+        (id, point, coordinates) => _onFeatureTapped(coordinates: coordinates));
   }
 
   @override
@@ -207,27 +232,8 @@ class _MapsScreenState extends State<MapsScreen> {
                 styleString: MapboxStyles.MAPBOX_STREETS,
                 myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
                 onMapCreated: _onMapCreated,
-                onMapClick: (point, latLng) async {
-                  double zoomLevel = controller.cameraPosition!.zoom;
-                  int places = getPlaces(zoomLevel);
-
-                  double roundedLatitude =
-                      double.parse(latLng.latitude.toStringAsFixed(places));
-                  double roundedLong =
-                      double.parse(latLng.longitude.toStringAsFixed(places));
-
-                  for (MiittiActivity activity in _activities) {
-                    double roundedActivityLatitude = double.parse(
-                        activity.activityLati.toStringAsFixed(places));
-                    double roundedActivityLong = double.parse(
-                        activity.activityLong.toStringAsFixed(places));
-
-                    if (roundedActivityLatitude == roundedLatitude &&
-                        roundedActivityLong == roundedLong) {
-                      goToActivityDetailsPage(activity);
-                    }
-                  }
-                },
+                onMapClick: (point, latLng) =>
+                    _onFeatureTapped(coordinates: latLng),
                 onStyleLoadedCallback: () => fetchActivities(),
                 initialCameraPosition: myCameraPosition,
                 trackCameraPosition: true,

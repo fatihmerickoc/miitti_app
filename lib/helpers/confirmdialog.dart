@@ -5,14 +5,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ConfirmDialog extends StatelessWidget {
   final String title;
   final String mainText;
-  final String? leftButtonText;
-  final String? rightButtonText;
+  final String leftButtonText;
+  final String rightButtonText;
+  final Widget mainContent;
 
   const ConfirmDialog({
     required this.title,
     required this.mainText,
     this.leftButtonText = 'Poista',
     this.rightButtonText = 'Ei',
+    this.mainContent = const SizedBox(),
     Key? key,
   }) : super(key: key);
 
@@ -32,13 +34,20 @@ class ConfirmDialog extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      content: Text(
-        mainText,
-        style: TextStyle(
-          fontFamily: 'Rubik',
-          fontSize: 16.0.sp,
-          color: Colors.white70,
-        ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            mainText,
+            style: TextStyle(
+              fontFamily: 'Rubik',
+              fontSize: 16.0.sp,
+              color: Colors.white70,
+            ),
+          ),
+          mainContent,
+        ],
       ),
       actions: [
         ElevatedButton(

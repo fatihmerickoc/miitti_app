@@ -8,6 +8,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -46,6 +47,8 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   late Future<List<MiittiUser>> filteredUsers;
 
   int participantCount = 0;
+
+  String activityReportReason = "";
 
   @override
   void initState() {
@@ -87,8 +90,8 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading =
-        Provider.of<AuthProvider>(context, listen: true).isLoading;
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: true);
+    final isLoading = ap.isLoading;
 
     return Scaffold(
       body: SafeArea(
@@ -150,66 +153,15 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Image.asset(
-                              'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                              height: 90.h,
-                            ),
-                            Flexible(
-                              child: Text(
-                                widget.myActivity.activityTitle,
-                                style: Styles.sectionTitleStyle,
-                              ),
-                            ),
-                          ],
+                        Image.asset(
+                          'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
+                          height: 90.h,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            TextEditingController controller =
-                                TextEditingController();
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text("Ilmianna käyttäjä: "),
-                                content: TextField(
-                                  decoration: InputDecoration(
-                                      hintText: "Ilmiantamisen syy"),
-                                  controller: controller,
-                                ),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text("Peruuta")),
-                                  TextButton(
-                                      onPressed: () {
-                                        AuthProvider ap =
-                                            Provider.of<AuthProvider>(context,
-                                                listen: true);
-
-                                        ap.reportActivity(
-                                            controller.text,
-                                            widget.myActivity.activityUid,
-                                            ap.uid);
-
-                                        Navigator.of(context).pop();
-                                        showSnackBar(
-                                            context, "Miitti ilmiannettu");
-                                      },
-                                      child: Text("Lähetä"))
-                                ],
-                              ),
-                            );
-                            controller.dispose();
-                          },
-                          child: Icon(
-                            Icons.highlight_off,
-                            size: 30.r,
-                            color: Colors.white,
+                        Flexible(
+                          child: Text(
+                            widget.myActivity.activityTitle,
+                            style: Styles.sectionTitleStyle,
                           ),
                         ),
                       ],
@@ -330,11 +282,100 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             ),
             widget.comingFromAdmin == true
                 ? Container()
-                : getMyButton(isLoading)
+                : getMyButton(isLoading),
+            reportActivity(ap)
           ],
         ),
       ),
     );
+  }
+
+  Widget reportActivity(AuthProvider ap) {
+    if (isAlreadyJoined) {
+      return Center(
+        child: GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ConfirmDialog(
+                  title: 'Varmistus',
+                  leftButtonText: 'Ilmianna',
+                  mainText: 'Oletko varma, haluatko ilmianna aktiviteetti?',
+                  mainContent: Padding(
+                    padding: EdgeInsets.only(top: 8.0.h),
+                    child: TextFormField(
+                      style: TextStyle(
+                        fontSize: 17.sp,
+                        color: Colors.white,
+                        fontFamily: 'Rubik',
+                      ),
+                      onChanged: (text) {
+                        activityReportReason = text;
+                      },
+                      decoration: InputDecoration(
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        hintText: 'Ilmiantamisen syy:',
+                        counterStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(
+                            color: Colors.white,
+                            width: 1.5,
+                          ),
+                        ),
+                        hintStyle: TextStyle(
+                          fontSize: 17.sp,
+                          color: Colors.white70,
+                          fontFamily: 'Rubik',
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ).then(
+              (confirmed) {
+                if (confirmed != null &&
+                    confirmed &&
+                    activityReportReason != "") {
+                  ap.reportActivity(activityReportReason,
+                      widget.myActivity.activityUid, ap.uid);
+
+                  Navigator.of(context).pop();
+                  showSnackBar(context, "Aktiviteetti ilmiannettu",
+                      Colors.green.shade800);
+                } else if (activityReportReason == "") {
+                  showSnackBar(context, "Ilmiantamisen syy ei voi olla tyhjä!",
+                      Colors.red.shade800);
+                } else {}
+              },
+            );
+          },
+          child: Container(
+            margin: EdgeInsets.only(top: 10.h),
+            child: Text(
+              "Ilmianna aktiviteetti",
+              style: TextStyle(
+                fontFamily: 'Rubik',
+                fontSize: 19.sp,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    return Container();
   }
 
   checkIfJoined() async {
