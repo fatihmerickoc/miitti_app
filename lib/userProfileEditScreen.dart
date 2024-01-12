@@ -381,9 +381,10 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return ConfirmDialog(
-                      title: 'Varmistus',
+                      title: 'Vahvistus',
                       leftButtonText: 'Ilmianna',
-                      mainText: 'Oletko varma, haluatko ilmianna käyttäjä?',
+                      mainText:
+                          'Oletko varma, että haluat ilmiantaa käyttäjän?',
                       mainContent: Padding(
                         padding: EdgeInsets.only(top: 8.0.h),
                         child: TextFormField(
@@ -426,20 +427,23 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                     );
                   },
                 ).then((confirmed) {
-                  if (confirmed != null &&
-                      confirmed &&
-                      userReportReason != "") {
-                    ap.reportUser(userReportReason, widget.user.uid, ap.uid);
+                  if (confirmed == null) {
+                    showSnackBar(
+                        context, "Tapahtui virhe!", Colors.red.shade800);
+                  } else if (confirmed) {
+                    if (userReportReason == "") {
+                      showSnackBar(
+                          context,
+                          "Ilmiantamisen syy ei voi olla tyhjä!",
+                          Colors.red.shade800);
+                    } else {
+                      ap.reportUser(userReportReason, widget.user.uid, ap.uid);
 
-                    Navigator.of(context).pop();
-                    showSnackBar(
-                        context, "Käyttäjä ilmiannettu", Colors.green.shade800);
-                  } else if (userReportReason == "") {
-                    showSnackBar(
-                        context,
-                        "Ilmiantamisen syy ei voi olla tyhjä!",
-                        Colors.red.shade800);
-                  } else {}
+                      Navigator.of(context).pop();
+                      showSnackBar(context, "Käyttäjä ilmiannettu",
+                          Colors.green.shade800);
+                    }
+                  }
                 });
               },
               child: Text(

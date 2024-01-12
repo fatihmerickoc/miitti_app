@@ -494,7 +494,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> removeUser(String userId) async {
+  Future<bool> removeUser(String userId) async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -512,12 +512,14 @@ class AuthProvider extends ChangeNotifier {
       SharedPreferences s = await SharedPreferences.getInstance();
       _isSignedIn = false;
       _isLoading = false;
-      s.clear();
+      bool value = await s.clear();
       notifyListeners();
+      return value;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
       print("Error removing user from the app $e");
+      return false;
     }
   }
 

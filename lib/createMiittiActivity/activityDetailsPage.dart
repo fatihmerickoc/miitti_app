@@ -9,6 +9,7 @@ import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiActivity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
+import 'package:miitti_app/navBarScreens/profileScreen.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -187,8 +188,10 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  UserProfileEditScreen(
-                                                      user: user)));
+                                                  ap.miittiUser.uid == user.uid
+                                                      ? ProfileScreen()
+                                                      : UserProfileEditScreen(
+                                                          user: user)));
                                     },
                                     child: CircleAvatar(
                                       backgroundImage:
@@ -256,8 +259,8 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         ),
                         Text(
                           widget.myActivity.isMoneyRequired
-                              ? 'Sisäänpääsymaksu'
-                              : 'Ei sisäänpääsymaksua',
+                              ? 'Pääsymaksu'
+                              : 'Maksuton',
                           style: Styles.sectionSubtitleStyle,
                         ),
                         SizedBox(

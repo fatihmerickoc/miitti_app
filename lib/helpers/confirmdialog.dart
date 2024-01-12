@@ -13,7 +13,7 @@ class ConfirmDialog extends StatelessWidget {
     required this.title,
     required this.mainText,
     this.leftButtonText = 'Poista',
-    this.rightButtonText = 'Ei',
+    this.rightButtonText = 'Peruuta',
     this.mainContent = const SizedBox(),
     Key? key,
   }) : super(key: key);
@@ -84,7 +84,7 @@ class ConfirmDialog extends StatelessWidget {
             ),
           ),
           child: Text(
-            leftButtonText!,
+            leftButtonText,
             style: const TextStyle(
               fontFamily: 'Rubik',
               fontSize: 16.0,
