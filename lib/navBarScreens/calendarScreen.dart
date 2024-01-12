@@ -11,6 +11,7 @@ import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
@@ -121,10 +122,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
               );
             },
-            child: Image.asset(
-              'images/${activity.activityCategory.toLowerCase()}.png',
-              height: 100.h,
-            ),
+            child: Activity.getSymbol(activity),
           ),
           Expanded(
             child: Padding(

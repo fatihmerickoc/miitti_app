@@ -7,28 +7,31 @@ class CommercialActivity extends MiittiActivity {
   Timestamp endTime;
   String linkTitle;
   String hyperlink;
+  String activityPhoto;
 
   @override
   String get timeString {
-    return "${timestampToString(startTime)} - ${timestampToString(endTime)}";
+    return "${timestampToString(startTime)} - ${timestampToString(endTime, justClock: startTime.toDate().day == endTime.toDate().day)}";
   }
 
-  CommercialActivity(
-      {required super.activityTitle,
-      required super.activityDescription,
-      required super.activityCategory,
-      required super.admin,
-      required super.activityUid,
-      required super.activityLong,
-      required super.activityLati,
-      required super.activityAdress,
-      required this.startTime,
-      required this.endTime,
-      required super.isMoneyRequired,
-      required super.personLimit,
-      required super.participants,
-      required this.hyperlink,
-      required this.linkTitle});
+  CommercialActivity({
+    required super.activityTitle,
+    required super.activityDescription,
+    required super.activityCategory,
+    required super.admin,
+    required super.activityUid,
+    required super.activityLong,
+    required super.activityLati,
+    required super.activityAdress,
+    required this.startTime,
+    required this.endTime,
+    required super.isMoneyRequired,
+    required super.personLimit,
+    required super.participants,
+    required this.hyperlink,
+    required this.linkTitle,
+    required this.activityPhoto,
+  });
 
   static CommercialActivity fromMap(Map<String, dynamic> map) {
     return CommercialActivity(
@@ -46,6 +49,7 @@ class CommercialActivity extends MiittiActivity {
         personLimit: map['personLimit'],
         participants: Set<String>.from(map['participants'] ?? []),
         hyperlink: map['hyperLink'],
-        linkTitle: map['linkTitle']);
+        linkTitle: map['linkTitle'],
+        activityPhoto: map['activityPhoto']);
   }
 }

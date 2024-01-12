@@ -8,6 +8,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/person_activity.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -156,7 +157,9 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                           children: [
                             Image.asset(
                               'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                              height: 90.h,
+                              height: 100.h,
+                              errorBuilder: (cpntext, error, stacktrace) =>
+                                  Image.asset('images/circlebackground.png'),
                             ),
                             Flexible(
                               child: Text(

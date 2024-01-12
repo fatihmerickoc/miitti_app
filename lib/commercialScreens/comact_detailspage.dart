@@ -10,6 +10,7 @@ import 'package:miitti_app/commercialScreens/commercial_user_profile.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -158,7 +159,9 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                           children: [
                             Image.asset(
                               'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                              height: 90.h,
+                              height: 100.h,
+                              errorBuilder: (cpntext, error, stacktrace) =>
+                                  Image.asset('images/circlebackground.png'),
                             ),
                             Flexible(
                               child: Text(
@@ -309,14 +312,25 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                     Padding(
                       padding: EdgeInsets.all(8.0.w),
                       child: InkWell(
-                          child: Text(
-                            widget.myActivity.linkTitle,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Rubik',
-                              fontSize: 17.0.sp,
-                              color: AppColors.lightPurpleColor,
-                            ),
+                          child: Row(
+                            children: [
+                              Text(
+                                widget.myActivity.linkTitle,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Rubik',
+                                  fontSize: 17.0.sp,
+                                  color: AppColors.lightPurpleColor,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 8.0.w,
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 17.0.sp,
+                              )
+                            ],
                           ),
                           onTap: () async {
                             await launchUrl(

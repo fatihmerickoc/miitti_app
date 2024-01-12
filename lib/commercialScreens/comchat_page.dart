@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/message_tile.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
@@ -107,11 +108,7 @@ class _ChatPageState extends State<ComChatPage> {
                   ),
                 ),
                 SizedBox(
-                  height: 75.w,
-                  child: Image.asset(
-                    'images/${widget.activity.activityCategory.toLowerCase()}.png',
-                  ),
-                ),
+                    height: 75.w, child: Activity.getSymbol(widget.activity)),
               ],
             ),
             Expanded(child: chatMessages()),

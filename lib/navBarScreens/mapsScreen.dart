@@ -1,7 +1,4 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
-
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
@@ -12,6 +9,7 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/mapFilter.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -105,8 +103,9 @@ class _MapsScreenState extends State<MapsScreen> {
         "type": "Feature",
         "properties": {
           "id": activity.activityUid,
-          'activityCategory':
-              'images/${activity.activityCategory.toLowerCase()}.png',
+          'activityCategory': activity is CommercialActivity
+              ? activity.activityPhoto
+              : 'images/${activity.activityCategory.toLowerCase()}.png',
         },
         "geometry": {
           "type": "Point",
@@ -324,9 +323,19 @@ class _MapsScreenState extends State<MapsScreen> {
               ),
               child: Row(
                 children: [
-                  Image.asset(
-                    'images/${activity.activityCategory.toLowerCase()}.png',
-                    height: 100.h,
+                  Stack(
+                    children: [
+                      Activity.getSymbol(activity),
+                      activity is CommercialActivity
+                          ? Align(
+                              alignment: Alignment.topRight,
+                              child: Icon(
+                                Icons.verified,
+                                color: AppColors.purpleColor,
+                              ),
+                            )
+                          : Container()
+                    ],
                   ),
                   Expanded(
                     child: Column(

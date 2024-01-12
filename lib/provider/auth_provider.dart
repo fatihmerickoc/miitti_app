@@ -78,34 +78,32 @@ class AuthProvider extends ChangeNotifier {
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential phoneAuthCredential) async {
-          await _firebaseAuth.signInWithCredential(phoneAuthCredential);
+          User? user =
+              (await _firebaseAuth.signInWithCredential(phoneAuthCredential))
+                  .user;
+          _uid = user?.uid;
+
+          checkExistingUser().then((value) async {
+            if (value == true) {
+              getDataFromFirestore().then(
+                (value) => saveUserDataToSP().then(
+                  (value) => setSignIn().then(
+                    (value) => Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const IndexPage()),
+                        (Route<dynamic> route) => false),
+                  ),
+                ),
+              );
+            } else {
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const OnboardingScreen()),
+                  (Route<dynamic> route) => false);
+            }
+          });
           _isLoading = false;
           notifyListeners();
-          verifyOtp(
-              context: context,
-              verificationId: phoneAuthCredential.verificationId!,
-              userOtp: phoneAuthCredential.smsCode!,
-              onSuccess: () {
-                checkExistingUser().then((value) async {
-                  if (value == true) {
-                    getDataFromFirestore().then(
-                      (value) => saveUserDataToSP().then(
-                        (value) => setSignIn().then(
-                          (value) => Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (context) => const IndexPage()),
-                              (Route<dynamic> route) => false),
-                        ),
-                      ),
-                    );
-                  } else {
-                    Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => const OnboardingScreen()),
-                        (Route<dynamic> route) => false);
-                  }
-                });
-              });
           debugPrint("$phoneNumber signed in");
         },
         verificationFailed: (error) {
