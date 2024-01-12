@@ -120,6 +120,32 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
 
   void verifyOtp(BuildContext context, String userOtp) {
     final ap = Provider.of<AuthProvider>(context, listen: false);
+
+    if (!ap.userNull && ap.uid.isNotEmpty) {
+      showSnackBar(
+          context, "Koodi vahvistettu automaattisesti", Colors.green.shade600);
+
+      ap.checkExistingUser().then((value) async {
+        if (value == true) {
+          ap.getDataFromFirestore().then(
+                (value) => ap.saveUserDataToSP().then(
+                      (value) => ap.setSignIn().then(
+                            (value) => Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => IndexPage()),
+                                (Route<dynamic> route) => false),
+                          ),
+                    ),
+              );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => OnboardingScreen()),
+              (Route<dynamic> route) => false);
+        }
+      });
+      return;
+    }
+
     ap.verifyOtp(
         context: context,
         verificationId: widget.verificationId,
