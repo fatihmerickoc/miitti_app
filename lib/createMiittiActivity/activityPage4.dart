@@ -108,7 +108,9 @@ class _ActivityPage4State extends State<ActivityPage4> {
                   );
                 } else {
                   showSnackBar(
-                      context, 'Kategoria ei voi olla tyhjä, yritä uudeelleen');
+                      context,
+                      'Kategoria ei voi olla tyhjä, yritä uudeelleen',
+                      Colors.red.shade800);
                 }
               },
               child: Text(

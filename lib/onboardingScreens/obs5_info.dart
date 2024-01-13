@@ -255,8 +255,10 @@ class _OnBoardingScreenInfoState extends State<OnBoardingScreenInfo> {
                         curve: Curves.linear,
                       );
                     } else {
-                      showSnackBar(context,
-                          'Varmista, että täytät kaikki tyhjät kohdat ja yritä uudeelleen!');
+                      showSnackBar(
+                          context,
+                          'Varmista, että täytät kaikki tyhjät kohdat ja yritä uudeelleen!',
+                          Colors.red.shade800);
                     }
                   },
                   child: Text("Seuraava", style: Styles.bodyTextStyle),

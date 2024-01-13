@@ -98,9 +98,9 @@ class _OnBoardingScreenPhoneState extends State<OnBoardingScreenPhone> {
                     sendPhoneNumber();
                   } else {
                     showSnackBar(
-                      context,
-                      'Puhelinnumero ei löydy tai se on väärä!',
-                    );
+                        context,
+                        'Puhelinnumero ei löydy tai se on väärä!',
+                        Colors.red.shade800);
                   }
                 },
                 child: isLoading

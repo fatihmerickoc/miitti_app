@@ -188,9 +188,9 @@ class _OnBoardingScreenActivitiesState
                         (Route<dynamic> route) => false);
                   } else {
                     showSnackBar(
-                      context,
-                      'Valitse vähintään 3 lempiaktiviteettejä, yritä uudeelleen!',
-                    );
+                        context,
+                        'Valitse vähintään 3 lempiaktiviteettejä, yritä uudeelleen!',
+                        Colors.red.shade800);
                   }
                 },
                 child: Text("Seuravaa", style: Styles.bodyTextStyle),

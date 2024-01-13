@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../constants/constants.dart';
@@ -33,7 +33,7 @@ Future<File?> pickImage(BuildContext context) async {
     }
   } catch (e) {
     if (context.mounted) {
-      showSnackBar(context, e.toString());
+      showSnackBar(context, e.toString(), Colors.red.shade800);
     }
   }
 
@@ -66,6 +66,7 @@ Widget getOurTextField({
   int maxLines = 1,
   int minLines = 1,
   double? borderRadius = 50,
+  Color? borderColor = AppColors.purpleColor,
 }) {
   return Padding(
     padding: myPadding,
@@ -90,7 +91,7 @@ Widget getOurTextField({
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius!),
           borderSide: BorderSide(
-            color: AppColors.purpleColor,
+            color: borderColor!,
             width: 1.5,
           ),
         ),
@@ -393,11 +394,11 @@ Widget getMyFloatingButton({required void Function()? onPressed}) {
   );
 }
 
-void showSnackBar(BuildContext context, String content) {
+void showSnackBar(BuildContext context, String content, Color color) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(content),
-      backgroundColor: Colors.red.shade800,
+      backgroundColor: color,
     ),
   );
 }

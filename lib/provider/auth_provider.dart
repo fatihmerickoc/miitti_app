@@ -43,6 +43,7 @@ class AuthProvider extends ChangeNotifier {
 
   String? _uid;
   String get uid => _uid!;
+  bool get userNull => _uid == null;
 
   MiittiUser? _miittiUser;
   MiittiUser get miittiUser => _miittiUser!;
@@ -83,6 +84,9 @@ class AuthProvider extends ChangeNotifier {
                   .user;
           _uid = user?.uid;
 
+          showSnackBar(
+              context, "Koodi saatu automaattisesti!", Colors.green.shade600);
+
           checkExistingUser().then((value) async {
             if (value == true) {
               getDataFromFirestore().then(
@@ -109,7 +113,8 @@ class AuthProvider extends ChangeNotifier {
         verificationFailed: (error) {
           _isLoading = false;
           notifyListeners();
-          showSnackBar(context, "Failed phone verification: $error");
+          showSnackBar(context, "Failed phone verification: $error",
+              Colors.red.shade800);
 
           throw Exception(error.message);
         },
@@ -132,8 +137,9 @@ class AuthProvider extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       _isLoading = false;
       notifyListeners();
-      debugPrint("Kirjautuminen epäonnistui: ${e.message} (${e.code})");
-      showSnackBar(context, "Kirjautuminen epäonnistui: ${e.message}");
+      debugPrint("Kirjautuminen epäonnistui: ${e.message}");
+      showSnackBar(context, "Kirjautuminen epäonnistui: ${e.message}",
+          Colors.red.shade800);
     }
   }
 
@@ -157,15 +163,14 @@ class AuthProvider extends ChangeNotifier {
       onSuccess();
     } on FirebaseAuthException catch (e) {
       print("Vahvistus epäonnistui: ${e.message} (${e.code})");
-      showSnackBar(context, 'SMS vahvistus epäonnistui ${e.message}');
+      showSnackBar(context, 'SMS vahvistus epäonnistui ${e.message}',
+          Colors.red.shade800);
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
-  // #endregion
 
-// #region Report
   Future<void> reportUser(
       String message, String reportedId, String senderId) async {
     try {
@@ -300,7 +305,7 @@ class AuthProvider extends ChangeNotifier {
         (error, stackTrace) {},
       );
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString());
+      showSnackBar(context, e.message.toString(), Colors.red.shade800);
       _isLoading = false;
       notifyListeners();
     }
@@ -884,7 +889,7 @@ class AuthProvider extends ChangeNotifier {
         (error, stackTrace) {},
       );
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString());
+      showSnackBar(context, e.message.toString(), Colors.red.shade800);
       print("Userdata to firebase error: $e");
       _isLoading = false;
       notifyListeners();
@@ -1018,7 +1023,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> removeUser(String userId) async {
+  Future<bool> removeUser(String userId) async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -1036,12 +1041,14 @@ class AuthProvider extends ChangeNotifier {
       SharedPreferences s = await SharedPreferences.getInstance();
       _isSignedIn = false;
       _isLoading = false;
-      s.clear();
+      bool value = await s.clear();
       notifyListeners();
+      return value;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
       print("Error removing user from the app $e");
+      return false;
     }
   }
 

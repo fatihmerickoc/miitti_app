@@ -117,7 +117,9 @@ class _OnBoardingScreenPhotoState extends State<OnBoardingScreenPhoto> {
                     );
                   } else {
                     showSnackBar(
-                        context, 'Kuva ei voi olla tyhjä, yritä uudelleen!');
+                        context,
+                        'Kuva ei voi olla tyhjä, yritä uudelleen!',
+                        Colors.red.shade800);
                   }
                 },
                 child: Text("Seuraava", style: Styles.bodyTextStyle),

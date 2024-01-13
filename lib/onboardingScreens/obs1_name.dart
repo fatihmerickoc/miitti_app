@@ -87,7 +87,9 @@ class _OnBoardingScreenNameState extends State<OnBoardingScreenName> {
                     );
                   } else {
                     showSnackBar(
-                        context, 'Nimi ei voi olla tyhjä, yritä uudeelleen');
+                        context,
+                        'Nimi ei voi olla tyhjä, yritä uudeelleen',
+                        Colors.red.shade800);
                   }
                 },
                 child: Text(

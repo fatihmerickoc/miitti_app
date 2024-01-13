@@ -266,6 +266,7 @@ class _OnBoardingScreenQAState extends State<OnBoardingScreenQA> {
                     showSnackBar(
                       context,
                       'Q&A kortti ei voi olla tyhjä, yritä uudelleen!',
+                      Colors.red.shade800,
                     );
                   }
                 },
