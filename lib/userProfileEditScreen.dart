@@ -553,7 +553,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         return 'Paikalla';
       }
     } else {
-      return 'Paikalla';
+      return 'Epäaktiivinen';
     }
   }
 

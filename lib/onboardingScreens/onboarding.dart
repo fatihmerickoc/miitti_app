@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       userLanguages: {},
       profilePicture: '',
       invitedActivities: {},
-      userStatus: 'Online',
+      userStatus: '',
       userSchool: '',
       fcmToken: '');
 

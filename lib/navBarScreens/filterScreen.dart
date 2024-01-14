@@ -258,7 +258,7 @@ class _FilterScreenState extends State<FilterScreen> {
             Padding(
               padding: EdgeInsets.only(left: 20.w),
               child: Text(
-                '1.1.9',
+                '1.2.6',
                 style: TextStyle(
                   fontSize: 17.sp,
                   color: Colors.white,
