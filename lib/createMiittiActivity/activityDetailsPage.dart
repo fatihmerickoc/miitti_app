@@ -49,8 +49,6 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   int participantCount = 0;
 
-  String activityReportReason = "";
-
   @override
   void initState() {
     super.initState();
@@ -305,62 +303,18 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                   title: 'Varmistus',
                   leftButtonText: 'Ilmianna',
                   mainText: 'Oletko varma, haluatko ilmianna aktiviteetti?',
-                  mainContent: Padding(
-                    padding: EdgeInsets.only(top: 8.0.h),
-                    child: TextFormField(
-                      style: TextStyle(
-                        fontSize: 17.sp,
-                        color: Colors.white,
-                        fontFamily: 'Rubik',
-                      ),
-                      onChanged: (text) {
-                        activityReportReason = text;
-                      },
-                      decoration: InputDecoration(
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        hintText: 'Ilmiantamisen syy:',
-                        counterStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                            width: 1.5,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                            width: 1.5,
-                          ),
-                        ),
-                        hintStyle: TextStyle(
-                          fontSize: 17.sp,
-                          color: Colors.white70,
-                          fontFamily: 'Rubik',
-                        ),
-                      ),
-                    ),
-                  ),
                 );
               },
             ).then(
               (confirmed) {
-                if (confirmed != null &&
-                    confirmed &&
-                    activityReportReason != "") {
-                  ap.reportActivity(activityReportReason,
+                if (confirmed) {
+                  ap.reportActivity('Activity blocked',
                       widget.myActivity.activityUid, ap.uid);
 
                   Navigator.of(context).pop();
                   showSnackBar(context, "Aktiviteetti ilmiannettu",
                       Colors.green.shade800);
-                } else if (activityReportReason == "") {
-                  showSnackBar(context, "Ilmiantamisen syy ei voi olla tyhjä!",
-                      Colors.red.shade800);
-                } else {}
+                }
               },
             );
           },

@@ -139,7 +139,7 @@ final List<String> cities = [
 ];
 
 final List<String> adminId = [
-  'GLaTiyhEYvSBtCdms5zPR7TIlOB3',
+  'I1nASRt60QcQtzPOECyzM3WxxJ33',
   '43uacOhSQKOBxXEsEzTucaN7b5B2',
   'PCgz01aA7nbGAQigFsKyFnrHpMF2',
   'cyn5uJdDskdwGaZDvmNtztfxsRm2',

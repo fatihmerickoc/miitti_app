@@ -157,7 +157,7 @@ class _OnBoardingScreenInfoState extends State<OnBoardingScreenInfo> {
                     children: [
                       buildEmojiButton('👨', Gender.male),
                       buildEmojiButton('👩', Gender.female),
-                      buildEmojiButton('🏳️‍⚧️', Gender.nonBinary),
+                      buildEmojiButton('🌈', Gender.nonBinary),
                     ],
                   ),
                 ),
@@ -179,7 +179,7 @@ class _OnBoardingScreenInfoState extends State<OnBoardingScreenInfo> {
                   ),
                 ),
                 getSections(
-                  title: 'Missä opiskelet',
+                  title: 'Missä opiskelet/työskentelet',
                   subtitle: 'Yliopisto vai kahvilan nurkka?',
                   mainWidget: getOurTextField(
                     myPadding: EdgeInsets.only(right: 10.w),

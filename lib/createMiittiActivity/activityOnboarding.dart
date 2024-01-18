@@ -69,38 +69,8 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: GestureDetector(
-                    onTap: () {
-                      _controller.previousPage(
-                        duration: Duration(
-                          milliseconds: 500,
-                        ),
-                        curve: Curves.linear,
-                      );
-                    },
-                    child: Container(
-                      height: 56.w,
-                      width: 56.w,
-                      margin: EdgeInsets.all(10.w),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.lightRedColor,
-                            AppColors.orangeColor,
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                SizedBox(
+                  height: 70.h,
                 ),
                 SizedBox(
                   height: 700.h,

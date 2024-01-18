@@ -7,14 +7,12 @@ class ConfirmDialog extends StatelessWidget {
   final String mainText;
   final String leftButtonText;
   final String rightButtonText;
-  final Widget mainContent;
 
   const ConfirmDialog({
     required this.title,
     required this.mainText,
     this.leftButtonText = 'Poista',
     this.rightButtonText = 'Peruuta',
-    this.mainContent = const SizedBox(),
     Key? key,
   }) : super(key: key);
 
@@ -34,20 +32,13 @@ class ConfirmDialog extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            mainText,
-            style: TextStyle(
-              fontFamily: 'Rubik',
-              fontSize: 16.0.sp,
-              color: Colors.white70,
-            ),
-          ),
-          mainContent,
-        ],
+      content: Text(
+        mainText,
+        style: TextStyle(
+          fontFamily: 'Rubik',
+          fontSize: 16.0.sp,
+          color: Colors.white70,
+        ),
       ),
       actions: [
         ElevatedButton(

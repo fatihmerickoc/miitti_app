@@ -29,8 +29,6 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
 
   List<Activity> filteredActivities = [];
 
-  String userReportReason = "";
-
   @override
   void initState() {
     super.initState();
@@ -385,64 +383,15 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                       leftButtonText: 'Ilmianna',
                       mainText:
                           'Oletko varma, että haluat ilmiantaa käyttäjän?',
-                      mainContent: Padding(
-                        padding: EdgeInsets.only(top: 8.0.h),
-                        child: TextFormField(
-                          style: TextStyle(
-                            fontSize: 17.sp,
-                            color: Colors.white,
-                            fontFamily: 'Rubik',
-                          ),
-                          onChanged: (text) {
-                            userReportReason = text;
-                          },
-                          decoration: InputDecoration(
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            hintText: 'Ilmiantamisen syy:',
-                            counterStyle: TextStyle(
-                              color: Colors.white,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 1.5,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 1.5,
-                              ),
-                            ),
-                            hintStyle: TextStyle(
-                              fontSize: 17.sp,
-                              color: Colors.white70,
-                              fontFamily: 'Rubik',
-                            ),
-                          ),
-                        ),
-                      ),
                     );
                   },
                 ).then((confirmed) {
-                  if (confirmed == null) {
-                    showSnackBar(
-                        context, "Tapahtui virhe!", Colors.red.shade800);
-                  } else if (confirmed) {
-                    if (userReportReason == "") {
-                      showSnackBar(
-                          context,
-                          "Ilmiantamisen syy ei voi olla tyhjä!",
-                          Colors.red.shade800);
-                    } else {
-                      ap.reportUser(userReportReason, widget.user.uid, ap.uid);
+                  if (confirmed) {
+                    ap.reportUser('User blocked', widget.user.uid, ap.uid);
 
-                      Navigator.of(context).pop();
-                      showSnackBar(context, "Käyttäjä ilmiannettu",
-                          Colors.green.shade800);
-                    }
+                    Navigator.of(context).pop();
+                    showSnackBar(
+                        context, "Käyttäjä ilmiannettu", Colors.green.shade800);
                   }
                 });
               },
@@ -523,7 +472,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         color = Colors.red;
     }
     return Text(
-      '● $status',
+      status.isNotEmpty ? '● $status' : "",
       style: TextStyle(
         color: color,
         fontSize: 15.0.sp,
@@ -534,7 +483,9 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   }
 
   String getUserStatus() {
-    if (widget.user.userStatus.isNotEmpty) {
+    if (widget.user.userStatus.isEmpty || widget.user.userStatus == 'Online') {
+      return '';
+    } else {
       String lastActiveString = widget.user.userStatus;
       DateTime lastActiveDate = DateTime.parse(lastActiveString).toLocal();
       Duration difference = DateTime.now().difference(lastActiveDate);
@@ -552,8 +503,6 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       } else {
         return 'Paikalla';
       }
-    } else {
-      return 'Epäaktiivinen';
     }
   }
 
