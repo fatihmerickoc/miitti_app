@@ -153,68 +153,17 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Image.asset(
-                              'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                              height: 100.h,
-                              errorBuilder: (cpntext, error, stacktrace) =>
-                                  Image.asset('images/circlebackground.png'),
-                            ),
-                            Flexible(
-                              child: Text(
-                                widget.myActivity.activityTitle,
-                                style: Styles.sectionTitleStyle,
-                              ),
-                            ),
-                          ],
+                        Image.asset(
+                          'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
+                          height: 100.h,
+                          errorBuilder: (cpntext, error, stacktrace) =>
+                              Image.asset('images/circlebackground.png'),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            TextEditingController controller =
-                                TextEditingController();
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text("Ilmianna käyttäjä: "),
-                                content: TextField(
-                                  decoration: InputDecoration(
-                                      hintText: "Ilmiantamisen syy"),
-                                  controller: controller,
-                                ),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text("Peruuta")),
-                                  TextButton(
-                                      onPressed: () {
-                                        AuthProvider ap =
-                                            Provider.of<AuthProvider>(context,
-                                                listen: true);
-
-                                        ap.reportActivity(
-                                            controller.text,
-                                            widget.myActivity.activityUid,
-                                            ap.uid);
-
-                                        Navigator.of(context).pop();
-                                        showSnackBar(
-                                            context, "Miitti ilmiannettu");
-                                      },
-                                      child: Text("Lähetä"))
-                                ],
-                              ),
-                            );
-                            controller.dispose();
-                          },
-                          child: Icon(
-                            Icons.highlight_off,
-                            size: 30.r,
-                            color: Colors.white,
+                        Flexible(
+                          child: Text(
+                            widget.myActivity.activityTitle,
+                            style: Styles.sectionTitleStyle,
                           ),
                         ),
                       ],

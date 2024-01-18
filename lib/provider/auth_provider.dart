@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
@@ -171,6 +172,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+// #endregion
+
+// #region Report
+
   Future<void> reportUser(
       String message, String reportedId, String senderId) async {
     try {
@@ -248,10 +253,6 @@ class AuthProvider extends ChangeNotifier {
       QuerySnapshot querySnapshot =
           await _fireStore.collection('reportedActivities').get();
 
-      //Create list of miittiactivities by getting reportedId value from each document in querysnapshot
-      //you get activityDoc from firebase from 'activities' collection by using reportedId as doc name
-      //you get MiittiActivity from activity like that: MiittiActivity.fromMap(activityDoc.data() as Map<String, dynamic>))
-
       List<PersonActivity> list = [];
 
       for (QueryDocumentSnapshot report in querySnapshot.docs) {
@@ -267,6 +268,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+// #endregion
+
+// #region Ads
+  Future<List<AdBanner>> fetchAds() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _fireStore.collection('adBanners').get();
+
+      List<AdBanner> list = querySnapshot.docs
+          .map((doc) => AdBanner.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      return list;
+    } catch (e) {
+      print("Error fetching ads $e");
+      return [];
+    }
+  }
 // #endregion
 
 // #region Activities

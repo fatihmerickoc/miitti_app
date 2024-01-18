@@ -19,10 +19,11 @@ class CommercialProfileScreen extends StatefulWidget {
       {required this.user, this.comingFromAdmin, super.key});
 
   @override
-  State<CommercialProfileScreen> createState() => _UserProfileEditScreenState();
+  State<CommercialProfileScreen> createState() =>
+      _CommercialProfileScreenState();
 }
 
-class _UserProfileEditScreenState extends State<CommercialProfileScreen> {
+class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
   Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
 
   @override

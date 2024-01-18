@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
@@ -27,6 +28,7 @@ class _MapsScreenState extends State<MapsScreen> {
   final Location _location = Location();
 
   List<MiittiActivity> _activities = [];
+  Widget _ad = Container();
 
   CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
@@ -94,6 +96,15 @@ class _MapsScreenState extends State<MapsScreen> {
     addGeojsonCluster(controller, _activities);
   }
 
+  void fetchAd() async {
+    GestureDetector ad = await AdBanner.getBanner(
+        Provider.of<AuthProvider>(context, listen: false));
+    setState(() {
+      _ad = ad;
+    });
+    addGeojsonCluster(controller, _activities);
+  }
+
   static Future<void> addGeojsonCluster(
     MapboxMapController controller,
     List<MiittiActivity> myActivities,
@@ -104,7 +115,7 @@ class _MapsScreenState extends State<MapsScreen> {
         "properties": {
           "id": activity.activityUid,
           'activityCategory': activity is CommercialActivity
-              ? activity.activityPhoto
+              ? 'images/${activity.activityCategory.toLowerCase()}.png'
               : 'images/${activity.activityCategory.toLowerCase()}.png',
         },
         "geometry": {
@@ -305,8 +316,12 @@ class _MapsScreenState extends State<MapsScreen> {
     return Container(
       margin: EdgeInsets.only(top: 60.h),
       child: ListView.builder(
-        itemCount: _activities.length,
+        itemCount: _activities.length + 1,
         itemBuilder: (BuildContext context, int index) {
+          if (index == 1) {
+            return _ad;
+          }
+
           MiittiActivity activity = _activities[index];
 
           String activityAddress = activity.activityAdress;
