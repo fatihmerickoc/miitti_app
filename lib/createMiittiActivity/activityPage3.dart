@@ -8,7 +8,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 
@@ -22,8 +22,8 @@ class ActivityPage3 extends StatefulWidget {
     required this.controller,
   }) : super(key: key);
 
-  final MiittiActivity activity;
-  final Function(MiittiActivity) onActivityDataChanged;
+  final PersonActivity activity;
+  final Function(PersonActivity) onActivityDataChanged;
   final PageController controller;
 
   @override

@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activityPage1.dart';
 import 'package:miitti_app/createMiittiActivity/activityPage2.dart';
 import 'package:miitti_app/createMiittiActivity/activityPage3.dart';
@@ -22,7 +22,7 @@ class ActivityOnboarding extends StatefulWidget {
 class _ActivityOnboardingState extends State<ActivityOnboarding> {
   late PageController _controller;
 
-  MiittiActivity _miittiActivity = MiittiActivity(
+  PersonActivity _miittiActivity = PersonActivity(
     activityTitle: '',
     activityDescription: '',
     activityCategory: '',
@@ -41,7 +41,7 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
     adminGender: '',
   );
 
-  void _updateActivityData(MiittiActivity updatedActivity) {
+  void _updateActivityData(PersonActivity updatedActivity) {
     setState(() {
       _miittiActivity = updatedActivity;
     });

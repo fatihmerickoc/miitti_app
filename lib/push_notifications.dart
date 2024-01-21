@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/main.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -124,7 +125,7 @@ class PushNotifications {
   }
 
   static void sendInviteNotification(
-      MiittiUser current, MiittiUser receiver, MiittiActivity activity) async {
+      MiittiUser current, MiittiUser receiver, PersonActivity activity) async {
     sendNotification(
       receiver.fcmToken,
       "Sait kutsun miittiin!",
@@ -135,7 +136,7 @@ class PushNotifications {
   }
 
   static Future sendRequestNotification(
-      AuthProvider ap, MiittiActivity activity) async {
+      AuthProvider ap, PersonActivity activity) async {
     MiittiUser admin = await ap.getUser(activity.admin);
     sendNotification(
       admin.fcmToken,

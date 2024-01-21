@@ -2,7 +2,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:miitti_app/chatPage.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/index_page.dart';
@@ -45,7 +46,7 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
     switch (payload["type"]) {
       case ("invite"):
         print("Invite clicked ${payload["myData"]}");
-        return FutureBuilder<MiittiActivity>(
+        return FutureBuilder<PersonActivity>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getSingleActivity(payload["myData"]),
             builder: (context, snapshot) {
@@ -75,12 +76,12 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
             });
       case ("accept"):
         print("Invite clicked ${payload["myData"]}");
-        return FutureBuilder<MiittiActivity>(
+        return FutureBuilder<Widget>(
             future: Provider.of<AuthProvider>(context, listen: false)
-                .getSingleActivity(payload["myData"]),
+                .getDetailsPage(payload["myData"]),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return ActivityDetailsPage(myActivity: snapshot.data!);
+                return snapshot.data!;
               } else if (snapshot.hasError) {
                 print("Error: ${snapshot.error}");
                 return const IndexPage();
@@ -90,7 +91,7 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
             });
       case ("message"):
         print("Message clicked ${payload["myData"]}");
-        return FutureBuilder<MiittiActivity>(
+        return FutureBuilder<PersonActivity>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getSingleActivity(payload["myData"]),
             builder: (context, snapshot) {

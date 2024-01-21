@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:miitti_app/chatPage.dart';
+import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/commercialScreens/commercial_user_profile.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/helpers/activity.dart';
-import 'package:miitti_app/helpers/confirmdialog.dart';
-import 'package:miitti_app/navBarScreens/profileScreen.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -18,43 +18,43 @@ import 'package:miitti_app/utils/utils.dart';
 
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/miittiUser.dart';
 
-class ActivityDetailsPage extends StatefulWidget {
+class ComActDetailsPage extends StatefulWidget {
   final bool didGotInvited;
   final bool? comingFromAdmin;
 
-  ActivityDetailsPage({
+  ComActDetailsPage({
     required this.myActivity,
     this.comingFromAdmin,
     this.didGotInvited = false,
     super.key,
   });
 
-  PersonActivity myActivity;
+  CommercialActivity myActivity;
 
   @override
-  State<ActivityDetailsPage> createState() => _ActivityDetailsPageState();
+  State<ComActDetailsPage> createState() => _ActivityDetailsPageState();
 }
 
-class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
+class _ActivityDetailsPageState extends State<ComActDetailsPage> {
   late CameraPosition myCameraPosition;
   late MapboxMapController myController;
 
   bool isAlreadyJoined = false;
 
-  bool isAlreadyRequested = false;
-
   late Future<List<MiittiUser>> filteredUsers;
-
+  late CommercialUser company;
   int participantCount = 0;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
-    checkIfRequested();
     checkIfJoined();
+    company = await Provider.of<AuthProvider>(context, listen: false)
+        .getCommercialUser(widget.myActivity.admin);
     filteredUsers = fetchUsersJoinedActivity();
     fetchUsersJoinedActivity().then((users) {
       setState(() {
@@ -90,8 +90,8 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider ap = Provider.of<AuthProvider>(context, listen: true);
-    final isLoading = ap.isLoading;
+    final isLoading =
+        Provider.of<AuthProvider>(context, listen: true).isLoading;
 
     return Scaffold(
       body: SafeArea(
@@ -154,9 +154,20 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                   children: [
                     Row(
                       children: [
-                        Image.asset(
-                          'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                          height: 90.h,
+                        Padding(
+                          padding: EdgeInsets.all(13.0.h),
+                          child: CircleAvatar(
+                            backgroundColor: AppColors.purpleColor,
+                            radius: 37.r,
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(widget.myActivity.activityPhoto),
+                              radius: 34.r,
+                              onBackgroundImageError: (exception, stackTrace) =>
+                                  AssetImage(
+                                      'images/${widget.myActivity.activityCategory.toLowerCase}.png'),
+                            ),
+                          ),
                         ),
                         Flexible(
                           child: Text(
@@ -166,49 +177,91 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         ),
                       ],
                     ),
-                    FutureBuilder(
-                      future: filteredUsers,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<List<MiittiUser>> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          participantCount = snapshot.data!.length;
-                          return SizedBox(
-                            height: 75.0.h,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                MiittiUser user = snapshot.data![index];
-                                return Padding(
-                                  padding: EdgeInsets.only(left: 16.0.w),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ap.miittiUser.uid == user.uid
-                                                      ? ProfileScreen()
-                                                      : UserProfileEditScreen(
-                                                          user: user)));
-                                    },
-                                    child: CircleAvatar(
-                                      backgroundImage:
-                                          NetworkImage(user.profilePicture),
-                                      backgroundColor: AppColors.purpleColor,
-                                      radius: 25.r,
+                    Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 16.0.w, right: 8.0.w),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          CommercialProfileScreen(
+                                              user: company)));
+                            },
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(company.profilePicture),
+                              backgroundColor: AppColors.purpleColor,
+                              radius: 25.r,
+                              child: const Align(
+                                alignment: Alignment.topRight,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.circle,
+                                      color: AppColors.purpleColor,
+                                      size: 21,
                                     ),
-                                  ),
-                                );
-                              },
+                                    Icon(
+                                      Icons.verified,
+                                      color: AppColors.lightPurpleColor,
+                                      size: 17,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          );
-                        } else {
-                          return CircularProgressIndicator(
-                            color: AppColors.purpleColor,
-                          );
-                        }
-                      },
+                          ),
+                        ),
+                        FutureBuilder(
+                          future: filteredUsers,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<List<MiittiUser>> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              participantCount = snapshot.data!.length;
+                              return SizedBox(
+                                height: 75.0.h,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    MiittiUser user = snapshot.data![index];
+                                    return Padding(
+                                      padding: EdgeInsets.only(left: 16.0.w),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      UserProfileEditScreen(
+                                                          user: user)));
+                                        },
+                                        child: CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(user.profilePicture),
+                                          backgroundColor:
+                                              AppColors.purpleColor,
+                                          radius: 25.r,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            } else {
+                              return CircularProgressIndicator(
+                                color: AppColors.purpleColor,
+                              );
+                            }
+                          },
+                        ),
+                      ],
                     ),
                     Padding(
                       padding: EdgeInsets.all(8.0.w),
@@ -224,6 +277,39 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                     ),
                     Expanded(
                       child: SizedBox(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0.w),
+                      child: InkWell(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.myActivity.linkTitle,
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                  fontFamily: 'Rubik',
+                                  fontSize: 17.0.sp,
+                                  color: AppColors.lightPurpleColor,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 4.0.w,
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 12.0.sp,
+                                color: Colors.white,
+                              )
+                            ],
+                          ),
+                          onTap: () async {
+                            await launchUrl(
+                                Uri.parse(widget.myActivity.hyperlink));
+                          }),
+                    ),
+                    SizedBox(
+                      width: 8.0.w,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -284,63 +370,20 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             ),
             widget.comingFromAdmin == true
                 ? Container()
-                : getMyButton(isLoading),
-            reportActivity(ap)
+                : getMyButton(isLoading)
           ],
         ),
       ),
     );
   }
 
-  Widget reportActivity(AuthProvider ap) {
-    if (isAlreadyJoined) {
-      return Center(
-        child: GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return ConfirmDialog(
-                  title: 'Varmistus',
-                  leftButtonText: 'Ilmianna',
-                  mainText: 'Oletko varma, haluatko ilmianna aktiviteetti?',
-                );
-              },
-            ).then(
-              (confirmed) {
-                if (confirmed) {
-                  ap.reportActivity('Activity blocked',
-                      widget.myActivity.activityUid, ap.uid);
+  void checkIfJoined() async {
+    if (isAlreadyJoined) return;
 
-                  Navigator.of(context).pop();
-                  showSnackBar(context, "Aktiviteetti ilmiannettu",
-                      Colors.green.shade800);
-                }
-              },
-            );
-          },
-          child: Container(
-            margin: EdgeInsets.only(top: 10.h),
-            child: Text(
-              "Ilmianna aktiviteetti",
-              style: TextStyle(
-                fontFamily: 'Rubik',
-                fontSize: 19.sp,
-                color: Colors.red,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-    return Container();
-  }
-
-  checkIfJoined() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     final activityUid = widget.myActivity.activityUid;
 
-    await ap.checkIfUserJoined(activityUid).then((joined) {
+    await ap.checkIfUserJoined(activityUid, commercial: true).then((joined) {
       if (joined) {
         setState(() {
           isAlreadyJoined = true;
@@ -349,31 +392,15 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
     });
   }
 
-  checkIfRequested() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    final activityUid = widget.myActivity.activityUid;
-
-    await ap.checkIfUserRequested(activityUid).then((participated) {
-      if (participated) {
-        setState(() {
-          isAlreadyRequested = true;
-          isAlreadyJoined = false;
-        });
-      } else {
-        setState(() {
-          //   checkIfJoined();
-        });
-      }
-    });
-  }
-
-  void sendActivityRequest() async {
-    if (!isAlreadyRequested) {
+  void joinActivity() async {
+    checkIfJoined();
+    if (!isAlreadyJoined) {
       final ap = Provider.of<AuthProvider>(context, listen: false);
-      await ap.sendActivityRequest(widget.myActivity.activityUid);
-      PushNotifications.sendRequestNotification(ap, widget.myActivity);
+      await ap.joinActivity(widget.myActivity.activityUid);
+      PushNotifications.sendAcceptedNotification(
+          ap.miittiUser, widget.myActivity);
       setState(() {
-        isAlreadyRequested = true;
+        isAlreadyJoined = true;
       });
     }
   }
@@ -403,14 +430,13 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
       return MyElevatedButton(
         height: 50.h,
         onPressed: () {
-          if (!isAlreadyRequested && !isAlreadyJoined) {
-            sendActivityRequest();
-          }
-          if (isAlreadyJoined) {
+          if (!isAlreadyJoined) {
+            joinActivity();
+          } else {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatPage(activity: widget.myActivity),
+                builder: (context) => ComChatPage(activity: widget.myActivity),
               ),
             );
           }
@@ -438,7 +464,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatPage(
+                builder: (context) => ComChatPage(
                   activity: widget.myActivity,
                 ),
               ),
@@ -464,19 +490,13 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   String getButtonText() {
     if (participantCount < widget.myActivity.personLimit) {
-      if (isAlreadyRequested) {
-        return 'Odottaa hyväksyntää';
-      }
       if (isAlreadyJoined) {
-        return 'Siirry keskusteluun';
+        return 'Siirry infokanavalle';
       }
       return 'Osallistun';
     } else {
-      if (isAlreadyRequested) {
-        return 'Odottaa hyväksyntää';
-      }
       if (isAlreadyJoined) {
-        return 'Siirry keskusteluun';
+        return 'Siirry infokanavalle';
       }
       return 'Täynnä';
     }
