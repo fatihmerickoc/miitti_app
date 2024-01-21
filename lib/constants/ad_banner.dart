@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
@@ -9,6 +11,7 @@ import 'package:miitti_app/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdBanner {
+  String uid;
   String image;
   String link;
   Set<String> targetActivities;
@@ -27,10 +30,12 @@ class AdBanner {
     required this.targetMen,
     required this.targetWomen,
     required this.targetNonBinary,
+    required this.uid,
   });
 
   factory AdBanner.fromMap(Map<String, dynamic> map) {
     return AdBanner(
+      uid: map['uid'] ?? '',
       image: map['image'] ?? '',
       link: map['link'] ?? '',
       targetActivities: (map['targetActivities'] as List<dynamic>? ?? [])
@@ -44,89 +49,105 @@ class AdBanner {
     );
   }
 
-  bool targetUser(MiittiUser user) {
-    int age = calculateAge(user.userBirthday);
-    if (age < targetMinAge || age > targetMaxAge) return false;
+  int targetWeight(MiittiUser user) {
+    try {
+      int weight = 0;
+      int age = calculateAge(user.userBirthday);
+      if (age < targetMinAge || age > targetMaxAge) weight += 1;
 
-    if (user.userGender == "Mies" && !targetMen) return false;
-    if (user.userGender == "Nainen" && !targetMen) return false;
-    if (user.userGender == "Ei-binäärinen" && !targetMen) return false;
-
-    bool suitable = false;
-    for (var activity in targetActivities) {
-      if (user.userFavoriteActivities.contains(activity)) suitable = true;
-    }
-
-    return suitable;
-  }
-
-  bool targetCommon(MiittiUser user, MiittiUser another) {
-    return targetUser(user) && targetUser(another);
-  }
-
-  static Future<GestureDetector> getBanner(AuthProvider ap) async {
-    AdBanner? value;
-
-    List<AdBanner> banners = await ap.fetchAds();
-
-    if (banners.isEmpty) {
-      return GestureDetector(
-        onTap: () {},
-        child: Container(),
-      );
-    }
-
-    for (AdBanner b in banners) {
-      if (b.targetUser(ap.miittiUser)) {
-        value = b;
-        break;
+      for (var activity in targetActivities) {
+        if (user.userFavoriteActivities.contains(activity)) weight += 1;
       }
+
+      if (user.userGender == "Mies" && !targetMen) {
+        weight -= 1;
+      } else if (user.userGender == "Nainen" && !targetWomen) {
+        weight -= 1;
+      } else if (user.userGender == "Ei-binäärinen" && !targetNonBinary) {
+        weight -= 1;
+      }
+
+      return weight;
+    } catch (e) {
+      print("Error targeting ad: $e");
+      return 0;
     }
+  }
 
-    value ??= banners[Random().nextInt(banners.length)];
+  /*bool targetCommon(MiittiUser user, MiittiUser another) {
+    return targetUser(user) && targetUser(another);
+  }*/
 
-    return GestureDetector(
-      onTap: () async {
-        await launchUrl(Uri.parse(value!.link));
-      },
-      child: Card(
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.wineColor,
-            border: Border.all(color: AppColors.purpleColor, width: 2.0),
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
+  static List<AdBanner> sortBanners(List<AdBanner> banners, MiittiUser user) {
+    banners.shuffle();
+    banners
+        .sort((a, b) => b.targetWeight(user).compareTo(a.targetWeight(user)));
+    return banners;
+  }
+
+  static getWidget(AdBanner banner) {
+    try {
+      return GestureDetector(
+        onTap: () async {
+          await launchUrl(Uri.parse(banner.link));
+        },
+        child: Card(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
-          child: Stack(
-            children: [
-              Image.network(
-                value.image,
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  height: 20,
-                  width: 80,
-                  alignment: Alignment.bottomRight,
-                  decoration: const BoxDecoration(
-                    color: AppColors.purpleColor,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10)),
-                  ),
-                  child: Text(
-                    "Sponsored",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontFamily: 'Rubik',
-                    ),
+          margin: EdgeInsets.all(10.0.w),
+          child: Container(
+            width: 400.w,
+            decoration: BoxDecoration(
+              color: AppColors.wineColor,
+              border: Border.all(color: AppColors.purpleColor, width: 2.0),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  child: Image.network(
+                    banner.image,
+                    fit: BoxFit.fitWidth,
                   ),
                 ),
-              )
-            ],
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    height: 28,
+                    width: 100,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: AppColors.transparentPurple,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10)),
+                    ),
+                    child: Text(
+                      "Sponsoroitu",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.sp,
+                        fontFamily: 'Rubik',
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      print("Failed getting banner: $e");
+      return GestureDetector(
+        onTap: () {},
+        child: Container(
+          height: 0,
+        ),
+      );
+    }
   }
 }

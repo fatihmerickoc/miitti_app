@@ -280,10 +280,26 @@ class AuthProvider extends ChangeNotifier {
           .map((doc) => AdBanner.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
-      return list;
+      return AdBanner.sortBanners(list, miittiUser);
     } catch (e) {
       print("Error fetching ads $e");
       return [];
+    }
+  }
+
+  Future addAdView(String adUid) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _fireStore.collection('adBanners').doc(adUid).update({
+        'views': FieldValue.increment(1),
+      });
+    } catch (e) {
+      print('Error adding view: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 // #endregion
@@ -380,7 +396,6 @@ class AuthProvider extends ChangeNotifier {
         } else {
           print("Checking filters of ${_miittiUser?.userName}");
           if (daysSince(activity.endTime) < -1) {
-            removeActivity(activity.activityUid);
             return false;
           }
         }

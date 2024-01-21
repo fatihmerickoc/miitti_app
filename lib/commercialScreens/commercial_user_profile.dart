@@ -4,12 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/person_activity.dart';
-import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
-
-import 'package:miitti_app/widgets/myElevatedButton.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CommercialProfileScreen extends StatefulWidget {
@@ -34,9 +28,6 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading =
-        Provider.of<AuthProvider>(context, listen: true).isLoading;
-
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70.h),
@@ -53,7 +44,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                   Text(
                     widget.user.name,
                     style: TextStyle(
-                      fontSize: 30.sp,
+                      fontSize: 24.sp,
                       fontFamily: 'Sora',
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -73,8 +64,8 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             margin: EdgeInsets.symmetric(
-              vertical: 15.h,
-              horizontal: 15.w,
+              vertical: 12.h,
+              horizontal: 12.w,
             ),
             child: Stack(
               children: [
@@ -85,6 +76,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                     height: 400.h,
                     width: 400.w,
                     fit: BoxFit.cover,
+                    filterQuality: FilterQuality.medium,
                   ),
                 ),
                 Positioned(
@@ -123,14 +115,27 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
           Padding(
             padding: EdgeInsets.all(8.0.w),
             child: InkWell(
-                child: Text(
-                  widget.user.linkTitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Rubik',
-                    fontSize: 17.0.sp,
-                    color: AppColors.lightPurpleColor,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.user.linkTitle,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontFamily: 'Rubik',
+                        fontSize: 17.0.sp,
+                        color: AppColors.lightPurpleColor,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 4.0.w,
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 12.0.sp,
+                      color: Colors.white,
+                    )
+                  ],
                 ),
                 onTap: () async {
                   await launchUrl(Uri.parse(widget.user.hyperlink));

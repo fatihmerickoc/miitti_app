@@ -154,11 +154,20 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                   children: [
                     Row(
                       children: [
-                        Image.asset(
-                          'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
-                          height: 100.h,
-                          errorBuilder: (cpntext, error, stacktrace) =>
-                              Image.asset('images/circlebackground.png'),
+                        Padding(
+                          padding: EdgeInsets.all(13.0.h),
+                          child: CircleAvatar(
+                            backgroundColor: AppColors.purpleColor,
+                            radius: 37.r,
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(widget.myActivity.activityPhoto),
+                              radius: 34.r,
+                              onBackgroundImageError: (exception, stackTrace) =>
+                                  AssetImage(
+                                      'images/${widget.myActivity.activityCategory.toLowerCase}.png'),
+                            ),
+                          ),
                         ),
                         Flexible(
                           child: Text(
@@ -186,11 +195,22 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                                   NetworkImage(company.profilePicture),
                               backgroundColor: AppColors.purpleColor,
                               radius: 25.r,
-                              child: Align(
+                              child: const Align(
                                 alignment: Alignment.topRight,
-                                child: Icon(
-                                  Icons.verified,
-                                  color: AppColors.purpleColor,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.circle,
+                                      color: AppColors.purpleColor,
+                                      size: 21,
+                                    ),
+                                    Icon(
+                                      Icons.verified,
+                                      color: AppColors.lightPurpleColor,
+                                      size: 17,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -262,10 +282,11 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                       padding: EdgeInsets.all(8.0.w),
                       child: InkWell(
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 widget.myActivity.linkTitle,
-                                textAlign: TextAlign.center,
+                                textAlign: TextAlign.end,
                                 style: TextStyle(
                                   fontFamily: 'Rubik',
                                   fontSize: 17.0.sp,
@@ -273,11 +294,12 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                                 ),
                               ),
                               SizedBox(
-                                width: 8.0.w,
+                                width: 4.0.w,
                               ),
                               Icon(
                                 Icons.arrow_forward_ios_rounded,
-                                size: 17.0.sp,
+                                size: 12.0.sp,
+                                color: Colors.white,
                               )
                             ],
                           ),
@@ -285,6 +307,9 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                             await launchUrl(
                                 Uri.parse(widget.myActivity.hyperlink));
                           }),
+                    ),
+                    SizedBox(
+                      width: 8.0.w,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +345,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                         Text(
                           widget.myActivity.isMoneyRequired
                               ? 'Pääsymaksu'
-                              : 'Ei pääsymaksua',
+                              : 'Maksuton',
                           style: Styles.sectionSubtitleStyle,
                         ),
                         SizedBox(

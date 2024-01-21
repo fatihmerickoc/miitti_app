@@ -28,11 +28,12 @@ class _MapsScreenState extends State<MapsScreen> {
   final Location _location = Location();
 
   List<MiittiActivity> _activities = [];
-  Widget _ad = Container();
+  List<AdBanner> _ads = [];
 
   CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
     zoom: 12,
+    bearing: 0,
   );
 
   late MapboxMapController controller;
@@ -78,6 +79,8 @@ class _MapsScreenState extends State<MapsScreen> {
     myCameraPosition = CameraPosition(
       target: currentLatLng,
       zoom: 12,
+      tilt: 0,
+      bearing: 0,
     );
 
     if (controller != null) {
@@ -97,12 +100,12 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   void fetchAd() async {
-    GestureDetector ad = await AdBanner.getBanner(
-        Provider.of<AuthProvider>(context, listen: false));
+    AuthProvider provider = Provider.of<AuthProvider>(context, listen: false);
+    List<AdBanner> ad = await provider.fetchAds();
     setState(() {
-      _ad = ad;
+      _ads = ad;
     });
-    addGeojsonCluster(controller, _activities);
+    provider.addAdView(_ads[0].uid);
   }
 
   static Future<void> addGeojsonCluster(
@@ -268,6 +271,9 @@ class _MapsScreenState extends State<MapsScreen> {
                   setState(
                     () {
                       showOnMap = index!;
+                      if (index == 1) {
+                        fetchAd();
+                      }
                     },
                   );
                 },
@@ -319,10 +325,19 @@ class _MapsScreenState extends State<MapsScreen> {
         itemCount: _activities.length + 1,
         itemBuilder: (BuildContext context, int index) {
           if (index == 1) {
-            return _ad;
+            if (_ads.isNotEmpty) {
+              return AdBanner.getWidget(_ads[0]);
+            } else {
+              return GestureDetector(
+                onTap: () {},
+                child: Container(
+                  height: 0,
+                ),
+              );
+            }
           }
 
-          MiittiActivity activity = _activities[index];
+          MiittiActivity activity = _activities[index == 0 ? 0 : index - 1];
 
           String activityAddress = activity.activityAdress;
 
@@ -343,20 +358,7 @@ class _MapsScreenState extends State<MapsScreen> {
               ),
               child: Row(
                 children: [
-                  Stack(
-                    children: [
-                      Activity.getSymbol(activity),
-                      activity is CommercialActivity
-                          ? Align(
-                              alignment: Alignment.topRight,
-                              child: Icon(
-                                Icons.verified,
-                                color: AppColors.purpleColor,
-                              ),
-                            )
-                          : Container()
-                    ],
-                  ),
+                  Activity.getSymbol(activity),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

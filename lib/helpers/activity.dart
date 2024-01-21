@@ -12,23 +12,41 @@ class Activity {
 
   static Widget getSymbol(MiittiActivity activity) {
     return activity is CommercialActivity
-        ? Stack(
-            children: [
-              Image.network(
-                activity.activityPhoto,
-                height: 100.h,
-                width: 100.w,
-                errorBuilder: (cpntext, error, stacktrace) =>
-                    Image.asset('images/circlebackground.png'),
-              ),
-              const Align(
-                alignment: Alignment.topRight,
-                child: Icon(
-                  Icons.verified,
-                  color: AppColors.purpleColor,
+        ? Padding(
+            padding: EdgeInsets.all(13.0.h),
+            child: Stack(
+              children: [
+                CircleAvatar(
+                  backgroundColor: AppColors.purpleColor,
+                  radius: 37.r,
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(activity.activityPhoto),
+                    radius: 34.r,
+                    onBackgroundImageError: (exception, stackTrace) => AssetImage(
+                        'images/${activity.activityCategory.toLowerCase()}.png'),
+                  ),
                 ),
-              )
-            ],
+                const Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        color: AppColors.purpleColor,
+                        size: 25,
+                      ),
+                      Icon(
+                        Icons.verified,
+                        color: AppColors.lightPurpleColor,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           )
         : Image.asset(
             'images/${activity.activityCategory.toLowerCase()}.png',

@@ -17,6 +17,7 @@ class AppColors {
   static const Color lightRedColor = Color(0xFFF36269);
   static const Color pinkColor = Color(0xFFF45087);
   static const Color wineColor = Color(0xFF180B31);
+  static const Color transparentPurple = Color.fromARGB(100, 86, 21, 206);
 }
 
 class Styles {
@@ -62,7 +63,7 @@ class Styles {
 
 List<Activity> activities = [
   Activity(name: 'Mailapeleille', emojiData: '🏸'),
-  Activity(name: 'Bilettään', emojiData: '🎉'),
+  Activity(name: 'Bilettämään', emojiData: '🎉'),
   Activity(name: 'Festareille', emojiData: '💃'),
   Activity(name: 'Golfaamaan', emojiData: '⛳️'),
   Activity(name: 'Hengailemaan', emojiData: '💬'),
@@ -91,6 +92,7 @@ List<Activity> activities = [
   Activity(name: "Luistelemaan", emojiData: '⛸️'),
   Activity(name: "Roadtripille", emojiData: '🚘'),
   Activity(name: "Kiipeilemään", emojiData: '🧗‍♂️'),
+  Activity(name: "Keilaamaan", emojiData: '🎳')
 ];
 
 List<Activity> commercialActivities = [
