@@ -213,10 +213,19 @@ int daysSince(Timestamp timestamp) {
   return timestamp.toDate().difference(DateTime.now()).inDays;
 }
 
-String timestampToString(Timestamp time) {
-  DateTime dateTime = time.toDate();
+String timestampToString(Timestamp time, {bool justClock = false}) {
+  final dateTime = time.toDate();
   print("DATETIME: $dateTime");
-  return "${dateTime.day}.${dateTime.month}. ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+  String clockString =
+      "${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+  if (justClock) return clockString;
+  final now = DateTime.now();
+  final date = DateTime(dateTime.year, dateTime.month, dateTime.day);
+  final today = DateTime(now.year, now.month, now.day);
+  if (date == today) return "Tänään $clockString";
+  final tomorrow = DateTime(now.year, now.month, now.day + 1);
+  if (date == tomorrow) return "Huomenna $clockString";
+  return "${dateTime.day}.${dateTime.month}. $clockString";
 }
 
 bool validatePhoneNumber(String value) {

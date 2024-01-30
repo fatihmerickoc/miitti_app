@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/message_tile.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
@@ -14,16 +15,16 @@ import 'package:provider/provider.dart';
 
 import 'package:intl/intl.dart'; // Add this line for the DateFormat class
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({required this.activity, super.key});
+class ComChatPage extends StatefulWidget {
+  const ComChatPage({required this.activity, super.key});
 
-  final PersonActivity activity;
+  final CommercialActivity activity;
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ComChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ComChatPage> {
   Stream<QuerySnapshot>? chats;
   late TextEditingController messageController;
   late FocusNode messageChatFocus;
@@ -107,11 +108,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
                 SizedBox(
-                  height: 75.w,
-                  child: Image.asset(
-                    'images/${widget.activity.activityCategory.toLowerCase()}.png',
-                  ),
-                ),
+                    height: 75.w, child: Activity.getSymbol(widget.activity)),
               ],
             ),
             Expanded(child: chatMessages()),

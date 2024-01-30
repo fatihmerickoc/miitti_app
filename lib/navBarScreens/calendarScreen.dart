@@ -3,10 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/chatPage.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/push_notifications.dart';
@@ -107,17 +112,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ActivityDetailsPage(
-                    myActivity: activity,
-                    didGotInvited: isInvited,
-                  ),
+                  builder: (context) => activity is PersonActivity
+                      ? ActivityDetailsPage(
+                          myActivity: activity,
+                          didGotInvited: isInvited,
+                        )
+                      : ComActDetailsPage(
+                          myActivity: activity as CommercialActivity),
                 ),
               );
             },
-            child: Image.asset(
-              'images/${activity.activityCategory.toLowerCase()}.png',
-              height: 100.h,
-            ),
+            child: Activity.getSymbol(activity),
           ),
           Expanded(
             child: Padding(
@@ -227,6 +232,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             Flexible(
                               child: Text(
                                 activity.timeString,
+                                overflow: TextOverflow.ellipsis,
                                 style: Styles.sectionSubtitleStyle,
                               ),
                             ),
@@ -315,9 +321,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ChatPage(
-                                        activity: activity,
-                                      ),
+                                      builder: (context) =>
+                                          activity is PersonActivity
+                                              ? ChatPage(
+                                                  activity: activity,
+                                                )
+                                              : ComChatPage(
+                                                  activity: activity
+                                                      as CommercialActivity),
                                     ),
                                   );
                                 }
@@ -347,7 +358,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget buildUserItem(Map<String, dynamic> userData, int index) {
     final ap = Provider.of<AuthProvider>(context);
     final MiittiUser user = userData['user'];
-    final MiittiActivity activity = userData['activity'];
+    final PersonActivity activity = userData['activity'];
     return Container(
       height: 150.h,
       margin: EdgeInsets.all(10.0.w),
@@ -431,7 +442,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           onPressed: () async {
                             bool operationCompleted =
                                 await ap.updateUserJoiningActivity(
-                                    activity.activityUid, user.uid, true);
+                                    activity.activityUid, user.uid, false);
                             if (!operationCompleted) {
                               _otherRequests.removeAt(index);
                               fetchDataFromFirebase().then((value) {
@@ -458,7 +469,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           onPressed: () async {
                             bool operationCompleted =
                                 await ap.updateUserJoiningActivity(
-                                    activity.activityUid, user.uid, false);
+                                    activity.activityUid, user.uid, true);
                             if (operationCompleted) {
                               fetchDataFromFirebase()
                                   .then((value) => buildOtherActivities());
@@ -548,11 +559,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
               bool isAdmin = singleActivity.admin == userId;
 
               //checking if the user is in the activity's request list
-              bool isWaiting = singleActivity.requests.contains(userId);
+              bool isWaiting = singleActivity is PersonActivity
+                  ? singleActivity.requests.contains(userId)
+                  : false;
 
               //checking if the user has been invited into other activities
-              bool isInvited = !singleActivity.requests.contains(userId) &&
-                  !singleActivity.participants.contains(userId);
+              bool isInvited = singleActivity is PersonActivity
+                  ? !singleActivity.requests.contains(userId) &&
+                      !singleActivity.participants.contains(userId)
+                  : false;
 
               return buildActivityItem(
                   singleActivity, isAdmin, isWaiting, index, isInvited);

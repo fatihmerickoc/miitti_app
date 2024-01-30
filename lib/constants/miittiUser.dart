@@ -1,3 +1,7 @@
+import 'package:flutter/services.dart';
+import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/helpers/activity.dart';
+
 class MiittiUser {
   String userEmail;
   String userName;
@@ -42,10 +46,9 @@ class MiittiUser {
       userPhoneNumber: map['userPhoneNumber'] ?? '',
       userBirthday: map['userBirthday'] ?? '',
       userArea: map['userArea'] ?? '',
-      userFavoriteActivities:
+      userFavoriteActivities: resolveActivities(
           (map['userFavoriteActivities'] as List<dynamic>? ?? [])
-              .cast<String>()
-              .toSet(),
+              .cast<String>()),
       userChoices: (map['userChoices'] as Map<String, dynamic>? ?? {})
           .cast<String, String>(),
       userGender: map['userGender'] ?? '', // Updated to single File
@@ -81,5 +84,28 @@ class MiittiUser {
       'fcmToken': fcmToken,
       'userRegistrationDate': userRegistrationDate
     };
+  }
+
+  static Set<String> resolveActivities(List<String> favorites) {
+    Map<String, String> changed = {
+      "Jalkapallo": "Pallopeleille",
+      "Golf": "Golfaamaan",
+      "Festarille": "Festareille",
+      "Sulkapallo": "Mailapeleille",
+      "Hengailla": "Hengailemaan",
+      "Bailaamaan": "Bilettämään",
+      "Museoon": "Näyttelyyn",
+      "Opiskelu": "Opiskelemaan",
+      "Taidenäyttelyyn": "Näyttelyyn",
+      "Koripallo": "Pallopeleille",
+    };
+
+    for (int i = 0; i < favorites.length; i++) {
+      if (changed.keys.contains(favorites[i])) {
+        favorites[i] = changed[favorites[i]]!;
+      }
+    }
+
+    return favorites.toSet();
   }
 }

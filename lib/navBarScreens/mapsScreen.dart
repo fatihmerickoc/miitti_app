@@ -1,15 +1,16 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
-
-import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/constants/ad_banner.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/mapFilter.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -27,10 +28,12 @@ class _MapsScreenState extends State<MapsScreen> {
   final Location _location = Location();
 
   List<MiittiActivity> _activities = [];
+  List<AdBanner> _ads = [];
 
   CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
     zoom: 12,
+    bearing: 0,
   );
 
   late MapboxMapController controller;
@@ -76,6 +79,8 @@ class _MapsScreenState extends State<MapsScreen> {
     myCameraPosition = CameraPosition(
       target: currentLatLng,
       zoom: 12,
+      tilt: 0,
+      bearing: 0,
     );
 
     if (controller != null) {
@@ -94,6 +99,15 @@ class _MapsScreenState extends State<MapsScreen> {
     addGeojsonCluster(controller, _activities);
   }
 
+  void fetchAd() async {
+    AuthProvider provider = Provider.of<AuthProvider>(context, listen: false);
+    List<AdBanner> ad = await provider.fetchAds();
+    setState(() {
+      _ads = ad;
+    });
+    provider.addAdView(_ads[0].uid);
+  }
+
   static Future<void> addGeojsonCluster(
     MapboxMapController controller,
     List<MiittiActivity> myActivities,
@@ -103,8 +117,9 @@ class _MapsScreenState extends State<MapsScreen> {
         "type": "Feature",
         "properties": {
           "id": activity.activityUid,
-          'activityCategory':
-              'images/${activity.activityCategory.toLowerCase()}.png',
+          'activityCategory': activity is CommercialActivity
+              ? 'images/${activity.activityCategory.toLowerCase()}.png'
+              : 'images/${activity.activityCategory.toLowerCase()}.png',
         },
         "geometry": {
           "type": "Point",
@@ -187,9 +202,11 @@ class _MapsScreenState extends State<MapsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ActivityDetailsPage(
-          myActivity: activity,
-        ),
+        builder: (context) => activity is PersonActivity
+            ? ActivityDetailsPage(
+                myActivity: activity,
+              )
+            : ComActDetailsPage(myActivity: activity as CommercialActivity),
       ),
     );
   }
@@ -254,6 +271,9 @@ class _MapsScreenState extends State<MapsScreen> {
                   setState(
                     () {
                       showOnMap = index!;
+                      if (index == 1) {
+                        fetchAd();
+                      }
                     },
                   );
                 },
@@ -302,9 +322,22 @@ class _MapsScreenState extends State<MapsScreen> {
     return Container(
       margin: EdgeInsets.only(top: 60.h),
       child: ListView.builder(
-        itemCount: _activities.length,
+        itemCount: _activities.length + 1,
         itemBuilder: (BuildContext context, int index) {
-          MiittiActivity activity = _activities[index];
+          if (index == 1) {
+            if (_ads.isNotEmpty) {
+              return AdBanner.getWidget(_ads[0]);
+            } else {
+              return GestureDetector(
+                onTap: () {},
+                child: Container(
+                  height: 0,
+                ),
+              );
+            }
+          }
+
+          MiittiActivity activity = _activities[index == 0 ? 0 : index - 1];
 
           String activityAddress = activity.activityAdress;
 
@@ -325,10 +358,7 @@ class _MapsScreenState extends State<MapsScreen> {
               ),
               child: Row(
                 children: [
-                  Image.asset(
-                    'images/${activity.activityCategory.toLowerCase()}.png',
-                    height: 100.h,
-                  ),
+                  Activity.getSymbol(activity),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

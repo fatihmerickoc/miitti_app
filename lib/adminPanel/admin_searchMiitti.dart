@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
-import 'package:miitti_app/constants/miittiUser.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -195,11 +197,15 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
                                     () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ActivityDetailsPage(
-                                                  myActivity: activity,
-                                                  comingFromAdmin: true,
-                                                ))),
+                                            builder: (context) => activity
+                                                    is PersonActivity
+                                                ? ActivityDetailsPage(
+                                                    myActivity: activity,
+                                                    comingFromAdmin: true,
+                                                  )
+                                                : ComActDetailsPage(
+                                                    myActivity: activity
+                                                        as CommercialActivity))),
                                   ),
                                   SizedBox(
                                     width: 10.w,

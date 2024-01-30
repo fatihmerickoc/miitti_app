@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miittiActivity.dart';
+import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
@@ -392,7 +392,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
 
   Future<void> inviteToYourActivity() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    List<MiittiActivity> myActivities = await ap.fetchAdminActivities();
+    List<PersonActivity> myActivities = await ap.fetchAdminActivities();
 
     if (myActivities.isNotEmpty) {
       if (myActivities.length == 1 &&
@@ -486,7 +486,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     }
   }
 
-  Widget createSelectBetweenActivitesDialog(List<MiittiActivity> myActivities) {
+  Widget createSelectBetweenActivitesDialog(List<PersonActivity> myActivities) {
     final ap = Provider.of<AuthProvider>(context, listen: false);
 
     return AlertDialog(
@@ -514,7 +514,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
               child: ListView.builder(
                 itemCount: myActivities.length,
                 itemBuilder: (context, index) {
-                  MiittiActivity activity = myActivities[index];
+                  PersonActivity activity = myActivities[index];
                   return ListTile(
                     leading: Image.asset(
                       'images/${activity.activityCategory.toLowerCase()}.png',
