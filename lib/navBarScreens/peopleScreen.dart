@@ -84,7 +84,6 @@ class _PeopleScreenState extends State<PeopleScreen> {
           style: TextStyle(
             fontSize: 20.sp,
             color: Colors.white,
-            fontWeight: FontWeight.bold,
             fontFamily: 'Rubik',
           ),
         ),

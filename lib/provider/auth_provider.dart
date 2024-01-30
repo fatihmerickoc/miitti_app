@@ -495,51 +495,82 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> removeUser(String userId) async {
-    _isLoading = true;
-    notifyListeners();
     try {
-      await _fireStore
-          .collection('users')
-          .doc(userId)
-          .delete()
-          .then((value) {});
+      _isLoading = true;
+      notifyListeners();
 
-      if (!adminId.contains(_firebaseAuth.currentUser!.uid) &&
-          _firebaseAuth.currentUser!.uid.isNotEmpty) {
+      if (!adminId.contains(_uid!) && _uid!.isNotEmpty) {
+        await removeAdminActivities();
+        await _fireStore.collection('users').doc(userId).delete();
         await _firebaseAuth.currentUser?.delete();
+
+        SharedPreferences s = await SharedPreferences.getInstance();
+        _isSignedIn = false;
+        _isLoading = false;
+        bool value = await s.clear();
+
+        notifyListeners();
+        return value;
       }
 
-      SharedPreferences s = await SharedPreferences.getInstance();
-      _isSignedIn = false;
       _isLoading = false;
-      bool value = await s.clear();
       notifyListeners();
-      return value;
+      return false;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      print("Error removing user from the app $e");
+      print("Error removing user from the app $e");
       return false;
     }
   }
 
+  Future removeAdminActivities() async {
+    try {
+      List<MiittiActivity> removedUserAdminActivities =
+          await fetchAdminActivities();
+
+      for (MiittiActivity singleActivity in removedUserAdminActivities) {
+        await removeActivity(singleActivity.activityUid);
+      }
+    } catch (e) {
+      print('Error removing admin activities: $e');
+    }
+  }
+
   Future removeActivity(String activityId) async {
-    _isLoading = true;
-    notifyListeners();
     try {
       await _fireStore
           .collection('activities')
           .doc(activityId)
           .delete()
           .then((value) => print("Activity Removed!"));
-
-      _isLoading = false;
-      notifyListeners();
     } catch (e) {
+      print('Error deleting activity: $e');
+    } finally {
       _isLoading = false;
       notifyListeners();
-      print('Error deleteing  activity: $e');
+    }
+  }
+
+  Future<List<MiittiActivity>> fetchAdminActivities() async {
+    try {
+      QuerySnapshot querySnapshot = await _fireStore
+          .collection('activities')
+          .where('admin', isEqualTo: uid)
+          .get();
+
+      List<MiittiActivity> activities = querySnapshot.docs
+          .map((doc) =>
+              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      return activities;
+    } catch (e) {
+      print('Error fetching user activities: $e');
       return [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -568,32 +599,6 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       print('Error removing user from activity: $e');
-    }
-  }
-
-  Future<List<MiittiActivity>> fetchAdminActivities() async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      QuerySnapshot querySnapshot = await _fireStore
-          .collection('activities')
-          .where('admin', isEqualTo: uid)
-          .get();
-
-      List<MiittiActivity> activities = querySnapshot.docs
-          .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
-
-      _isLoading = false;
-      notifyListeners();
-
-      return activities;
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print('Error fetching user activities: $e');
-      return [];
     }
   }
 
@@ -893,7 +898,6 @@ class AuthProvider extends ChangeNotifier {
     SharedPreferences s = await SharedPreferences.getInstance();
     String data = s.getString('user_model') ?? '';
     _miittiUser = MiittiUser.fromMap(jsonDecode(data));
-    print("UG: ${_miittiUser?.userGender}");
     _uid = _miittiUser!.uid;
     notifyListeners();
   }
@@ -927,7 +931,8 @@ class AuthProvider extends ChangeNotifier {
               .toSet(),
           userStatus: snapshot['userStatus'],
           userSchool: snapshot['userSchool'],
-          fcmToken: snapshot['fcmToken']);
+          fcmToken: snapshot['fcmToken'],
+          userRegistrationDate: snapshot['userRegistrationDate']);
       _uid = _miittiUser!.uid;
     }).onError((error, stackTrace) {
       print('ERROR: ${error.toString()}');

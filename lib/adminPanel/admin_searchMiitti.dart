@@ -31,8 +31,11 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
 
   //Fetching all the users from Google Firebase and assigning the list with them
   Future<void> getAllTheActivities() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    _miittiActivities = await ap.fetchActivities();
+    List<MiittiActivity> activities =
+        await Provider.of<AuthProvider>(context, listen: false)
+            .fetchActivities();
+
+    _miittiActivities = activities.reversed.toList();
     setState(() {});
   }
 

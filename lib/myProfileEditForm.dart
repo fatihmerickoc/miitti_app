@@ -81,7 +81,7 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
       if (favoriteActivities.contains(activity)) {
         favoriteActivities.remove(activity);
       } else {
-        if (favoriteActivities.length < 5) {
+        if (favoriteActivities.length < 9) {
           favoriteActivities.add(activity);
         }
       }
@@ -295,143 +295,85 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                 textTitle: 'Esittele itsesi',
                 textSubtitle:
                     'Valitse 1-5 Q&A korttia, joiden avulla voit kertoa itsestäsi enemmän',
-                inputWidget: userChoices.isNotEmpty
-                    ? SizedBox(
-                        height: 200.w,
-                        child: PageView.builder(
-                          itemCount: userChoices.length,
-                          itemBuilder: (context, index) {
-                            String question = answeredQuestions[index];
-                            String answer = userChoices[question]!;
+                inputWidget: SizedBox(
+                  height: 200.w,
+                  child: PageView.builder(
+                    itemCount: userChoices.length,
+                    itemBuilder: (context, index) {
+                      String question = answeredQuestions[index];
+                      String answer = userChoices[question]!;
 
-                            return Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              elevation: 5.0,
-                              child: Container(
-                                padding: EdgeInsets.all(15.w),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      question,
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: AppColors.purpleColor,
-                                        fontSize: 22.0.sp,
-                                        fontFamily: 'Sora',
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 8.h,
-                                    ),
-                                    Text(
-                                      answer,
-                                      maxLines: 4,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 22.sp,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Rubik',
-                                      ),
-                                    ),
-                                  ],
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 5.0,
+                        child: Container(
+                          padding: EdgeInsets.all(15.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                question,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppColors.purpleColor,
+                                  fontSize: 22.0.sp,
+                                  fontFamily: 'Sora',
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      )
-                    : Container(
-                        height: 200.w,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.lightRedColor,
-                              AppColors.orangeColor,
+                              SizedBox(
+                                height: 8.h,
+                              ),
+                              Text(
+                                answer,
+                                maxLines: 4,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 22.sp,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Rubik',
+                                ),
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10.0),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                secondWidget: Center(
+                  child: MyElevatedButton(
+                    width: 225.w,
+                    height: 45.w,
+                    onPressed: () async {
+                      Map<String, String>? result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => QuestionAnswer(
+                            recievedData: userChoices,
                           ),
                         ),
-                        child: Center(
-                          child: GestureDetector(
-                            onTap: () async {
-                              Map<String, String>? result =
-                                  await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => QuestionAnswer(
-                                    recievedData: null,
-                                  ),
-                                ),
-                              );
-                              if (result != null) {
-                                setState(
-                                  () {
-                                    userChoices = result;
-                                  },
-                                );
-                              }
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(10.w),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    AppColors.orangeColor,
-                                    AppColors.lightRedColor,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(50.0),
-                              ),
-                              child: Icon(
-                                Icons.add,
-                                size: 35.sp,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                secondWidget: userChoices.isNotEmpty
-                    ? Center(
-                        child: MyElevatedButton(
-                          width: 225.w,
-                          height: 45.w,
-                          onPressed: () async {
-                            Map<String, String>? result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => QuestionAnswer(
-                                  recievedData: userChoices,
-                                ),
-                              ),
-                            );
-                            if (result != null) {
-                              setState(
-                                () {
-                                  userChoices = result;
-                                },
-                              );
-                            }
+                      );
+                      if (result != null) {
+                        setState(
+                          () {
+                            userChoices = result;
                           },
-                          child: Text(
-                            "+ Lisää uusi Q&A",
-                            style: TextStyle(
-                              fontSize: 17.0.sp,
-                              fontFamily: 'Rubik',
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container(),
+                        );
+                      }
+                    },
+                    child: Text(
+                      "+ Lisää uusi Q&A",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontFamily: 'Rubik',
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
               ),
               MyElevatedButton(
                 onPressed: () async {
@@ -444,23 +386,25 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                     _formKey.currentState!.save();
 
                     final updatedUser = MiittiUser(
-                        userName: ap.miittiUser.userName,
-                        userEmail: ap.miittiUser.userEmail,
-                        uid: ap.miittiUser.uid,
-                        userPhoneNumber: ap.miittiUser.userPhoneNumber,
-                        userBirthday: ap.miittiUser.userBirthday,
-                        userArea: userAreaController.text.trim(),
-                        userFavoriteActivities: favoriteActivities
-                            .map((activity) => activity.name)
-                            .toSet(),
-                        userChoices: userChoices,
-                        userGender: ap.miittiUser.userGender,
-                        profilePicture: ap.miittiUser.profilePicture,
-                        userLanguages: selectedLanguages,
-                        invitedActivities: ap.miittiUser.invitedActivities,
-                        userStatus: ap.miittiUser.userStatus,
-                        userSchool: userSchoolController.text,
-                        fcmToken: ap.miittiUser.fcmToken);
+                      userName: ap.miittiUser.userName,
+                      userEmail: ap.miittiUser.userEmail,
+                      uid: ap.miittiUser.uid,
+                      userPhoneNumber: ap.miittiUser.userPhoneNumber,
+                      userBirthday: ap.miittiUser.userBirthday,
+                      userArea: userAreaController.text.trim(),
+                      userFavoriteActivities: favoriteActivities
+                          .map((activity) => activity.name)
+                          .toSet(),
+                      userChoices: userChoices,
+                      userGender: ap.miittiUser.userGender,
+                      profilePicture: ap.miittiUser.profilePicture,
+                      userLanguages: selectedLanguages,
+                      invitedActivities: ap.miittiUser.invitedActivities,
+                      userStatus: ap.miittiUser.userStatus,
+                      userSchool: userSchoolController.text,
+                      fcmToken: ap.miittiUser.fcmToken,
+                      userRegistrationDate: ap.miittiUser.userRegistrationDate,
+                    );
                     await ap.updateUserInfo(updatedUser, image).then((value) {
                       ap
                           .saveUserDataToSP()

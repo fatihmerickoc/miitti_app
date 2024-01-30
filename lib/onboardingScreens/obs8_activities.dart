@@ -50,7 +50,7 @@ class _OnBoardingScreenActivitiesState
       if (favoriteActivities.contains(activity)) {
         favoriteActivities.remove(activity);
       } else {
-        if (favoriteActivities.length < 5) {
+        if (favoriteActivities.length < 9) {
           favoriteActivities.add(activity);
         }
       }

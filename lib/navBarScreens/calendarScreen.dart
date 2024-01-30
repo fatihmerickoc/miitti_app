@@ -412,7 +412,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     children: [
                       Flexible(
                         child: Text(
-                          '${user.userName} haluaa liittyä aktiviteettiin',
+                          '${user.userName} haluaa liittyä miittiisi',
                           style: TextStyle(
                             fontFamily: 'Rubik',
                             fontSize: 16.sp,
@@ -527,7 +527,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 fontSize: 22.sp,
                 fontFamily: 'Sora',
                 color: AppColors.whiteColor,
-                fontWeight: FontWeight.bold,
               ),
             ),
           );
@@ -568,7 +567,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 fontSize: 22.sp,
                 fontFamily: 'Sora',
                 color: AppColors.whiteColor,
-                fontWeight: FontWeight.bold,
               ),
             ),
           );

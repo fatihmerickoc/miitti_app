@@ -239,12 +239,10 @@ class _OnBoardingScreenInfoState extends State<OnBoardingScreenInfo> {
                 MyElevatedButton(
                   onPressed: () {
                     if (myAlueController.text.trim().isNotEmpty &&
-                        mySchoolController.text.trim().isNotEmpty &&
                         birthDayController.text.isNotEmpty &&
                         selectedLanguages.isNotEmpty) {
                       widget.user.userBirthday = birthDayController.text;
                       widget.user.userArea = myAlueController.text.trim();
-                      widget.user.userSchool = mySchoolController.text;
                       widget.user.userGender = genderToString(selectedGender);
                       widget.user.userLanguages = selectedLanguages;
 

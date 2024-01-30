@@ -14,6 +14,7 @@ class MiittiUser {
   String userStatus;
   String userSchool;
   String fcmToken;
+  String userRegistrationDate;
 
   MiittiUser(
       {required this.userName,
@@ -30,7 +31,8 @@ class MiittiUser {
       required this.invitedActivities,
       required this.userStatus,
       required this.userSchool,
-      required this.fcmToken});
+      required this.fcmToken,
+      required this.userRegistrationDate});
 
   factory MiittiUser.fromMap(Map<String, dynamic> map) {
     return MiittiUser(
@@ -56,6 +58,7 @@ class MiittiUser {
       userStatus: map['userStatus'] ?? '',
       userSchool: map['userSchool'] ?? '',
       fcmToken: map['fcmToken'] ?? '',
+      userRegistrationDate: map['userRegistrationDate'] ?? '',
     );
   }
 
@@ -76,6 +79,7 @@ class MiittiUser {
       'userStatus': userStatus,
       'userSchool': userSchool,
       'fcmToken': fcmToken,
+      'userRegistrationDate': userRegistrationDate
     };
   }
 }

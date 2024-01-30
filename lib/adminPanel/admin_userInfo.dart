@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:miitti_app/adminPanel/admin_homePage.dart';
@@ -56,10 +57,15 @@ class _AdminUserInfoState extends State<AdminUserInfo> {
           ),
         ),
         trailing: isCopy
-            ? Icon(
-                Icons.copy,
-                size: 20.sp,
-                color: Colors.white,
+            ? IconButton(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: mainText));
+                },
+                icon: Icon(
+                  Icons.copy,
+                  size: 20.sp,
+                  color: Colors.white,
+                ),
               )
             : null,
       ),
@@ -82,40 +88,6 @@ class _AdminUserInfoState extends State<AdminUserInfo> {
         ],
       ),
     );
-  }
-
-  Widget getListTileButton(Color mainColor, String text, Function() onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        padding: EdgeInsets.all(15.w),
-        margin: EdgeInsets.only(bottom: 20.h),
-        decoration: BoxDecoration(
-          color: mainColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> deleteUser() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    await ap.removeUser(widget.user.uid);
-    if (context.mounted) {
-      showSnackBar(
-          context, 'Käyttäjän poistaminen onnistui!', Colors.green.shade800);
-
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => AdminHomePage()),
-          (Route<dynamic> route) => false);
-    }
   }
 
   @override
@@ -163,15 +135,12 @@ class _AdminUserInfoState extends State<AdminUserInfo> {
                   'Sähköposti', widget.user.userEmail, context, true),
               createPurpleBox(
                   'Puhelinnumero', widget.user.userPhoneNumber, context, true),
-              getRichText('Ollut viimeksi aktiivisena:  ', userLastOpenDate),
+              getRichText('Ollut viimeksi aktiivisena:   ', userLastOpenDate),
               SizedBox(height: 5.h),
-              getRichText('Käytössä oleva sovellusversio:  ', '1.9'),
-              const Expanded(child: SizedBox()),
-              getListTileButton(
-                AppColors.lightRedColor,
-                'Poista käyttäjätili',
-                () => deleteUser(),
-              ),
+              getRichText(
+                  'Profiili luotu:  ', widget.user.userRegistrationDate),
+              SizedBox(height: 5.h),
+              getRichText('Käytössä oleva sovellusversio:  ', '1.2.8'),
             ],
           ),
         ),

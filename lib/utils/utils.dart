@@ -264,15 +264,24 @@ void pickBirthdayDate({
       context: context,
       builder: (context) {
         return Container(
-          height: 200,
-          color: CupertinoColors.white,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            initialDateTime: eighteenYearsAgo,
-            maximumDate: eighteenYearsAgo,
-            onDateTimeChanged: onDateTimeChanged,
-          ),
-        );
+            height: 200.h,
+            color: CupertinoColors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Done')),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: DateTime(2000, 10, 16),
+                    maximumDate: eighteenYearsAgo,
+                    onDateTimeChanged: onDateTimeChanged,
+                  ),
+                ),
+              ],
+            ));
       },
     );
   } else {

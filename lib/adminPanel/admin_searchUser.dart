@@ -42,8 +42,10 @@ class _AdminSearchUserState extends State<AdminSearchUser> {
 
   //Fetching all the users from Google Firebase and assigning the list with them
   Future<void> getAllTheUsers() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    _miittiUsers = await ap.fetchUsers();
+    List<MiittiUser> users =
+        await Provider.of<AuthProvider>(context, listen: false).fetchUsers();
+
+    _miittiUsers = users.reversed.toList();
     searchResults = _miittiUsers;
     setState(() {});
   }

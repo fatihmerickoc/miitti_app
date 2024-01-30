@@ -151,7 +151,7 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
       children: [
         GestureDetector(
           onTap: () {
-            if (currentAnswers < 5) {
+            if (currentAnswers < 5 || _isSavedList[index]) {
               setState(() {
                 _isExpandedList[index] = !_isExpandedList[index];
                 if (_isExpandedList[index]) {
@@ -213,7 +213,7 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
             style: Styles.bodyTextStyle,
             focusNode: _justFocusNode,
             maxLines: 5,
-            maxLength: 96,
+            maxLength: 100,
             controller: _isControllers[index],
             onTap: () {
               if (_justFocusNode.hasFocus) {

@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
@@ -17,22 +15,23 @@ import 'package:provider/provider.dart';
 class UserProfileEditScreen extends StatefulWidget {
   final MiittiUser user;
   final bool? comingFromAdmin;
-  const UserProfileEditScreen(
-      {required this.user, this.comingFromAdmin, super.key});
+
+  const UserProfileEditScreen({
+    required this.user,
+    this.comingFromAdmin,
+    super.key,
+  });
 
   @override
   State<UserProfileEditScreen> createState() => _UserProfileEditScreenState();
 }
 
 class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
-  Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
-
-  List<Activity> filteredActivities = [];
+  late List<Activity> filteredActivities = [];
 
   @override
   void initState() {
     super.initState();
-    //Initialize the list from given data
     filteredActivities = activities
         .where((activity) =>
             widget.user.userFavoriteActivities.contains(activity.name))
@@ -49,363 +48,344 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         .toList();
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70.h),
-        child: AppBar(
-          backgroundColor: AppColors.wineColor,
-          automaticallyImplyLeading: false,
-          title: Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.only(top: 20.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.user.userName,
-                    style: TextStyle(
-                      fontSize: 30.sp,
-                      fontFamily: 'Sora',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  buildUserStatus(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: ListView(
+      appBar: buildAppBar(),
+      body: buildBody(isLoading, ap, answeredQuestions),
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.wineColor,
+      automaticallyImplyLeading: false,
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            margin: EdgeInsets.symmetric(
-              vertical: 15.h,
-              horizontal: 15.w,
-            ),
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  child: Image.network(
-                    widget.user.profilePicture,
-                    height: 400.h,
-                    width: 400.w,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Positioned(
-                  top: 10.h,
-                  left: 10.w,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(15.w),
-                      decoration: BoxDecoration(
-                        color: miittiColor,
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.lightRedColor,
-                            AppColors.orangeColor,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                        size: 30.r,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          Text(
+            widget.user.userName,
+            style: TextStyle(
+              fontSize: 30.sp,
+              fontFamily: 'Sora',
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-          SizedBox(
-            height: 210.w,
-            child: PageView.builder(
-                itemCount: widget.user.userChoices.length,
-                itemBuilder: (context, index) {
-                  String question = answeredQuestions[index];
-                  String answer = widget.user.userChoices[question]!;
-                  return Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: EdgeInsets.all(10.w),
-                    child: Container(
-                      margin: EdgeInsets.only(left: 20.w, top: 15.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            question,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppColors.purpleColor,
-                              overflow: TextOverflow.ellipsis,
-                              fontSize: 22.sp,
-                              fontFamily: 'Rubik',
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          Text(
-                            answer,
-                            maxLines: 4,
-                            style: TextStyle(
-                              color: Colors.black,
-                              wordSpacing: 2.0,
-                              fontSize: 25.sp,
-                              fontFamily: 'Rubik',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-          ),
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            margin: EdgeInsets.symmetric(
-              vertical: 15.h,
-              horizontal: 15.w,
-            ),
-            child: Container(
-              height: 320.w,
-              margin: EdgeInsets.only(
-                left: 5.w,
-                top: 10.h,
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: Icon(
-                      Icons.location_on,
-                      color: AppColors.lightPurpleColor,
-                      size: 30.sp,
-                    ),
-                    title: Text(
-                      widget.user.userArea,
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        color: Colors.black,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                    thickness: 0.75,
-                    height: 0,
-                    endIndent: 10.0,
-                    indent: 10.0,
-                  ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.person,
-                      color: AppColors.lightPurpleColor,
-                      size: 30.sp,
-                    ),
-                    title: Text(
-                      widget.user.userGender,
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        color: Colors.black,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                    thickness: 0.75,
-                    height: 0,
-                    endIndent: 10.0,
-                    indent: 10.0,
-                  ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.cake,
-                      color: AppColors.lightPurpleColor,
-                      size: 30.sp,
-                    ),
-                    title: Text(
-                      calculateAge(widget.user.userBirthday).toString(),
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        color: Colors.black,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                    thickness: 0.75,
-                    height: 0,
-                    endIndent: 10.0,
-                    indent: 10.0,
-                  ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.g_translate,
-                      color: AppColors.lightPurpleColor,
-                      size: 30.sp,
-                    ),
-                    title: Text(
-                      widget.user.userLanguages.join(', '),
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        color: Colors.black,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                    thickness: 0.75,
-                    height: 0,
-                    endIndent: 10.0,
-                    indent: 10.0,
-                  ),
-                  SizedBox(
-                    height: 5.h,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.next_week,
-                      color: AppColors.lightPurpleColor,
-                      size: 30.sp,
-                    ),
-                    title: Text(
-                      'Opiskelija',
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        color: Colors.black,
-                        fontFamily: 'Rubik',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          buildUserStatus(),
+        ],
+      ),
+    );
+  }
+
+  Widget buildBody(
+      bool isLoading, AuthProvider ap, List<String> answeredQuestions) {
+    List<Widget> widgets = [];
+
+    // Always add the profile image card at the beginning
+    widgets.add(buildProfileImageCard());
+
+    // Add the first question card and user details card
+    String firstQuestion = answeredQuestions[0];
+    String firstAnswer = widget.user.userChoices[firstQuestion]!;
+    widgets.add(buildQuestionCard(firstQuestion, firstAnswer));
+    widgets.add(buildUserDetailsCard());
+
+    // If there are more than one answered questions, add activities grid and subsequent question cards
+    if (answeredQuestions.length > 1) {
+      for (var i = 1; i < answeredQuestions.length; i++) {
+        String question = answeredQuestions[i];
+        String answer = widget.user.userChoices[question]!;
+        widgets.add(buildQuestionCard(question, answer));
+
+        // Add activities grid after the first additional question card
+        if (i == 1) {
+          widgets.add(buildActivitiesGrid());
+        }
+      }
+    } else {
+      // If there's only one answered question, add activities grid
+      widgets.add(buildActivitiesGrid());
+    }
+
+    // Add invite button and report user button
+    widgets.add(buildInviteButton(isLoading, ap));
+    widgets.add(buildReportUserButton(ap));
+
+    return ListView(children: widgets);
+  }
+
+  Widget buildProfileImageCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      margin: EdgeInsets.symmetric(
+        vertical: 15.h,
+        horizontal: 15.w,
+      ),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(15)),
+            child: Image.network(
+              widget.user.profilePicture,
+              height: 400.h,
+              width: 400.w,
+              fit: BoxFit.cover,
             ),
           ),
-          SizedBox(
-            height: 10.h,
-          ),
-          SizedBox(
-            height: filteredActivities.length > 3 ? 250.w : 125.w,
-            child: GridView.builder(
-              itemCount: filteredActivities.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 4.0,
-                mainAxisSpacing: 4.0,
-              ),
-              itemBuilder: (context, index) {
-                final activity = filteredActivities[index];
-                return Container(
-                  height: 100.h,
-                  width: 50.w,
-                  decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  child: Column(
-                    children: [
-                      Text(
-                        activity.emojiData,
-                        style: TextStyle(fontSize: 50.0.sp),
-                      ),
-                      Text(
-                        activity.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Rubik',
-                          fontSize: 19.0.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          widget.comingFromAdmin != null
-              ? Container()
-              : Container(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 15.h,
-                    horizontal: 15.w,
-                  ),
-                  child: MyElevatedButton(
-                    onPressed: () => inviteToYourActivity(),
-                    child: isLoading
-                        ? CircularProgressIndicator(
-                            color: Colors.white,
-                          )
-                        : Text(
-                            'Kutsu miittiin',
-                            style: Styles.bodyTextStyle,
-                          ),
-                  ),
-                ),
-          Center(
+          Positioned(
+            top: 10.h,
+            left: 10.w,
             child: GestureDetector(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return ConfirmDialog(
-                      title: 'Vahvistus',
-                      leftButtonText: 'Ilmianna',
-                      mainText:
-                          'Oletko varma, että haluat ilmiantaa käyttäjän?',
-                    );
-                  },
-                ).then((confirmed) {
-                  if (confirmed) {
-                    ap.reportUser('User blocked', widget.user.uid, ap.uid);
-
-                    Navigator.of(context).pop();
-                    showSnackBar(
-                        context, "Käyttäjä ilmiannettu", Colors.green.shade800);
-                  }
-                });
+                Navigator.pop(context);
               },
-              child: Text(
-                "Ilmianna käyttäjä",
-                style: TextStyle(
-                  fontFamily: 'Rubik',
-                  fontSize: 19.sp,
-                  color: Colors.red,
+              child: Container(
+                padding: EdgeInsets.all(15.w),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      AppColors.lightRedColor,
+                      AppColors.orangeColor,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: 30.r,
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildAnsweredQuestionsCard(List<String> answeredQuestions) {
+    return SizedBox(
+      height: 210.h,
+      child: PageView.builder(
+        itemCount: widget.user.userChoices.length,
+        itemBuilder: (context, index) {
+          String question = answeredQuestions[index];
+          String answer = widget.user.userChoices[question]!;
+          return buildQuestionCard(question, answer);
+        },
+      ),
+    );
+  }
+
+  Widget buildQuestionCard(String question, String answer) {
+    return Container(
+      padding: EdgeInsets.all(15.w),
+      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            question,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.purpleColor,
+              fontSize: 25.sp,
+              fontFamily: 'Rubik',
+            ),
+          ),
+          SizedBox(height: 5.h),
+          Text(
+            answer,
+            maxLines: 4,
+            style: TextStyle(
+              color: Colors.black,
+              overflow: TextOverflow.clip,
+              fontSize: 22.sp,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildUserDetailsCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      margin: EdgeInsets.symmetric(
+        vertical: 15.h,
+        horizontal: 15.w,
+      ),
+      child: Container(
+        height: 320.w,
+        margin: EdgeInsets.only(
+          left: 5.w,
+          top: 10.h,
+        ),
+        child: Column(
+          children: [
+            buildUserDetailTile(Icons.location_on, widget.user.userArea),
+            buildDivider(),
+            buildUserDetailTile(Icons.person, widget.user.userGender),
+            buildDivider(),
+            buildUserDetailTile(
+                Icons.cake, calculateAge(widget.user.userBirthday).toString()),
+            buildDivider(),
+            buildUserDetailTile(
+                Icons.g_translate, widget.user.userLanguages.join(', ')),
+            buildDivider(),
+            buildUserDetailTile(Icons.next_week, 'Opiskelija'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildUserDetailTile(IconData icon, String text) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: AppColors.lightPurpleColor,
+        size: 30.sp,
+      ),
+      title: Text(
+        text,
+        style: TextStyle(
+          fontSize: 24.sp,
+          color: Colors.black,
+          fontFamily: 'Rubik',
+        ),
+      ),
+    );
+  }
+
+  Widget buildDivider() {
+    return const Divider(
+      color: Colors.grey,
+      thickness: 0.75,
+      height: 0,
+      endIndent: 10.0,
+      indent: 10.0,
+    );
+  }
+
+  double returnActivitiesGridSize(int listLenght) {
+    if (listLenght > 6) {
+      return 375.w;
+    } else if (listLenght > 3) {
+      return 250.w;
+    } else {
+      return 125.w;
+    }
+  }
+
+  Widget buildActivitiesGrid() {
+    return SizedBox(
+      height: returnActivitiesGridSize(filteredActivities.length),
+      child: GridView.builder(
+        itemCount: filteredActivities.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 4.0,
+          mainAxisSpacing: 4.0,
+        ),
+        itemBuilder: (context, index) {
+          final activity = filteredActivities[index];
+          return buildActivityItem(activity);
+        },
+      ),
+    );
+  }
+
+  Widget buildActivityItem(Activity activity) {
+    return Container(
+      height: 100.h,
+      width: 50.w,
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            activity.emojiData,
+            style: TextStyle(fontSize: 50.0.sp),
+          ),
+          Text(
+            activity.name,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: 'Rubik',
+              fontSize: 19.0.sp,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildInviteButton(bool isLoading, AuthProvider ap) {
+    return widget.comingFromAdmin != null
+        ? Container()
+        : Container(
+            margin: EdgeInsets.symmetric(
+              vertical: 15.h,
+              horizontal: 15.w,
+            ),
+            child: MyElevatedButton(
+              onPressed: () => inviteToYourActivity(),
+              child: isLoading
+                  ? CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                  : Text(
+                      'Kutsu miittiin',
+                      style: Styles.bodyTextStyle,
+                    ),
+            ),
+          );
+  }
+
+  Widget buildReportUserButton(AuthProvider ap) {
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ConfirmDialog(
+                title: 'Vahvistus',
+                leftButtonText: 'Ilmianna',
+                mainText: 'Oletko varma, että haluat ilmiantaa käyttäjän?',
+              );
+            },
+          ).then((confirmed) {
+            if (confirmed) {
+              ap.reportUser('User blocked', widget.user.uid, ap.uid);
+
+              Navigator.of(context).pop();
+              showSnackBar(
+                  context, "Käyttäjä ilmiannettu", Colors.green.shade800);
+            }
+          });
+        },
+        child: Text(
+          "Ilmianna käyttäjä",
+          style: TextStyle(
+            fontFamily: 'Rubik',
+            fontSize: 19.sp,
+            color: Colors.red,
+          ),
+        ),
       ),
     );
   }

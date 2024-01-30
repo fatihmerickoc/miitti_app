@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/onboardingScreens/obs1_name.dart';
 import 'package:miitti_app/onboardingScreens/obs4_email.dart';
@@ -26,21 +27,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   File? myImage;
 
   MiittiUser _miittiUser = MiittiUser(
-      userName: '',
-      userEmail: '',
-      uid: '',
-      userPhoneNumber: '',
-      userBirthday: '',
-      userArea: '',
-      userFavoriteActivities: {},
-      userChoices: {},
-      userGender: '',
-      userLanguages: {},
-      profilePicture: '',
-      invitedActivities: {},
-      userStatus: '',
-      userSchool: '',
-      fcmToken: '');
+    userName: '',
+    userEmail: '',
+    uid: '',
+    userPhoneNumber: '',
+    userBirthday: '',
+    userArea: '',
+    userFavoriteActivities: {},
+    userChoices: {},
+    userGender: '',
+    userLanguages: {},
+    profilePicture: '',
+    invitedActivities: {},
+    userStatus: '',
+    userSchool: '',
+    fcmToken: '',
+    userRegistrationDate: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+  );
 
   void _updateUserData(MiittiUser updatedUser) {
     setState(() {
