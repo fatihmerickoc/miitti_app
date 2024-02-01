@@ -132,7 +132,7 @@ class _ActivityPage5State extends State<ActivityPage5> {
             getSomeSpace(20),
             Text(
               decidedLater
-                  ? "Sovitaan myöhemmin"
+                  ? "Sovitaan myöhemmin\n(Miitti poistuu automaattisesti 14 päivän kuluttua)"
                   : timestampToString(activityTime),
               style: Styles.bodyTextStyle,
             ),

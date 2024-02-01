@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -12,7 +14,7 @@ import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
 import 'package:miitti_app/utils/utils.dart';
 
@@ -48,6 +50,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
   late Future<List<MiittiUser>> filteredUsers;
   late CommercialUser company;
   int participantCount = 0;
+  List<MiittiUser> participantList = [];
 
   @override
   void initState() async {
@@ -58,6 +61,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
     filteredUsers = fetchUsersJoinedActivity();
     fetchUsersJoinedActivity().then((users) {
       setState(() {
+        participantList = users;
         participantCount = users.length;
       });
     });
@@ -216,21 +220,59 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                             ),
                           ),
                         ),
-                        FutureBuilder(
+                        Expanded(
+                          child: SizedBox(
+                            height: 75.0.h,
+                            width: double.infinity,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  participantCount < 10 ? participantCount : 10,
+                              itemBuilder: (BuildContext context, int index) {
+                                MiittiUser user = participantList[index];
+                                print("$index: ${user.userName} osallistuu");
+                                return Padding(
+                                  padding: EdgeInsets.only(left: 16.0.w),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  UserProfileEditScreen(
+                                                      user: user)));
+                                    },
+                                    child: CircleAvatar(
+                                      backgroundImage:
+                                          NetworkImage(user.profilePicture),
+                                      backgroundColor: AppColors.purpleColor,
+                                      radius: 25.r,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        /*FutureBuilder(
                           future: filteredUsers,
                           builder: (BuildContext context,
                               AsyncSnapshot<List<MiittiUser>> snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.done) {
-                              participantCount = snapshot.data!.length;
+                              List<MiittiUser> participantList = snapshot.data!;
+                              participantCount = participantList.length;
+                              print(participantCount);
                               return SizedBox(
                                 height: 75.0.h,
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
-                                  itemCount: snapshot.data!.length,
+                                  itemCount: participantCount,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    MiittiUser user = snapshot.data![index];
+                                    MiittiUser? user = participantList[index];
+                                    print(
+                                        "$index: ${user.userName} osallistuu");
                                     return Padding(
                                       padding: EdgeInsets.only(left: 16.0.w),
                                       child: GestureDetector(
@@ -255,29 +297,48 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                                 ),
                               );
                             } else {
-                              return CircularProgressIndicator(
-                                color: AppColors.purpleColor,
+                              print(snapshot.connectionState);
+                              return SizedBox(
+                                height: 75.0.h,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: participantCount,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(left: 16.0.w),
+                                      child: CircleAvatar(
+                                        backgroundColor: AppColors.purpleColor,
+                                        radius: 25.r,
+                                      ),
+                                    );
+                                  },
+                                ),
                               );
                             }
                           },
-                        ),
+                        ),*/
                       ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(8.0.w),
-                      child: Text(
-                        widget.myActivity.activityDescription,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'Rubik',
-                          fontSize: 17.0.sp,
-                          color: Colors.white,
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0.w),
+                        child: SingleChildScrollView(
+                          child: Text(
+                            widget.myActivity.activityDescription,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Rubik',
+                              fontSize: 15.0.sp,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: SizedBox(),
-                    ),
+                    /*Expanded(
+                      child: SizedBox(),'
+                    ),*/
                     Padding(
                       padding: EdgeInsets.all(8.0.w),
                       child: InkWell(
@@ -485,7 +546,9 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
 
   Future<List<MiittiUser>> fetchUsersJoinedActivity() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    return await ap.fetchUsersByActivityId(widget.myActivity.activityUid);
+    Future<List<MiittiUser>> list =
+        ap.fetchUsersByActivityId(widget.myActivity.activityUid);
+    return list;
   }
 
   String getButtonText() {

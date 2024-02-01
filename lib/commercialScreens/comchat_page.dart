@@ -9,7 +9,7 @@ import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/message_tile.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 

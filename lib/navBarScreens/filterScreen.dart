@@ -218,7 +218,7 @@ class _FilterScreenState extends State<FilterScreen> {
                   if (confirmed != null && confirmed) {
                     print("MERHABA");
                     ap.removeUser(ap.miittiUser.uid).then((value) {
-                      if (value) {
+                      if (value == 2) {
                         showSnackBar(
                           context,
                           'Tilisi on poistettu onnistuneesti',
@@ -227,6 +227,12 @@ class _FilterScreenState extends State<FilterScreen> {
                         Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(builder: (context) => HomePage()),
                             (Route<dynamic> route) => false);
+                      } else if (value == 1) {
+                        showSnackBar(
+                          context,
+                          'Tilisi on poistettu palvelimelta, mutta tietojen poistaminen puhelimelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista.',
+                          Colors.orange.shade800,
+                        );
                       } else {
                         showSnackBar(
                           context,

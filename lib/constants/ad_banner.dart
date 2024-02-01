@@ -85,11 +85,12 @@ class AdBanner {
     return banners;
   }
 
-  static getWidget(AdBanner banner) {
+  GestureDetector getWidget(Future onClick) {
     try {
       return GestureDetector(
         onTap: () async {
-          await launchUrl(Uri.parse(banner.link));
+          onClick;
+          await launchUrl(Uri.parse(link));
         },
         child: Card(
           shape: const RoundedRectangleBorder(
@@ -108,7 +109,7 @@ class AdBanner {
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                   child: Image.network(
-                    banner.image,
+                    image,
                     fit: BoxFit.fitWidth,
                   ),
                 ),

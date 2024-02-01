@@ -144,12 +144,12 @@ class _ActivityPage2State extends State<ActivityPage2> {
                 } else {
                   showSnackBar(
                       context,
-                      'Varmista, että täytät kaikki tyhjät kohdat ja yritä uudeelleen!',
+                      'Varmista, että täytät kaikki tyhjät kohdat ja yritä uudelleen!',
                       Colors.red.shade800);
                 }
               },
               child: Text(
-                "Seuravaa",
+                "Seuraava",
                 style: Styles.bodyTextStyle,
               ),
             ),
