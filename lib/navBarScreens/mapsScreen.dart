@@ -326,7 +326,9 @@ class _MapsScreenState extends State<MapsScreen> {
         itemBuilder: (BuildContext context, int index) {
           if (index == 1) {
             if (_ads.isNotEmpty) {
-              return AdBanner.getWidget(_ads[0]);
+              return _ads[0].getWidget(
+                  Provider.of<AuthProvider>(context, listen: false)
+                      .addAdClick(_ads[0].uid));
             } else {
               return GestureDetector(
                 onTap: () {},

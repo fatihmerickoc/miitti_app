@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
 
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
@@ -27,15 +28,26 @@ class UserProfileEditScreen extends StatefulWidget {
 }
 
 class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
-  late List<Activity> filteredActivities = [];
+  Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
+
+  List<Activity> filteredActivities = [];
+  List<PersonActivity> userRequests = [];
 
   @override
   void initState() {
     super.initState();
+    //Initialize the list from given data
+    initRequests();
     filteredActivities = activities
         .where((activity) =>
             widget.user.userFavoriteActivities.contains(activity.name))
         .toList();
+  }
+
+  void initRequests() {
+    Provider.of<AuthProvider>(context, listen: false)
+        .fetchActivitiesRequestsFrom(widget.user.uid)
+        .then((value) => userRequests = value);
   }
 
   @override
@@ -106,6 +118,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     }
 
     // Add invite button and report user button
+    widgets.add(userRequests.isNotEmpty ? requestList() : Container());
     widgets.add(buildInviteButton(isLoading, ap));
     widgets.add(buildReportUserButton(ap));
 
@@ -426,7 +439,14 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       } else {
         // Show some red dialog
         print("You do not have any activities for people to invite");
+        showSnackBar(
+            context,
+            "Sinulla ei ole miittejä, joihin voit kutsua tämän henkilön.",
+            Colors.red.shade800);
       }
+    } else {
+      showSnackBar(
+          context, "Sinun täytyy luoda miitti ensin!", Colors.orange.shade800);
     }
   }
 
@@ -612,5 +632,86 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         ),
       ),
     );
+  }
+
+  Column requestList() {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    return Column(
+        children: userRequests
+            .map<Widget>((activity) => Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text("Haluaa miittiin ${activity.activityTitle}",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontFamily: 'Rubik',
+                          )),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          MyElevatedButton(
+                            height: 40.h,
+                            width: 160.w,
+                            onPressed: () async {
+                              ap
+                                  .updateUserJoiningActivity(
+                                      activity.activityUid,
+                                      widget.user.uid,
+                                      false)
+                                  .then((value) {
+                                setState(() {
+                                  initRequests();
+                                });
+                              });
+                            },
+                            child: Text(
+                              "Hylkää",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontFamily: 'Rubik',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          MyElevatedButton(
+                            height: 40.h,
+                            width: 160.w,
+                            onPressed: () async {
+                              ap
+                                  .updateUserJoiningActivity(
+                                      activity.activityUid,
+                                      widget.user.uid,
+                                      true)
+                                  .then((value) {
+                                setState(() {
+                                  initRequests();
+                                });
+                                if (value) {
+                                  PushNotifications.sendAcceptedNotification(
+                                      widget.user, activity);
+                                }
+                              });
+                            },
+                            child: Text(
+                              "Hyväksy",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontFamily: 'Rubik',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ))
+            .toList());
   }
 }

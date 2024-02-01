@@ -4,7 +4,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:miitti_app/createMiittiActivity/activityOnboarding.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 

@@ -4,9 +4,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:miitti_app/chatPage.dart';
@@ -302,6 +304,22 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future addAdClick(String adUid) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _fireStore.collection('adBanners').doc(adUid).update({
+        'clicks': FieldValue.increment(1),
+      });
+    } catch (e) {
+      print('Error adding view: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 // #endregion
 
 // #region Activities
@@ -363,7 +381,7 @@ class AuthProvider extends ChangeNotifier {
         } else {
           print("Checking filters of ${_miittiUser?.userName}");
           if (daysSince(activity.activityTime) <
-              (activity.timeDecidedLater ? -7 : -1)) {
+              (activity.timeDecidedLater ? -14 : -1)) {
             removeActivity(activity.activityUid);
             return false;
           }
@@ -522,6 +540,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<int> adminActivitiesLength() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      QuerySnapshot querySnapshot = await _fireStore
+          .collection('activities')
+          .where('admin', isEqualTo: uid)
+          .get();
+
+      _isLoading = false;
+      notifyListeners();
+
+      return querySnapshot.docs.length;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error fetching user activities: $e');
+      return 0;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchActivitiesRequests() async {
     _isLoading = true;
     notifyListeners();
@@ -551,6 +590,35 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       return usersAndActivityIds.toList();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error fetching admin activities: $e');
+      return [];
+    }
+  }
+
+  Future<List<PersonActivity>> fetchActivitiesRequestsFrom(
+      String userId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      QuerySnapshot querySnapshot = await _fireStore
+          .collection('activities')
+          .where('admin', isEqualTo: uid)
+          .where('requests', arrayContains: userId)
+          .get();
+
+      List<PersonActivity> activities = querySnapshot.docs
+          .map((doc) =>
+              PersonActivity.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      _isLoading = false;
+      notifyListeners();
+
+      return activities.toList();
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -1098,7 +1166,7 @@ class AuthProvider extends ChangeNotifier {
   ) async {
     _isLoading = true;
     notifyListeners();
-    bool operationCompleted = false;
+    bool joined = false;
 
     try {
       final activityRef = _fireStore.collection('activities').doc(activityId);
@@ -1120,7 +1188,7 @@ class AuthProvider extends ChangeNotifier {
         // Add user ID to participants if not already present
         if (!participants.contains(userId) && accept) {
           participants.add(userId);
-          operationCompleted = true;
+          joined = true;
         }
 
         transaction.update(activityRef, {
@@ -1136,7 +1204,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       print('Error while joining activity: $e');
     }
-    return operationCompleted;
+    return joined;
   }
 
   Future<void> removeUserFromActivity(
@@ -1400,32 +1468,44 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeUser(String userId) async {
+  Future<int> removeUser(String userId) async {
     _isLoading = true;
     notifyListeners();
     try {
-      await _fireStore
-          .collection('users')
-          .doc(userId)
-          .delete()
-          .then((value) {});
+      int value = 0;
+
+      await _fireStore.collection('users').doc(userId).delete().then((v) {
+        value = 1;
+      });
 
       if (!adminId.contains(_firebaseAuth.currentUser!.uid) &&
           _firebaseAuth.currentUser!.uid.isNotEmpty) {
-        await _firebaseAuth.currentUser?.delete();
+        value = 0;
+        await _firebaseAuth.currentUser?.delete().then((v) {
+          value = 1;
+        });
       }
 
-      SharedPreferences s = await SharedPreferences.getInstance();
-      _isSignedIn = false;
+      if (value == 1 && !adminId.contains(userId)) {
+        SharedPreferences s = await SharedPreferences.getInstance();
+        _isSignedIn = false;
+        await s.clear().then((v) {
+          if (v) {
+            value = 2;
+          }
+        });
+      }
+
       _isLoading = false;
-      bool value = await s.clear();
       notifyListeners();
       return value;
-    } catch (e) {
+    } catch (e, s) {
       _isLoading = false;
       notifyListeners();
       print("Error removing user from the app $e");
-      return false;
+      await FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'a non-fatal error');
+      return 0;
     }
   }
 
@@ -1507,7 +1587,8 @@ class AuthProvider extends ChangeNotifier {
 
         CommercialActivity commercialActivity = CommercialActivity.fromMap(
             commercialSnapshot.data() as Map<String, dynamic>);
-
+        print(
+            "Fetching participants of commecialActivity ${commercialActivity.activityTitle}. It has ${commercialActivity.participants.length} participants");
         return await fetchUsersByUids(commercialActivity.participants);
       }
     } catch (e) {
@@ -1525,6 +1606,8 @@ class AuthProvider extends ChangeNotifier {
         if (docSnapshot.exists) {
           users.add(
               MiittiUser.fromMap(docSnapshot.data() as Map<String, dynamic>));
+        } else {
+          print("User not found");
         }
       }
       return users;

@@ -14,7 +14,7 @@ import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
@@ -260,17 +260,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               child: MyElevatedButton(
                                 height: 40.h,
                                 onPressed: () async {
-                                  bool operationCompleted =
-                                      await ap.reactToInvite(
-                                          activity.activityUid, false);
-                                  if (!operationCompleted) {
-                                    _myJoinedActivities.removeAt(index);
-                                    fetchDataFromFirebase().then(
-                                      (value) {
-                                        buildJoinedActivities();
-                                      },
-                                    );
-                                  }
+                                  await ap.reactToInvite(
+                                      activity.activityUid, false);
+
+                                  _myJoinedActivities.removeAt(index);
+                                  fetchDataFromFirebase().then(
+                                    (value) {
+                                      buildJoinedActivities();
+                                    },
+                                  );
                                 },
                                 child: Text(
                                   "Hylkää",

@@ -117,16 +117,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ).then((confirmed) {
                     if (confirmed != null && confirmed) {
                       ap.removeUser(ap.miittiUser.uid).then((value) {
-                        if (value) {
+                        if (value == 2) {
                           showSnackBar(
                             context,
-                            'Tilisi on poistettu onnistuneesti!',
+                            'Tilisi on poistettu onnistuneesti',
                             Colors.green.shade800,
                           );
                           Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                  builder: (context) => const HomePage()),
+                                  builder: (context) => HomePage()),
                               (Route<dynamic> route) => false);
+                        } else if (value == 1) {
+                          showSnackBar(
+                            context,
+                            'Tilisi on poistettu palvelimelta, mutta tietojen poistaminen puhelimelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista.',
+                            Colors.orange.shade800,
+                          );
                         } else {
                           showSnackBar(
                             context,

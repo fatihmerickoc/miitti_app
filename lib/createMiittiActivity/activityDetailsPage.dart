@@ -8,11 +8,10 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/person_activity.dart';
-import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/navBarScreens/profileScreen.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/push_notifications.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
 import 'package:miitti_app/utils/utils.dart';
 

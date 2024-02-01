@@ -9,11 +9,11 @@ import '../constants/constants.dart';
 
 class ActivityPage1 extends StatefulWidget {
   const ActivityPage1({
-    Key? key,
+    super.key,
     required this.activity,
     required this.onActivityDataChanged,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final PersonActivity activity;
   final Function(PersonActivity) onActivityDataChanged;
@@ -30,7 +30,6 @@ class _ActivityPage1State extends State<ActivityPage1> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     friendsCount = widget.activity.personLimit.toDouble();
   }
@@ -59,9 +58,8 @@ class _ActivityPage1State extends State<ActivityPage1> {
               label: friendsCount.round().toString(),
             ),
             Text(
-              friendsCount.round() > 1
-                  ? "${friendsCount.round().toString()} osallistujaa"
-                  : "${friendsCount.round().toString()} osallistuja",
+              friendsCount.round().toString() +
+                  (friendsCount.round() > 1 ? " osallistujaa" : " osallistuja"),
               style: Styles.titleTextStyle,
             ),
             Expanded(
@@ -79,7 +77,7 @@ class _ActivityPage1State extends State<ActivityPage1> {
                 );
               },
               child: Text(
-                "Seuravaa",
+                "Seuraava",
                 style: Styles.bodyTextStyle,
               ),
             ),
