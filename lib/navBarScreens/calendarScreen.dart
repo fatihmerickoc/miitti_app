@@ -260,17 +260,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               child: MyElevatedButton(
                                 height: 40.h,
                                 onPressed: () async {
-                                  bool operationCompleted =
-                                      await ap.reactToInvite(
-                                          activity.activityUid, false);
-                                  if (!operationCompleted) {
-                                    _myJoinedActivities.removeAt(index);
-                                    fetchDataFromFirebase().then(
-                                      (value) {
-                                        buildJoinedActivities();
-                                      },
-                                    );
-                                  }
+                                  await ap.reactToInvite(
+                                      activity.activityUid, false);
+
+                                  _myJoinedActivities.removeAt(index);
+                                  fetchDataFromFirebase().then(
+                                    (value) {
+                                      buildJoinedActivities();
+                                    },
+                                  );
                                 },
                                 child: Text(
                                   "Hylkää",

@@ -540,6 +540,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<int> adminActivitiesLength() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      QuerySnapshot querySnapshot = await _fireStore
+          .collection('activities')
+          .where('admin', isEqualTo: uid)
+          .get();
+
+      _isLoading = false;
+      notifyListeners();
+
+      return querySnapshot.docs.length;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error fetching user activities: $e');
+      return 0;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchActivitiesRequests() async {
     _isLoading = true;
     notifyListeners();
@@ -569,6 +590,35 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       return usersAndActivityIds.toList();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error fetching admin activities: $e');
+      return [];
+    }
+  }
+
+  Future<List<PersonActivity>> fetchActivitiesRequestsFrom(
+      String userId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      QuerySnapshot querySnapshot = await _fireStore
+          .collection('activities')
+          .where('admin', isEqualTo: uid)
+          .where('requests', arrayContains: userId)
+          .get();
+
+      List<PersonActivity> activities = querySnapshot.docs
+          .map((doc) =>
+              PersonActivity.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      _isLoading = false;
+      notifyListeners();
+
+      return activities.toList();
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -773,7 +823,7 @@ class AuthProvider extends ChangeNotifier {
   ) async {
     _isLoading = true;
     notifyListeners();
-    bool operationCompleted = false;
+    bool joined = false;
 
     try {
       final activityRef = _fireStore.collection('activities').doc(activityId);
@@ -795,7 +845,7 @@ class AuthProvider extends ChangeNotifier {
         // Add user ID to participants if not already present
         if (!participants.contains(userId) && accept) {
           participants.add(userId);
-          operationCompleted = true;
+          joined = true;
         }
 
         transaction.update(activityRef, {
@@ -811,7 +861,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       print('Error while joining activity: $e');
     }
-    return operationCompleted;
+    return joined;
   }
 
   Future<void> removeUserFromActivity(
