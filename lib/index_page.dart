@@ -9,7 +9,7 @@ import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'navBarScreens/calendarScreen.dart';
-import 'navBarScreens/filterScreen.dart';
+import 'navBarScreens/settingsScreen.dart';
 import 'navBarScreens/mapsScreen.dart';
 import 'navBarScreens/peopleScreen.dart';
 import 'navBarScreens/profileScreen.dart';
@@ -33,7 +33,7 @@ class IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
     MapsScreen(),
     PeopleScreen(),
     ProfileScreen(),
-    FilterScreen(),
+    SettingsScreen(),
   ];
 
   @override

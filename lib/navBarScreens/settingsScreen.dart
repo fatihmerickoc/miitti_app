@@ -11,14 +11,14 @@ import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class FilterScreen extends StatefulWidget {
-  const FilterScreen({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  State<FilterScreen> createState() => _FilterScreenState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _FilterScreenState extends State<FilterScreen> {
+class _SettingsScreenState extends State<SettingsScreen> {
   bool allowNotifications = true;
 
   Widget getMyContainer(
