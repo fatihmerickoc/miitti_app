@@ -21,7 +21,7 @@ import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({Key? key}) : super(key: key);
+  const CalendarScreen({super.key});
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -370,9 +370,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
           GestureDetector(
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => UserProfileEditScreen(user: user)));
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              UserProfileEditScreen(user: user)))
+                  .then((value) => fetchDataFromFirebase());
             },
             child: Padding(
               padding: EdgeInsets.all(8.0.w),
@@ -424,7 +426,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           '${user.userName} haluaa liittyä miittiisi',
                           style: TextStyle(
                             fontFamily: 'Rubik',
-                            fontSize: 16.sp,
+                            fontSize: 13.sp,
                             color: AppColors.whiteColor,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -452,7 +454,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             "Hylkää",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16.sp,
+                              fontSize: 15.sp,
                               fontFamily: 'Rubik',
                             ),
                           ),
@@ -480,7 +482,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             "Hyväksy",
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16.sp,
+                              fontSize: 15.sp,
                               fontFamily: 'Rubik',
                             ),
                           ),

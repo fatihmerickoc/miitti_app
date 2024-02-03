@@ -1,8 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -12,11 +10,9 @@ import 'package:miitti_app/commercialScreens/commercial_user_profile.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
-import 'package:miitti_app/utils/utils.dart';
 
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
@@ -25,13 +21,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constants/miittiUser.dart';
 
 class ComActDetailsPage extends StatefulWidget {
-  final bool didGotInvited;
   final bool? comingFromAdmin;
 
   ComActDetailsPage({
     required this.myActivity,
     this.comingFromAdmin,
-    this.didGotInvited = false,
     super.key,
   });
 
@@ -47,24 +41,16 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
 
   bool isAlreadyJoined = false;
 
-  late Future<List<MiittiUser>> filteredUsers;
-  late CommercialUser company;
+  CommercialUser? company;
   int participantCount = 0;
   List<MiittiUser> participantList = [];
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
     checkIfJoined();
-    company = await Provider.of<AuthProvider>(context, listen: false)
-        .getCommercialUser(widget.myActivity.admin);
-    filteredUsers = fetchUsersJoinedActivity();
-    fetchUsersJoinedActivity().then((users) {
-      setState(() {
-        participantList = users;
-        participantCount = users.length;
-      });
-    });
+    fetchAdmin();
+    fetchUsersJoinedActivity();
     myCameraPosition = CameraPosition(
       target: LatLng(
         widget.myActivity.activityLati,
@@ -187,16 +173,18 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                           padding: EdgeInsets.only(left: 16.0.w, right: 8.0.w),
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          CommercialProfileScreen(
-                                              user: company)));
+                              if (company != null) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CommercialProfileScreen(
+                                                user: company!)));
+                              }
                             },
                             child: CircleAvatar(
                               backgroundImage:
-                                  NetworkImage(company.profilePicture),
+                                  NetworkImage(company!.profilePicture),
                               backgroundColor: AppColors.purpleColor,
                               radius: 25.r,
                               child: const Align(
@@ -254,70 +242,6 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                             ),
                           ),
                         ),
-                        /*FutureBuilder(
-                          future: filteredUsers,
-                          builder: (BuildContext context,
-                              AsyncSnapshot<List<MiittiUser>> snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              List<MiittiUser> participantList = snapshot.data!;
-                              participantCount = participantList.length;
-                              print(participantCount);
-                              return SizedBox(
-                                height: 75.0.h,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: participantCount,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    MiittiUser? user = participantList[index];
-                                    print(
-                                        "$index: ${user.userName} osallistuu");
-                                    return Padding(
-                                      padding: EdgeInsets.only(left: 16.0.w),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      UserProfileEditScreen(
-                                                          user: user)));
-                                        },
-                                        child: CircleAvatar(
-                                          backgroundImage:
-                                              NetworkImage(user.profilePicture),
-                                          backgroundColor:
-                                              AppColors.purpleColor,
-                                          radius: 25.r,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            } else {
-                              print(snapshot.connectionState);
-                              return SizedBox(
-                                height: 75.0.h,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: participantCount,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return Padding(
-                                      padding: EdgeInsets.only(left: 16.0.w),
-                                      child: CircleAvatar(
-                                        backgroundColor: AppColors.purpleColor,
-                                        radius: 25.r,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
-                        ),*/
                       ],
                     ),
                     Expanded(
@@ -468,23 +392,6 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
 
   Widget getMyButton(bool isLoading) {
     String buttonText = getButtonText();
-    if (widget.didGotInvited == true) {
-      return Opacity(
-        opacity: 0.5,
-        child: MyElevatedButton(
-          height: 50.h,
-          onPressed: () {},
-          child: Text(
-            'Osallistun',
-            style: TextStyle(
-              fontSize: 19.sp,
-              color: Colors.white,
-              fontFamily: 'Rubik',
-            ),
-          ),
-        ),
-      );
-    }
 
     if (participantCount < widget.myActivity.personLimit) {
       //There is still place left
@@ -544,24 +451,28 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
     }
   }
 
-  Future<List<MiittiUser>> fetchUsersJoinedActivity() async {
+  void fetchUsersJoinedActivity() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    Future<List<MiittiUser>> list =
-        ap.fetchUsersByActivityId(widget.myActivity.activityUid);
-    return list;
+    ap
+        .fetchUsersByActivityId(widget.myActivity.activityUid)
+        .then((value) => setState(() {
+              participantList = value;
+              participantCount = value.length;
+            }));
+  }
+
+  void fetchAdmin() async {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    ap.getCommercialUser(widget.myActivity.admin).then((value) => setState(() {
+          company = value;
+        }));
   }
 
   String getButtonText() {
-    if (participantCount < widget.myActivity.personLimit) {
-      if (isAlreadyJoined) {
-        return 'Siirry infokanavalle';
-      }
-      return 'Osallistun';
-    } else {
-      if (isAlreadyJoined) {
-        return 'Siirry infokanavalle';
-      }
-      return 'Täynnä';
-    }
+    return isAlreadyJoined
+        ? 'Siirry infokanavalle'
+        : (participantCount < widget.myActivity.personLimit)
+            ? 'Osallistun'
+            : 'Täynnä';
   }
 }

@@ -99,8 +99,7 @@ class _ActivityPage4State extends State<ActivityPage4> {
             MyElevatedButton(
               onPressed: () {
                 if (selectedActivity != null) {
-                  widget.activity.activityCategory =
-                      replaceCharacters(selectedActivity!.name);
+                  widget.activity.activityCategory = selectedActivity!.name;
                   widget.onActivityDataChanged(widget.activity);
                   widget.controller.nextPage(
                     duration: const Duration(milliseconds: 500),

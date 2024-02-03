@@ -165,7 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget buildQuestionCard(String question, String answer) {
     return Container(
       padding: EdgeInsets.all(15.w),
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
@@ -178,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.purpleColor,
-              fontSize: 25.sp,
+              fontSize: 18.sp,
               fontFamily: 'Rubik',
             ),
           ),
@@ -189,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               color: Colors.black,
               overflow: TextOverflow.clip,
-              fontSize: 22.sp,
+              fontSize: 20.sp,
               fontFamily: 'Poppins',
             ),
           ),
@@ -272,19 +272,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildActivitiesGrid() {
-    return SizedBox(
-      height: returnActivitiesGridSize(filteredActivities.length),
-      child: GridView.builder(
-        itemCount: filteredActivities.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 4.0,
+    return Padding(
+      padding: EdgeInsets.all(15.0.w),
+      child: SizedBox(
+        height: returnActivitiesGridSize(filteredActivities.length),
+        child: GridView.builder(
+          itemCount: filteredActivities.length,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 4.0,
+            mainAxisSpacing: 4.0,
+          ),
+          itemBuilder: (context, index) {
+            final activity = filteredActivities[index];
+            return buildActivityItem(activity);
+          },
         ),
-        itemBuilder: (context, index) {
-          final activity = filteredActivities[index];
-          return buildActivityItem(activity);
-        },
       ),
     );
   }
@@ -308,7 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: 'Rubik',
-              fontSize: 19.0.sp,
+              fontSize: 15.0.sp,
               color: Colors.white,
             ),
           ),

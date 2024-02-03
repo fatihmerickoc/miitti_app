@@ -28,7 +28,7 @@ class UserProfileEditScreen extends StatefulWidget {
 }
 
 class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
-  Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
+  Color miittiColor = const Color.fromRGBO(255, 136, 27, 1);
 
   List<Activity> filteredActivities = [];
   List<PersonActivity> userRequests = [];
@@ -37,23 +37,26 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   void initState() {
     super.initState();
     //Initialize the list from given data
-    initRequests();
+    initRequests(Provider.of<AuthProvider>(context, listen: true));
     filteredActivities = activities
         .where((activity) =>
             widget.user.userFavoriteActivities.contains(activity.name))
         .toList();
   }
 
-  void initRequests() {
-    Provider.of<AuthProvider>(context, listen: false)
-        .fetchActivitiesRequestsFrom(widget.user.uid)
-        .then((value) => userRequests = value);
+  void initRequests(AuthProvider ap) async {
+    ap.fetchActivitiesRequestsFrom(widget.user.uid).then((value) {
+      setState(() {
+        userRequests = value;
+      });
+      print("Fetched ${value.length} requests");
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     AuthProvider ap = Provider.of<AuthProvider>(context, listen: true);
-    final isLoading = ap.isLoading;
+    //final isLoading = ap.isLoading;
 
     List<String> answeredQuestions = questionOrder
         .where((question) => widget.user.userChoices.containsKey(question))
@@ -61,7 +64,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
 
     return Scaffold(
       appBar: buildAppBar(),
-      body: buildBody(isLoading, ap, answeredQuestions),
+      body: buildBody(ap.isLoading, ap, answeredQuestions),
     );
   }
 
@@ -91,6 +94,10 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       bool isLoading, AuthProvider ap, List<String> answeredQuestions) {
     List<Widget> widgets = [];
 
+    if (isLoading) {
+      print("IsLoading");
+    }
+
     // Always add the profile image card at the beginning
     widgets.add(buildProfileImageCard());
 
@@ -118,7 +125,10 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     }
 
     // Add invite button and report user button
-    widgets.add(userRequests.isNotEmpty ? requestList() : Container());
+    if (userRequests.isNotEmpty) {
+      widgets.add(requestList(ap));
+    }
+
     widgets.add(buildInviteButton(isLoading, ap));
     widgets.add(buildReportUserButton(ap));
 
@@ -194,7 +204,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   Widget buildQuestionCard(String question, String answer) {
     return Container(
       padding: EdgeInsets.all(15.w),
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+      margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
@@ -204,10 +214,10 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         children: [
           Text(
             question,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.start,
             style: TextStyle(
               color: AppColors.purpleColor,
-              fontSize: 25.sp,
+              fontSize: 18.sp,
               fontFamily: 'Rubik',
             ),
           ),
@@ -218,7 +228,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
             style: TextStyle(
               color: Colors.black,
               overflow: TextOverflow.clip,
-              fontSize: 22.sp,
+              fontSize: 20.sp,
               fontFamily: 'Poppins',
             ),
           ),
@@ -301,19 +311,23 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   }
 
   Widget buildActivitiesGrid() {
-    return SizedBox(
-      height: returnActivitiesGridSize(filteredActivities.length),
-      child: GridView.builder(
-        itemCount: filteredActivities.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 4.0,
+    return Padding(
+      padding: EdgeInsets.all(15.0.w),
+      child: SizedBox(
+        height: returnActivitiesGridSize(filteredActivities.length),
+        child: GridView.builder(
+          itemCount: filteredActivities.length,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 4.0,
+            mainAxisSpacing: 4.0,
+          ),
+          itemBuilder: (context, index) {
+            final activity = filteredActivities[index];
+            return buildActivityItem(activity);
+          },
         ),
-        itemBuilder: (context, index) {
-          final activity = filteredActivities[index];
-          return buildActivityItem(activity);
-        },
       ),
     );
   }
@@ -337,7 +351,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: 'Rubik',
-              fontSize: 19.0.sp,
+              fontSize: 15.0.sp,
               color: Colors.white,
             ),
           ),
@@ -357,7 +371,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
             child: MyElevatedButton(
               onPressed: () => inviteToYourActivity(),
               child: isLoading
-                  ? CircularProgressIndicator(
+                  ? const CircularProgressIndicator(
                       color: Colors.white,
                     )
                   : Text(
@@ -375,7 +389,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return ConfirmDialog(
+              return const ConfirmDialog(
                 title: 'Vahvistus',
                 leftButtonText: 'Ilmianna',
                 mainText: 'Oletko varma, että haluat ilmiantaa käyttäjän?',
@@ -541,7 +555,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                     ),
                     subtitle: Text(
                       activity.activityDescription,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Rubik',
                         overflow: TextOverflow.ellipsis,
                         color: AppColors.whiteColor,
@@ -634,84 +648,114 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     );
   }
 
-  Column requestList() {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
+  Widget requestList(AuthProvider ap) {
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: 15.h,
+        horizontal: 15.w,
+      ),
+      padding: EdgeInsets.all(15.0.w),
+      decoration: BoxDecoration(
+        color: AppColors.wineColor,
+        border: Border.all(
+          color: AppColors.darkPurpleColor,
+          width: 2.0,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("${widget.user.userName} on pyytäny päästä miittiisi:",
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15.sp,
+                fontFamily: 'Rubik',
+              )),
+          Column(
+              children: userRequests
+                  .map<Widget>((activity) => requestItem(activity, ap))
+                  .toList()),
+        ],
+      ),
+    );
+  }
+
+  Widget requestItem(PersonActivity activity, AuthProvider ap) {
     return Column(
-        children: userRequests
-            .map<Widget>((activity) => Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text("Haluaa miittiin ${activity.activityTitle}",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontFamily: 'Rubik',
-                          )),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          MyElevatedButton(
-                            height: 40.h,
-                            width: 160.w,
-                            onPressed: () async {
-                              ap
-                                  .updateUserJoiningActivity(
-                                      activity.activityUid,
-                                      widget.user.uid,
-                                      false)
-                                  .then((value) {
-                                setState(() {
-                                  initRequests();
-                                });
-                              });
-                            },
-                            child: Text(
-                              "Hylkää",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontFamily: 'Rubik',
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          MyElevatedButton(
-                            height: 40.h,
-                            width: 160.w,
-                            onPressed: () async {
-                              ap
-                                  .updateUserJoiningActivity(
-                                      activity.activityUid,
-                                      widget.user.uid,
-                                      true)
-                                  .then((value) {
-                                setState(() {
-                                  initRequests();
-                                });
-                                if (value) {
-                                  PushNotifications.sendAcceptedNotification(
-                                      widget.user, activity);
-                                }
-                              });
-                            },
-                            child: Text(
-                              "Hyväksy",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontFamily: 'Rubik',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ))
-            .toList());
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 20.0.h),
+        Text(
+            "${activities.firstWhere((element) => element.name == activity.activityCategory).emojiData} ${activity.activityTitle}",
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 17.sp,
+              fontFamily: 'Rubik',
+            )),
+        SizedBox(
+          height: 6.0.h,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            MyElevatedButton(
+              height: 40.h,
+              width: 140.w,
+              onPressed: () async {
+                ap
+                    .updateUserJoiningActivity(
+                        activity.activityUid, widget.user.uid, false)
+                    .then((value) {
+                  setState(() {
+                    initRequests(ap);
+                  });
+                });
+              },
+              child: Text(
+                "Hylkää",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontFamily: 'Rubik',
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 12.w,
+            ),
+            MyElevatedButton(
+              height: 40.h,
+              width: 140.w,
+              onPressed: () async {
+                ap
+                    .updateUserJoiningActivity(
+                        activity.activityUid, widget.user.uid, true)
+                    .then((value) {
+                  setState(() {
+                    initRequests(ap);
+                  });
+                  if (value) {
+                    PushNotifications.sendAcceptedNotification(
+                        widget.user, activity);
+                  }
+                });
+              },
+              child: Text(
+                "Hyväksy",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontFamily: 'Rubik',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

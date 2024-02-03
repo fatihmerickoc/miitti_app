@@ -2,6 +2,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:miitti_app/chatPage.dart';
+import 'package:miitti_app/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
@@ -45,12 +48,13 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
     switch (payload["type"]) {
       case ("invite"):
         print("Invite clicked ${payload["myData"]}");
-        return FutureBuilder<PersonActivity>(
+        return FutureBuilder<MiittiActivity>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getSingleActivity(payload["myData"]),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return ActivityDetailsPage(myActivity: snapshot.data!);
+                return ActivityDetailsPage(
+                    myActivity: snapshot.data! as PersonActivity);
               } else if (snapshot.hasError) {
                 print("Error: ${snapshot.error}");
                 return const IndexPage();
@@ -90,12 +94,17 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
             });
       case ("message"):
         print("Message clicked ${payload["myData"]}");
-        return FutureBuilder<PersonActivity>(
+        return FutureBuilder<MiittiActivity>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getSingleActivity(payload["myData"]),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return ChatPage(activity: snapshot.data!);
+                MiittiActivity a = snapshot.data!;
+                if (a is PersonActivity) {
+                  return ChatPage(activity: a);
+                } else {
+                  return ComChatPage(activity: a as CommercialActivity);
+                }
               } else if (snapshot.hasError) {
                 print("Error: ${snapshot.error}");
                 return const IndexPage();

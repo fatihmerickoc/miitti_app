@@ -4,7 +4,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -600,10 +599,10 @@ class AuthProvider extends ChangeNotifier {
 
   Future<List<PersonActivity>> fetchActivitiesRequestsFrom(
       String userId) async {
-    _isLoading = true;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      notifyListeners();
+
       QuerySnapshot querySnapshot = await _fireStore
           .collection('activities')
           .where('admin', isEqualTo: uid)
@@ -618,7 +617,7 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      return activities.toList();
+      return activities;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -627,13 +626,22 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<PersonActivity> getSingleActivity(String activityId) async {
+  Future<MiittiActivity> getSingleActivity(String activityId) async {
     _isLoading = true;
     notifyListeners();
+    MiittiActivity activity;
     DocumentSnapshot doc =
         await _fireStore.collection("activities").doc(activityId).get();
-    PersonActivity activity =
-        PersonActivity.fromMap(doc.data() as Map<String, dynamic>);
+    if (doc.exists) {
+      activity = PersonActivity.fromMap(doc.data() as Map<String, dynamic>);
+    } else {
+      DocumentSnapshot commercialDoc = await _fireStore
+          .collection("commercialActivities")
+          .doc(activityId)
+          .get();
+      activity = CommercialActivity.fromMap(
+          commercialDoc.data() as Map<String, dynamic>);
+    }
     _isLoading = false;
     notifyListeners();
     return activity;
@@ -714,349 +722,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-<<<<<<< HEAD
-  Future<List<MiittiActivity>> fetchActivities() async {
-    try {
-      FilterSettings filterSettings = FilterSettings();
-      await filterSettings.loadPreferences();
-
-      QuerySnapshot querySnapshot =
-          await _fireStore.collection('activities').get();
-
-      List<MiittiActivity> activities = querySnapshot.docs
-          .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
-          .where((activity) {
-        if (_miittiUser == null) {
-          print("User is null");
-        } else {
-          print("Checking filters of ${_miittiUser?.userName}");
-          if (daysSince(activity.activityTime) <
-              (activity.timeDecidedLater ? -7 : -1)) {
-            removeActivity(activity.activityUid);
-            return false;
-          }
-
-          if (filterSettings.sameGender &&
-              activity.adminGender != miittiUser.userGender) {
-            return false;
-          }
-          if (!filterSettings.multiplePeople && activity.personLimit > 2) {
-            return false;
-          }
-          if (activity.adminAge < filterSettings.minAge ||
-              activity.adminAge > filterSettings.maxAge) {
-            return false;
-          }
-        }
-
-        return true;
-      }).toList();
-
-      return activities;
-    } catch (e, s) {
-      print('Error fetching activities: $e');
-      print(s);
-      return [];
-    }
-  }
-
-  Future<List<MiittiActivity>> fetchUserActivities() async {
-    try {
-      QuerySnapshot querySnapshot = await _fireStore
-          .collection('activities')
-          .where('participants', arrayContains: uid)
-          .get();
-
-      QuerySnapshot requestSnapshot = await _fireStore
-          .collection('activities')
-          .where('requests', arrayContains: uid)
-          .get();
-
-      List<MiittiActivity> activities = [];
-
-      for (var doc in querySnapshot.docs) {
-        activities
-            .add(MiittiActivity.fromMap(doc.data() as Map<String, dynamic>));
-      }
-
-      for (var doc in requestSnapshot.docs) {
-        activities
-            .add(MiittiActivity.fromMap(doc.data() as Map<String, dynamic>));
-      }
-
-      DocumentSnapshot documentSnapshot =
-          await _fireStore.collection('users').doc(_uid).get();
-
-      MiittiUser myOwnUser =
-          MiittiUser.fromMap(documentSnapshot.data() as Map<String, dynamic>);
-
-      if (myOwnUser.invitedActivities.isNotEmpty) {
-        for (String activityId in myOwnUser.invitedActivities) {
-          DocumentSnapshot activitySnapshot =
-              await _fireStore.collection('activities').doc(activityId).get();
-
-          if (activitySnapshot.exists) {
-            MiittiActivity activity = MiittiActivity.fromMap(
-                activitySnapshot.data() as Map<String, dynamic>);
-            activities.add(activity);
-          }
-        }
-      }
-
-      return activities;
-    } catch (e) {
-      print('Error fetching user activities: $e');
-      return [];
-    }
-  }
-
-  Future<bool> removeUser(String userId) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      if (!adminId.contains(_uid!) && _uid!.isNotEmpty) {
-        await removeAdminActivities();
-        await _fireStore.collection('users').doc(userId).delete();
-        await _firebaseAuth.currentUser?.delete();
-
-        SharedPreferences s = await SharedPreferences.getInstance();
-        _isSignedIn = false;
-        _isLoading = false;
-        bool value = await s.clear();
-
-        notifyListeners();
-        return value;
-      }
-
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print("Error removing user from the app $e");
-      return false;
-    }
-  }
-
-  Future removeAdminActivities() async {
-    try {
-      List<MiittiActivity> removedUserAdminActivities =
-          await fetchAdminActivities();
-
-      for (MiittiActivity singleActivity in removedUserAdminActivities) {
-        await removeActivity(singleActivity.activityUid);
-      }
-    } catch (e) {
-      print('Error removing admin activities: $e');
-    }
-  }
-
-  Future removeActivity(String activityId) async {
-    try {
-      await _fireStore
-          .collection('activities')
-          .doc(activityId)
-          .delete()
-          .then((value) => print("Activity Removed!"));
-    } catch (e) {
-      print('Error deleting activity: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<List<MiittiActivity>> fetchAdminActivities() async {
-    try {
-      QuerySnapshot querySnapshot = await _fireStore
-          .collection('activities')
-          .where('admin', isEqualTo: uid)
-          .get();
-
-      List<MiittiActivity> activities = querySnapshot.docs
-          .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
-
-      return activities;
-    } catch (e) {
-      print('Error fetching user activities: $e');
-      return [];
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> removeUserFromActivity(
-    String activityId,
-    bool isRequested,
-  ) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      if (!isRequested) {
-        await _fireStore.collection('activities').doc(activityId).update({
-          'participants': FieldValue.arrayRemove([uid])
-        });
-      } else {
-        await _fireStore.collection('activities').doc(activityId).update({
-          'requests': FieldValue.arrayRemove([uid])
-        });
-      }
-
-      print("User removed from activity successfully.");
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print('Error removing user from activity: $e');
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> fetchActivitiesRequests() async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      QuerySnapshot querySnapshot = await _fireStore
-          .collection('activities')
-          .where('admin', isEqualTo: uid)
-          .get();
-
-      List<MiittiActivity> activities = querySnapshot.docs
-          .map((doc) =>
-              MiittiActivity.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
-
-      List<Map<String, dynamic>> usersAndActivityIds = [];
-
-      for (MiittiActivity activity in activities) {
-        List<MiittiUser> users = await fetchUsersByUids(activity.requests);
-        usersAndActivityIds.addAll(users.map((user) => {
-              'user': user,
-              'activity': activity,
-            }));
-      }
-
-      _isLoading = false;
-      notifyListeners();
-
-      return usersAndActivityIds.toList();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print('Error fetching admin activities: $e');
-      return [];
-    }
-  }
-
-  Future<MiittiActivity> getSingleActivity(String activityId) async {
-    _isLoading = true;
-    notifyListeners();
-    DocumentSnapshot doc =
-        await _fireStore.collection("activities").doc(activityId).get();
-    MiittiActivity activity =
-        MiittiActivity.fromMap(doc.data() as Map<String, dynamic>);
-    _isLoading = false;
-    notifyListeners();
-    return activity;
-  }
-
-  Future<bool> updateUserJoiningActivity(
-    String activityId,
-    String userId,
-    bool isOnlyDelete,
-  ) async {
-    _isLoading = true;
-    notifyListeners();
-    bool operationCompleted = false;
-
-    try {
-      final activityRef = _fireStore.collection('activities').doc(activityId);
-
-      await _fireStore.runTransaction((transaction) async {
-        final activitySnapshot = await transaction.get(activityRef);
-        if (!activitySnapshot.exists) {
-          print('Activity does not exist.');
-          return;
-        }
-
-        final activityData = activitySnapshot.data();
-        final List<dynamic> participants = activityData?['participants'];
-        final List<dynamic> requests = activityData?['requests'];
-
-        // Remove user ID from requests
-        requests.remove(userId);
-
-        // Add user ID to participants if not already present
-        if (!participants.contains(userId) && !isOnlyDelete) {
-          participants.add(userId);
-          operationCompleted = true;
-        }
-
-        transaction.update(activityRef, {
-          'participants': participants,
-          'requests': requests,
-        });
-      });
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      print('Error while joining activity: $e');
-    }
-    return operationCompleted;
-  }
-
-  Future<List<MiittiUser>> fetchUsersByActivityId(String activityId) async {
-    try {
-      // Fetch activity by id
-      DocumentSnapshot docSnapshot =
-          await _fireStore.collection('activities').doc(activityId).get();
-      if (!docSnapshot.exists) {
-        throw Exception("Activity not found");
-      }
-      MiittiActivity activity =
-          MiittiActivity.fromMap(docSnapshot.data() as Map<String, dynamic>);
-
-      // Fetch participants (users) using user ids from the activity
-      List<MiittiUser> users = await fetchUsersByUids(activity.participants);
-
-      return users;
-    } catch (e) {
-      print("Error fetching users by activity id: $e");
-      return [];
-    }
-  }
-
-  Future<List<MiittiUser>> fetchUsersByUids(Set<String> userIds) async {
-    try {
-      List<MiittiUser> users = [];
-      for (final uid in userIds) {
-        DocumentSnapshot docSnapshot =
-            await _fireStore.collection('users').doc(uid).get();
-        if (docSnapshot.exists) {
-          users.add(
-              MiittiUser.fromMap(docSnapshot.data() as Map<String, dynamic>));
-        }
-      }
-      return users;
-    } catch (e) {
-      print("Error fetching users: $e");
-      return [];
-    }
-  }
-
-=======
->>>>>>> 0f5c821fd7eab5e7f21079afb053a77b0dc2ba80
   Future<bool> reactToInvite(String activityId, bool accepted) async {
     _isLoading = true;
     notifyListeners();
@@ -1215,9 +880,22 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       if (!isRequested) {
-        await _fireStore.collection('activities').doc(activityId).update({
-          'participants': FieldValue.arrayRemove([uid])
-        });
+        //check if activity or commercial activity
+        DocumentSnapshot snapshot =
+            await _fireStore.collection('activities').doc(activityId).get();
+
+        if (snapshot.exists) {
+          await _fireStore.collection('activities').doc(activityId).update({
+            'participants': FieldValue.arrayRemove([uid])
+          });
+        } else {
+          await _fireStore
+              .collection('commercialActivities')
+              .doc(activityId)
+              .update({
+            'participants': FieldValue.arrayRemove([uid])
+          });
+        }
       } else {
         await _fireStore.collection('activities').doc(activityId).update({
           'requests': FieldValue.arrayRemove([uid])
