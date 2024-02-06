@@ -2,12 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/person_activity.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/navBarScreens/profileScreen.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -21,7 +23,7 @@ import 'package:provider/provider.dart';
 import '../constants/miittiUser.dart';
 
 class ActivityDetailsPage extends StatefulWidget {
-  final bool didGotInvited;
+  bool didGotInvited;
   final bool? comingFromAdmin;
 
   ActivityDetailsPage({
@@ -50,6 +52,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   @override
   void initState() {
     super.initState();
+    userStatus = getStatusInActivity();
     filteredUsers = fetchUsersJoinedActivity();
     fetchUsersJoinedActivity().then((users) {
       setState(() {
@@ -77,7 +80,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
           widget.myActivity.activityLong,
         ),
         iconImage:
-            'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
+            'images/${Activity.solveActivityId(widget.myActivity.activityCategory)}.png',
         iconSize: 0.8.r,
       ),
     );
@@ -150,7 +153,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                     Row(
                       children: [
                         Image.asset(
-                          'images/${widget.myActivity.activityCategory.toLowerCase()}.png',
+                          'images/${Activity.solveActivityId(widget.myActivity.activityCategory)}.png',
                           height: 90.h,
                         ),
                         Flexible(
@@ -298,7 +301,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                 return ConfirmDialog(
                   title: 'Varmistus',
                   leftButtonText: 'Ilmianna',
-                  mainText: 'Oletko varma, haluatko ilmianna aktiviteetti?',
+                  mainText: 'Oletko varma, että haluat ilmiantaa aktiviteetin?',
                 );
               },
             ).then(
@@ -337,7 +340,21 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
       await ap.sendActivityRequest(widget.myActivity.activityUid);
       PushNotifications.sendRequestNotification(ap, widget.myActivity);
       setState(() {
-        userStatus == UserStatusInActivity.requested;
+        userStatus = UserStatusInActivity.requested;
+        widget.myActivity.requests.add(ap.uid);
+      });
+    }
+  }
+
+  void joinIfInvited() async {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    bool operationCompleted =
+        await ap.reactToInvite(widget.myActivity.activityUid, true);
+    if (operationCompleted) {
+      setState(() {
+        userStatus = UserStatusInActivity.joined;
+        widget.myActivity.participants.add(ap.uid);
+        widget.didGotInvited = false;
       });
     }
   }
@@ -393,18 +410,18 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
     );
   }
 
-  Future<List<MiittiUser>> fetchUsersJoinedActivity() async {
+  Future<List<MiittiUser>> fetchUsersJoinedActivity() {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    return await ap.fetchUsersByActivityId(widget.myActivity.activityUid);
+    return ap.fetchUsersByUids(widget.myActivity.participants);
   }
 
-  void fetchStatusInActivity() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    UserStatusInActivity status =
-        await ap.getUserStatusInActivity(widget.myActivity.activityUid);
-    setState(() {
-      userStatus = status;
-    });
+  UserStatusInActivity getStatusInActivity() {
+    final userId = Provider.of<AuthProvider>(context, listen: false).uid;
+    return widget.myActivity.participants.contains(userId)
+        ? UserStatusInActivity.joined
+        : widget.myActivity.requests.contains(userId)
+            ? UserStatusInActivity.requested
+            : UserStatusInActivity.none;
   }
 
   String getButtonText() {

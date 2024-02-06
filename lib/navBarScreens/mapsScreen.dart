@@ -105,7 +105,9 @@ class _MapsScreenState extends State<MapsScreen> {
     setState(() {
       _ads = ad;
     });
-    provider.addAdView(_ads[0].uid);
+    if (_ads.isNotEmpty) {
+      provider.addAdView(_ads[0].uid);
+    }
   }
 
   static Future<void> addGeojsonCluster(
@@ -117,9 +119,8 @@ class _MapsScreenState extends State<MapsScreen> {
         "type": "Feature",
         "properties": {
           "id": activity.activityUid,
-          'activityCategory': activity is CommercialActivity
-              ? 'images/${activity.activityCategory.toLowerCase()}.png'
-              : 'images/${activity.activityCategory.toLowerCase()}.png',
+          'activityCategory':
+              'images/${Activity.solveActivityId(activity.activityCategory)}.png',
         },
         "geometry": {
           "type": "Point",

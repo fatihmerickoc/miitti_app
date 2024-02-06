@@ -10,6 +10,7 @@ import 'package:miitti_app/commercialScreens/commercial_user_profile.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
@@ -155,7 +156,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                               radius: 34.r,
                               onBackgroundImageError: (exception, stackTrace) =>
                                   AssetImage(
-                                      'images/${widget.myActivity.activityCategory.toLowerCase}.png'),
+                                      'images/${Activity.solveActivityId(widget.myActivity.activityCategory)}.png'),
                             ),
                           ),
                         ),
@@ -386,6 +387,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
           ap.miittiUser, widget.myActivity);
       setState(() {
         isAlreadyJoined = true;
+        widget.myActivity.participants.add(ap.miittiUser.uid);
       });
     }
   }
@@ -393,68 +395,42 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
   Widget getMyButton(bool isLoading) {
     String buttonText = getButtonText();
 
-    if (participantCount < widget.myActivity.personLimit) {
-      //There is still place left
-      return MyElevatedButton(
-        height: 50.h,
-        onPressed: () {
-          if (!isAlreadyJoined) {
-            joinActivity();
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ComChatPage(activity: widget.myActivity),
-              ),
-            );
-          }
-        },
-        child: isLoading
-            ? LoadingAnimationWidget.waveDots(
+    //There is still place left
+    return MyElevatedButton(
+      height: 50.h,
+      onPressed: () {
+        if (!isAlreadyJoined &&
+            participantCount < widget.myActivity.personLimit) {
+          joinActivity();
+        } else if (isAlreadyJoined) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComChatPage(activity: widget.myActivity),
+            ),
+          );
+        }
+      },
+      child: isLoading
+          ? LoadingAnimationWidget.waveDots(
+              color: Colors.white,
+              size: 50.r,
+            )
+          : Text(
+              buttonText,
+              style: TextStyle(
+                fontSize: 19.sp,
                 color: Colors.white,
-                size: 50.r,
-              )
-            : Text(
-                buttonText,
-                style: TextStyle(
-                  fontSize: 19.sp,
-                  color: Colors.white,
-                  fontFamily: 'Rubik',
-                ),
+                fontFamily: 'Rubik',
               ),
-      );
-    } else {
-      //Its full
-      return MyElevatedButton(
-        height: 50.h,
-        onPressed: () {
-          if (isAlreadyJoined) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ComChatPage(
-                  activity: widget.myActivity,
-                ),
-              ),
-            );
-          }
-        },
-        child: Text(
-          buttonText,
-          style: TextStyle(
-            fontSize: 19.sp,
-            color: Colors.white,
-            fontFamily: 'Rubik',
-          ),
-        ),
-      );
-    }
+            ),
+    );
   }
 
   void fetchUsersJoinedActivity() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     ap
-        .fetchUsersByActivityId(widget.myActivity.activityUid)
+        .fetchUsersByUids(widget.myActivity.participants)
         .then((value) => setState(() {
               participantList = value;
               participantCount = value.length;

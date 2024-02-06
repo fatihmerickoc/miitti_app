@@ -20,20 +20,18 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late List<Activity> filteredActivities = [];
+  late List<String> filteredActivities = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    filteredActivities = activities
-        .where((activity) => getActivities().contains(activity.name))
-        .toList();
+    filteredActivities = getActivities();
   }
 
-  Set<String> getActivities() {
+  List<String> getActivities() {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    return ap.miittiUser.userFavoriteActivities;
+    return ap.miittiUser.userFavoriteActivities.toList();
   }
 
   Widget getAdminButton(AuthProvider ap) {
@@ -286,7 +284,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           itemBuilder: (context, index) {
             final activity = filteredActivities[index];
-            return buildActivityItem(activity);
+            return buildActivityItem(Activity.getActivity(activity));
           },
         ),
       ),

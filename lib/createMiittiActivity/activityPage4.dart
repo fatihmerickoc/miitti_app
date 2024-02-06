@@ -25,20 +25,17 @@ class ActivityPage4 extends StatefulWidget {
 }
 
 class _ActivityPage4State extends State<ActivityPage4> {
-  Activity? selectedActivity;
+  String selectedActivity = "";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    for (Activity activity in activities) {
-      if (activity.name == widget.activity.activityCategory) {
-        selectedActivity = activity;
-      }
-    }
+
+    selectedActivity = widget.activity.activityCategory;
   }
 
-  void _toggleSelectedActivity(Activity activity) {
+  void _toggleSelectedActivity(String activity) {
     setState(() {
       selectedActivity = activity;
     });
@@ -62,7 +59,7 @@ class _ActivityPage4State extends State<ActivityPage4> {
                   mainAxisSpacing: 4.0,
                 ),
                 itemBuilder: (context, index) {
-                  final activity = activities[index];
+                  final activity = activities.keys.toList()[index];
                   final isSelected = activity == selectedActivity;
                   return GestureDetector(
                     onTap: () => _toggleSelectedActivity(activity),
@@ -81,11 +78,11 @@ class _ActivityPage4State extends State<ActivityPage4> {
                       child: Column(
                         children: [
                           Text(
-                            activity.emojiData,
+                            Activity.getActivity(activity).emojiData,
                             style: TextStyle(fontSize: 50.0.sp),
                           ),
                           Text(
-                            activity.name,
+                            Activity.getActivity(activity).name,
                             overflow: TextOverflow.ellipsis,
                             style: Styles.activityNameTextStyle,
                           ),
@@ -98,8 +95,8 @@ class _ActivityPage4State extends State<ActivityPage4> {
             ),
             MyElevatedButton(
               onPressed: () {
-                if (selectedActivity != null) {
-                  widget.activity.activityCategory = selectedActivity!.name;
+                if (selectedActivity.isNotEmpty) {
+                  widget.activity.activityCategory = selectedActivity;
                   widget.onActivityDataChanged(widget.activity);
                   widget.controller.nextPage(
                     duration: const Duration(milliseconds: 500),

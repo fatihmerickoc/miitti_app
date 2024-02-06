@@ -30,7 +30,7 @@ class UserProfileEditScreen extends StatefulWidget {
 class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   Color miittiColor = const Color.fromRGBO(255, 136, 27, 1);
 
-  List<Activity> filteredActivities = [];
+  List<String> filteredActivities = [];
   List<PersonActivity> userRequests = [];
 
   @override
@@ -38,10 +38,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     super.initState();
     //Initialize the list from given data
     initRequests(Provider.of<AuthProvider>(context, listen: true));
-    filteredActivities = activities
-        .where((activity) =>
-            widget.user.userFavoriteActivities.contains(activity.name))
-        .toList();
+    filteredActivities = widget.user.userFavoriteActivities.toList();
   }
 
   void initRequests(AuthProvider ap) async {
@@ -325,7 +322,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
           ),
           itemBuilder: (context, index) {
             final activity = filteredActivities[index];
-            return buildActivityItem(activity);
+            return buildActivityItem(Activity.getActivity(activity));
           },
         ),
       ),
@@ -688,7 +685,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       children: [
         SizedBox(height: 20.0.h),
         Text(
-            "${activities.firstWhere((element) => element.name == activity.activityCategory).emojiData} ${activity.activityTitle}",
+            "${activities[activity.activityCategory]?.emojiData} ${activity.activityTitle}",
             textAlign: TextAlign.start,
             style: TextStyle(
               fontWeight: FontWeight.bold,

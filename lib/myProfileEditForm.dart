@@ -44,22 +44,34 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
 
   Map<String, String> userChoices = {};
 
-  List<Activity> filteredActivities = [];
-  List<Activity> favoriteActivities = [];
+  List<String> filteredActivities = [];
+  List<String> favoriteActivities = [];
 
   @override
   void initState() {
     super.initState();
-    filteredActivities = List.from(activities);
-    favoriteActivities = activities
-        .where((activity) =>
-            widget.user.userFavoriteActivities.contains(activity.name))
-        .toList();
+    filteredActivities = activities.keys.toList();
+    favoriteActivities = updateActiviesId(widget.user.userFavoriteActivities);
 
     selectedLanguages = widget.user.userLanguages;
     userAreaController.text = widget.user.userArea;
     userSchoolController.text = widget.user.userSchool;
     userChoices = widget.user.userChoices;
+  }
+
+  List<String> updateActiviesId(Set<String> favActivities) {
+    for (var favActivity in favActivities) {
+      if (!activities.containsKey(favActivity)) {
+        //If is found in activities values, set key of the value to favActivity value
+        for (var entry in activities.entries) {
+          if (entry.value.name == favActivity) {
+            favActivities.remove(favActivity);
+            favActivities.add(entry.key);
+          }
+        }
+      }
+    }
+    return favActivities.toList();
   }
 
   @override
@@ -76,7 +88,7 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
     setState(() {});
   }
 
-  void _toggleFavoriteActivity(Activity activity) {
+  void _toggleFavoriteActivity(String activity) {
     setState(() {
       if (favoriteActivities.contains(activity)) {
         favoriteActivities.remove(activity);
@@ -271,11 +283,11 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                           child: Column(
                             children: [
                               Text(
-                                activity.emojiData,
+                                Activity.getActivity(activity).emojiData,
                                 style: TextStyle(fontSize: 50.0.sp),
                               ),
                               Text(
-                                activity.name,
+                                Activity.getActivity(activity).name,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontFamily: 'Rubik',
@@ -393,7 +405,7 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                       userBirthday: ap.miittiUser.userBirthday,
                       userArea: userAreaController.text.trim(),
                       userFavoriteActivities: favoriteActivities
-                          .map((activity) => activity.name)
+                          .map((activity) => activity)
                           .toSet(),
                       userChoices: userChoices,
                       userGender: ap.miittiUser.userGender,

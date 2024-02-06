@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
+import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -128,7 +129,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
     int maxActivitiesToShow = 5;
     List<String> limitedActivities =
         activities.take(maxActivitiesToShow).toList();
-    String activitiesText = limitedActivities.join(", ");
+    String activitiesText =
+        limitedActivities.map((e) => Activity.getActivity(e).name).join(", ");
     return Text(
       activitiesText,
       maxLines: 2,

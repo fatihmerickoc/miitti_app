@@ -32,20 +32,21 @@ class _OnBoardingScreenActivitiesState
     extends State<OnBoardingScreenActivities> {
   String search = '';
 
-  List<Activity> filteredActivities = [];
-  Set<Activity> favoriteActivities = <Activity>{};
+  List<String> filteredActivities = [];
+  Set<String> favoriteActivities = <String>{};
 
   void _search(String input) {
     setState(() {
       search = input;
-      filteredActivities = activities
+      filteredActivities = activities.entries
           .where((activity) =>
-              activity.name.toLowerCase().contains(search.toLowerCase()))
+              activity.value.name.toLowerCase().contains(search.toLowerCase()))
+          .map((e) => e.key)
           .toList();
     });
   }
 
-  void _toggleFavoriteActivity(Activity activity) {
+  void _toggleFavoriteActivity(String activity) {
     setState(() {
       if (favoriteActivities.contains(activity)) {
         favoriteActivities.remove(activity);
@@ -98,7 +99,7 @@ class _OnBoardingScreenActivitiesState
   @override
   void initState() {
     super.initState();
-    filteredActivities = List.from(activities);
+    filteredActivities = activities.keys.toList();
   }
 
   @override
@@ -149,11 +150,11 @@ class _OnBoardingScreenActivitiesState
                           child: Column(
                             children: [
                               Text(
-                                activity.emojiData,
+                                Activity.getActivity(activity).emojiData,
                                 style: TextStyle(fontSize: 50.sp),
                               ),
                               Text(
-                                activity.name,
+                                Activity.getActivity(activity).name,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontFamily: 'Rubik',
@@ -172,11 +173,7 @@ class _OnBoardingScreenActivitiesState
               MyElevatedButton(
                 onPressed: () {
                   if (favoriteActivities.length > 2) {
-                    Set<String> activityNames = favoriteActivities
-                        .map((activity) => activity.name)
-                        .toSet();
-
-                    widget.user.userFavoriteActivities = activityNames;
+                    widget.user.userFavoriteActivities = favoriteActivities;
                     widget.onUserDataChanged(widget.user);
 
                     pushNRemoveUntil(
@@ -189,7 +186,7 @@ class _OnBoardingScreenActivitiesState
                   } else {
                     showSnackBar(
                         context,
-                        'Valitse vähintään 3 lempiaktiviteettejä, yritä uudeelleen!',
+                        'Valitse vähintään 3 lempiaktiviteettia, yritä uudelleen!',
                         Colors.red.shade800);
                   }
                 },

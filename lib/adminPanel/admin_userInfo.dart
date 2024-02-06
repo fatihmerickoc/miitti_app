@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:miitti_app/adminPanel/admin_homePage.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
-import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/utils/utils.dart';
-import 'package:provider/provider.dart';
 
 class AdminUserInfo extends StatefulWidget {
   final MiittiUser user;

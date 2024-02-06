@@ -957,10 +957,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       DateTime now = DateTime.now().toUtc();
       String timestampString = now.toIso8601String();
-      await _fireStore
-          .collection('users')
-          .doc(_uid)
-          .update({'userStatus': timestampString});
+      await _userDocRef(uid).update({'userStatus': timestampString});
       print("Userstatus set");
     } catch (e, s) {
       if (_uid == null) print("UID is null");
@@ -1108,8 +1105,8 @@ class AuthProvider extends ChangeNotifier {
         return fetchUsersByUids(commercialActivity.participants);
       });
       return fetchUsersByUids(activity.participants);
-    } catch (e) {
-      print("Error fetching users by activity id: $e");
+    } catch (e, s) {
+      print("Error fetching users by activity id: $e, stack: $s");
       return [];
     }
   }
@@ -1193,6 +1190,7 @@ class AuthProvider extends ChangeNotifier {
       isPersonal(activity);
       return activity;
     } else {
+      print("is commercial");
       DocumentSnapshot comSnapshot = await _comActivityDocRef(uid).get();
       CommercialActivity commercialActivity =
           CommercialActivity.fromDoc(comSnapshot);
