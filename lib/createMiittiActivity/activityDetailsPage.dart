@@ -41,9 +41,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   late CameraPosition myCameraPosition;
   late MapboxMapController myController;
 
-  bool isAlreadyJoined = false;
-
-  bool isAlreadyRequested = false;
+  UserStatusInActivity userStatus = UserStatusInActivity.none;
 
   late Future<List<MiittiUser>> filteredUsers;
 
@@ -52,8 +50,6 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   @override
   void initState() {
     super.initState();
-    checkIfRequested();
-    checkIfJoined();
     filteredUsers = fetchUsersJoinedActivity();
     fetchUsersJoinedActivity().then((users) {
       setState(() {
@@ -292,7 +288,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   }
 
   Widget reportActivity(AuthProvider ap) {
-    if (isAlreadyJoined) {
+    if (userStatus == UserStatusInActivity.joined) {
       return Center(
         child: GestureDetector(
           onTap: () {
@@ -335,44 +331,13 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
     return Container();
   }
 
-  checkIfJoined() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    final activityUid = widget.myActivity.activityUid;
-
-    await ap.checkIfUserJoined(activityUid).then((joined) {
-      if (joined) {
-        setState(() {
-          isAlreadyJoined = true;
-        });
-      }
-    });
-  }
-
-  checkIfRequested() async {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    final activityUid = widget.myActivity.activityUid;
-
-    await ap.checkIfUserRequested(activityUid).then((participated) {
-      if (participated) {
-        setState(() {
-          isAlreadyRequested = true;
-          isAlreadyJoined = false;
-        });
-      } else {
-        setState(() {
-          //   checkIfJoined();
-        });
-      }
-    });
-  }
-
   void sendActivityRequest() async {
-    if (!isAlreadyRequested) {
+    if (userStatus == UserStatusInActivity.none) {
       final ap = Provider.of<AuthProvider>(context, listen: false);
       await ap.sendActivityRequest(widget.myActivity.activityUid);
       PushNotifications.sendRequestNotification(ap, widget.myActivity);
       setState(() {
-        isAlreadyRequested = true;
+        userStatus == UserStatusInActivity.requested;
       });
     }
   }
@@ -397,63 +362,35 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
       );
     }
 
-    if (participantCount < widget.myActivity.personLimit) {
-      //There is still place left
-      return MyElevatedButton(
-        height: 50.h,
-        onPressed: () {
-          if (!isAlreadyRequested && !isAlreadyJoined) {
-            sendActivityRequest();
-          }
-          if (isAlreadyJoined) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatPage(activity: widget.myActivity),
-              ),
-            );
-          }
-        },
-        child: isLoading
-            ? LoadingAnimationWidget.waveDots(
+    return MyElevatedButton(
+      height: 50.h,
+      onPressed: () {
+        if (userStatus == UserStatusInActivity.none &&
+            participantCount < widget.myActivity.personLimit) {
+          sendActivityRequest();
+        } else if (userStatus == UserStatusInActivity.joined) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(activity: widget.myActivity),
+            ),
+          );
+        }
+      },
+      child: isLoading
+          ? LoadingAnimationWidget.waveDots(
+              color: Colors.white,
+              size: 50.r,
+            )
+          : Text(
+              buttonText,
+              style: TextStyle(
+                fontSize: 19.sp,
                 color: Colors.white,
-                size: 50.r,
-              )
-            : Text(
-                buttonText,
-                style: TextStyle(
-                  fontSize: 19.sp,
-                  color: Colors.white,
-                  fontFamily: 'Rubik',
-                ),
+                fontFamily: 'Rubik',
               ),
-      );
-    } else {
-      //Its full
-      return MyElevatedButton(
-        height: 50.h,
-        onPressed: () {
-          if (isAlreadyJoined) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatPage(
-                  activity: widget.myActivity,
-                ),
-              ),
-            );
-          }
-        },
-        child: Text(
-          buttonText,
-          style: TextStyle(
-            fontSize: 19.sp,
-            color: Colors.white,
-            fontFamily: 'Rubik',
-          ),
-        ),
-      );
-    }
+            ),
+    );
   }
 
   Future<List<MiittiUser>> fetchUsersJoinedActivity() async {
@@ -461,23 +398,30 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
     return await ap.fetchUsersByActivityId(widget.myActivity.activityUid);
   }
 
+  void fetchStatusInActivity() async {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    UserStatusInActivity status =
+        await ap.getUserStatusInActivity(widget.myActivity.activityUid);
+    setState(() {
+      userStatus = status;
+    });
+  }
+
   String getButtonText() {
-    if (participantCount < widget.myActivity.personLimit) {
-      if (isAlreadyRequested) {
-        return 'Odottaa hyväksyntää';
-      }
-      if (isAlreadyJoined) {
-        return 'Siirry keskusteluun';
-      }
-      return 'Osallistun';
+    if (userStatus == UserStatusInActivity.requested) {
+      return 'Odottaa hyväksyntää';
+    } else if (userStatus == UserStatusInActivity.joined) {
+      return 'Siirry keskusteluun';
     } else {
-      if (isAlreadyRequested) {
-        return 'Odottaa hyväksyntää';
-      }
-      if (isAlreadyJoined) {
-        return 'Siirry keskusteluun';
-      }
-      return 'Täynnä';
+      return participantCount < widget.myActivity.personLimit
+          ? 'Osallistun'
+          : 'Täynnä';
     }
   }
+}
+
+enum UserStatusInActivity {
+  none,
+  requested,
+  joined,
 }

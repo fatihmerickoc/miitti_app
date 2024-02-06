@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/index_page.dart';
+import 'package:miitti_app/utils/utils.dart';
 
 class ActivityPageFinal extends StatefulWidget {
   const ActivityPageFinal({required this.miittiActivity, Key? key})
@@ -52,11 +53,7 @@ class _ActivityPageFinalState extends State<ActivityPageFinal> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                          builder: (context) => const IndexPage()),
-                      (Route<dynamic> route) => false,
-                    );
+                    pushNRemoveUntil(context, const IndexPage());
                   },
                   child: Align(
                     alignment: Alignment.topRight,
@@ -124,11 +121,7 @@ class _ActivityPageFinalState extends State<ActivityPageFinal> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (context) => const IndexPage()),
-                          (Route<dynamic> route) => false,
-                        );
+                        pushNRemoveUntil(context, const IndexPage());
                       },
                       child: Padding(
                         padding: EdgeInsets.all(10.0.w),

@@ -96,11 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               createSectionTitle('Tilin asetukset'),
               GestureDetector(
                   onTap: () => ap.userSignOut().then(
-                        (value) => Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const HomePage(),
-                            ),
-                            (Route<dynamic> route) => false),
+                        (value) => pushNRemoveUntil(context, const HomePage()),
                       ),
                   child: createText('Kirjaudu ulos')),
               GestureDetector(
@@ -123,10 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'Tilisi on poistettu onnistuneesti',
                             Colors.green.shade800,
                           );
-                          Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (context) => HomePage()),
-                              (Route<dynamic> route) => false);
+                          pushNRemoveUntil(context, const HomePage());
                         } else if (value == 1) {
                           showSnackBar(
                             context,

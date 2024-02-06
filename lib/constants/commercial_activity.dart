@@ -33,6 +33,10 @@ class CommercialActivity extends MiittiActivity {
     required this.activityPhoto,
   });
 
+  static CommercialActivity fromDoc(DocumentSnapshot snapshot) {
+    return fromMap(snapshot.data() as Map<String, dynamic>);
+  }
+
   static CommercialActivity fromMap(Map<String, dynamic> map) {
     return CommercialActivity(
         activityTitle: map['activityTitle'],

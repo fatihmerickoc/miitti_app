@@ -409,12 +409,11 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                       ap
                           .saveUserDataToSP()
                           .then((value) => ap.setSignIn().then((value) {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: (context) => IndexPage(
-                                              initialPage: 3,
-                                            )),
-                                    (Route<dynamic> route) => false);
+                                pushNRemoveUntil(
+                                    context,
+                                    IndexPage(
+                                      initialPage: 3,
+                                    ));
                               }));
                     });
                   } else {

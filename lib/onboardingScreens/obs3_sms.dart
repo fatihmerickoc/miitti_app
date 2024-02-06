@@ -130,17 +130,12 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
           ap.getDataFromFirestore().then(
                 (value) => ap.saveUserDataToSP().then(
                       (value) => ap.setSignIn().then(
-                            (value) => Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) => IndexPage()),
-                                (Route<dynamic> route) => false),
+                            (value) => pushNRemoveUntil(context, IndexPage()),
                           ),
                     ),
               );
         } else {
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => OnboardingScreen()),
-              (Route<dynamic> route) => false);
+          pushNRemoveUntil(context, OnboardingScreen());
         }
       });
       return;
@@ -156,18 +151,13 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
               ap.getDataFromFirestore().then(
                     (value) => ap.saveUserDataToSP().then(
                           (value) => ap.setSignIn().then(
-                                (value) => Navigator.of(context)
-                                    .pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (context) => IndexPage()),
-                                        (Route<dynamic> route) => false),
+                                (value) =>
+                                    pushNRemoveUntil(context, IndexPage()),
                               ),
                         ),
                   );
             } else {
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => OnboardingScreen()),
-                  (Route<dynamic> route) => false);
+              pushNRemoveUntil(context, OnboardingScreen());
             }
           });
         });

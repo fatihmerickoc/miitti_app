@@ -120,9 +120,7 @@ class _PrivacyAgreementState extends State<PrivacyAgreement> {
         ap.saveUserDataToSP().then(
               (value) => ap.setSignIn().then(
                 (value) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => IndexPage()),
-                      (Route<dynamic> route) => false);
+                  pushNRemoveUntil(context, IndexPage());
                 },
               ),
             );

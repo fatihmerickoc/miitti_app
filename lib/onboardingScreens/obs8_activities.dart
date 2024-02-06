@@ -179,13 +179,13 @@ class _OnBoardingScreenActivitiesState
                     widget.user.userFavoriteActivities = activityNames;
                     widget.onUserDataChanged(widget.user);
 
-                    Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => PrivacyAgreement(
-                                  user: widget.user,
-                                  image: widget.userPickedImage,
-                                )),
-                        (Route<dynamic> route) => false);
+                    pushNRemoveUntil(
+                      context,
+                      PrivacyAgreement(
+                        user: widget.user,
+                        image: widget.userPickedImage,
+                      ),
+                    );
                   } else {
                     showSnackBar(
                         context,

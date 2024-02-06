@@ -192,6 +192,14 @@ String genderToString(Gender gender) {
   }
 }
 
+void pushNRemoveUntil(BuildContext context, Widget page) {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => page),
+    (route) => false,
+  );
+}
+
 int calculateAge(String birthDateString) {
   // Parse the birth date string into a DateTime object
   List<String> dateParts = birthDateString.split('/');

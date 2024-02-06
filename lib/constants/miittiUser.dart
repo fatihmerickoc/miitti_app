@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/helpers/activity.dart';
@@ -37,6 +38,10 @@ class MiittiUser {
       required this.userSchool,
       required this.fcmToken,
       required this.userRegistrationDate});
+
+  factory MiittiUser.fromDoc(DocumentSnapshot snapshot) {
+    return MiittiUser.fromMap(snapshot.data() as Map<String, dynamic>);
+  }
 
   factory MiittiUser.fromMap(Map<String, dynamic> map) {
     return MiittiUser(

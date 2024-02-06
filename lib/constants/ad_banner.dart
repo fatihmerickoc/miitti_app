@@ -8,6 +8,7 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdBanner {
@@ -85,11 +86,11 @@ class AdBanner {
     return banners;
   }
 
-  GestureDetector getWidget(Future onClick) {
+  GestureDetector getWidget(BuildContext context) {
     try {
       return GestureDetector(
         onTap: () async {
-          onClick;
+          Provider.of<AuthProvider>(context, listen: false).addAdClick(uid);
           await launchUrl(Uri.parse(link));
         },
         child: Card(

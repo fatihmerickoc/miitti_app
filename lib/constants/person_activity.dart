@@ -58,6 +58,10 @@ class PersonActivity extends MiittiActivity {
     };
   }
 
+  static PersonActivity fromDoc(DocumentSnapshot snapshot) {
+    return fromMap(snapshot.data() as Map<String, dynamic>);
+  }
+
   static PersonActivity fromMap(Map<String, dynamic> map) {
     return PersonActivity(
       activityTitle: map['activityTitle'],
