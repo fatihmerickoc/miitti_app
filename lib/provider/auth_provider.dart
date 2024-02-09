@@ -1002,42 +1002,88 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<int> removeUser(String userId) async {
+  Future<(bool logOut, String message)> removeUser(String userId) async {
     startLoading();
+
+    //Deleting user image from storage
     try {
-      int value = 0;
+      await FirebaseStorage.instance
+          .ref('userImages/$userId/profilePicture.jpg')
+          .delete();
+      print("Deleted from storage");
+    } catch (e, s) {
+      stopLoading();
+      print("Error removing user image from storage: $e");
+      await FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'a non-fatal error');
+      return (
+        false,
+        "Profiilikuvan poistaminen palvelimelta epäonnistui.\nOle yhteydessä tukeen."
+      );
+    }
 
-      await _fireStore.collection('users').doc(userId).delete().then((v) {
-        value = 1;
-      });
+    //Deleting userdata from firestore
+    try {
+      await _userDocRef(userId).delete();
+      print("Deteted from firestore");
+    } catch (e, s) {
+      stopLoading();
+      print("Error removing user from firestore: $e");
+      await FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'a non-fatal error');
+      return (
+        false,
+        "Profiilin poistaminen palvelimelta epäonnistui.\nOle yhteydessä tukeen."
+      );
+    }
 
+    //Deleting user from auth
+    try {
       if (!adminId.contains(_firebaseAuth.currentUser!.uid) &&
           _firebaseAuth.currentUser!.uid.isNotEmpty) {
-        value = 0;
-        await _firebaseAuth.currentUser?.delete().then((v) {
-          value = 1;
-        });
+        await _firebaseAuth.currentUser?.delete();
+        print("deleted from auth");
       }
+    } catch (e, s) {
+      stopLoading();
+      print("Error removing user from auth: $e");
+      await FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'a non-fatal error');
+      return (
+        false,
+        "Profiili poistettiin palvelimelta mutta kirjautumistietojen poistaminen epäonnistui.\nOle yhteydessä tukeen."
+      );
+    }
 
-      if (value == 1 && !adminId.contains(userId)) {
+    try {
+      if (!adminId.contains(userId)) {
         SharedPreferences s = await SharedPreferences.getInstance();
         _isSignedIn = false;
         await s.clear().then((v) {
           if (v) {
-            value = 2;
+            print("deleted from shared pref");
+          } else {
+            print("not deleted from shared pref");
+            stopLoading();
+            return (
+              false,
+              "Tilisi on poistettu palvelimelta, mutta tietojen poistaminen puhelimelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista."
+            );
           }
         });
       }
-
-      stopLoading();
-      return value;
     } catch (e, s) {
       stopLoading();
-      print("Error removing user from the app $e");
+      print("Error removing user from the device $e");
       await FirebaseCrashlytics.instance
           .recordError(e, s, reason: 'a non-fatal error');
-      return 0;
+      return (
+        false,
+        "Tilisi on poistettu palvelimelta, mutta tietojen poistaminen laitteelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista.'"
+      );
     }
+    stopLoading();
+    return (true, "Tilisi on poistettu onnistuneesti");
   }
 
 // #endregion

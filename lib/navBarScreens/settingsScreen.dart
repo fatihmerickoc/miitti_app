@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/home.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -46,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       style: TextStyle(
         fontSize: fontSize.sp,
         fontFamily: 'Rubik',
-        color: Colors.white,
+        color: AppColors.lightPurpleColor,
       ),
     );
   }
@@ -113,25 +114,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ).then((confirmed) {
                     if (confirmed != null && confirmed) {
                       ap.removeUser(ap.miittiUser.uid).then((value) {
-                        if (value == 2) {
-                          showSnackBar(
-                            context,
-                            'Tilisi on poistettu onnistuneesti',
-                            Colors.green.shade800,
-                          );
-                          pushNRemoveUntil(context, const HomePage());
-                        } else if (value == 1) {
-                          showSnackBar(
-                            context,
-                            'Tilisi on poistettu palvelimelta, mutta tietojen poistaminen puhelimelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista.',
-                            Colors.orange.shade800,
-                          );
-                        } else {
-                          showSnackBar(
-                            context,
-                            'Tilin poistaminen epäonnistui. Ole yhteydessä tukeen!',
-                            Colors.red.shade800,
-                          );
+                        showSnackBar(context, value.$2,
+                            value.$1 ? Colors.green : Colors.red);
+                        if (value.$1) {
+                          ap.userSignOut().then(
+                                (value) =>
+                                    pushNRemoveUntil(context, const HomePage()),
+                              );
                         }
                       });
                     }

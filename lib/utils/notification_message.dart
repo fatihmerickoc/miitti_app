@@ -59,7 +59,7 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
                 print("Error: ${snapshot.error}");
                 return const IndexPage();
               } else {
-                return const CircularProgressIndicator();
+                return const IndexPage();
               }
             });
       case ("request"):
