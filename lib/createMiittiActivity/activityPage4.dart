@@ -47,7 +47,7 @@ class _ActivityPage4State extends State<ActivityPage4> {
       body: SafeArea(
         child: Column(
           children: [
-            getSomeSpace(10),
+            getSomeSpace(20),
             getMiittiActivityText('Valitse alta sopiva kategoria miitille'),
             getSomeSpace(20),
             Expanded(

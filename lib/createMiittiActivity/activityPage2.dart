@@ -75,7 +75,7 @@ class _ActivityPage2State extends State<ActivityPage2> {
               child: ListView(
                 padding: EdgeInsets.symmetric(vertical: 5.w),
                 children: [
-                  getSomeSpace(10),
+                  getSomeSpace(20),
                   getMiittiActivityText(
                       'Mitä haluaisit kertoa muille miitistä'),
                   getSomeSpace(10),
@@ -125,8 +125,11 @@ class _ActivityPage2State extends State<ActivityPage2> {
                 ],
               ),
             ),
+            getSomeSpace(10),
             MyElevatedButton(
               onPressed: () {
+                if (titleFocusNode.hasFocus) titleFocusNode.unfocus();
+                if (subTitleFocusNode.hasFocus) subTitleFocusNode.unfocus();
                 if (titleController.text.isNotEmpty &&
                     subTitleController.text.isNotEmpty) {
                   // Update the activity object with the entered data
@@ -156,6 +159,8 @@ class _ActivityPage2State extends State<ActivityPage2> {
             getSomeSpace(25),
             GestureDetector(
               onTap: () {
+                if (titleFocusNode.hasFocus) titleFocusNode.unfocus();
+                if (subTitleFocusNode.hasFocus) subTitleFocusNode.unfocus();
                 Navigator.pop(context);
               },
               child: Text(

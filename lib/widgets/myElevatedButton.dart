@@ -11,7 +11,7 @@ class MyElevatedButton extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
 
   const MyElevatedButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.child,
     this.margin = EdgeInsets.zero,
@@ -21,7 +21,7 @@ class MyElevatedButton extends StatelessWidget {
       AppColors.lightRedColor,
       AppColors.orangeColor,
     ]),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

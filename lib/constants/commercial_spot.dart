@@ -35,34 +35,69 @@ class CommercialSpot {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      margin: EdgeInsets.all(10.0.w),
+      margin: EdgeInsets.symmetric(
+          vertical: 10.h, horizontal: highlight ? 16.w : 20.w),
       child: Container(
-        width: highlight ? 400.w : 380.w,
-        height: highlight ? 160.w : 120.w,
+        height: highlight ? 90.h : 80.h,
         decoration: BoxDecoration(
           color: AppColors.wineColor,
           border: Border.all(
-              color: AppColors.purpleColor, width: highlight ? 4.0 : 1.0),
+              color: AppColors.purpleColor, width: highlight ? 2.0 : 1.0),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         child: Stack(
+          alignment: Alignment.topLeft,
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: Image.network(
-                image,
-                fit: BoxFit.cover,
+              child: SizedBox(
+                width: double.maxFinite,
+                child: Image.network(
+                  image,
+                  fit: BoxFit.fitWidth,
+                ),
               ),
             ),
-            Column(
-              children: [Text(name), Text(address)],
+            ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              child: Container(
+                color: const Color.fromARGB(120, 0, 0, 0),
+                width: double.maxFinite,
+                height: double.maxFinite,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Rubik",
+                        color: Colors.white),
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    address,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.normal,
+                      fontFamily: "Rubik",
+                      color: Colors.grey.shade200,
+                    ),
+                  )
+                ],
+              ),
             ),
             Positioned(
               right: 0,
               bottom: 0,
               child: Container(
-                height: 28,
-                width: 100,
+                height: 24.w,
+                width: 100.h,
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
                   color: AppColors.transparentPurple,

@@ -119,7 +119,7 @@ class _ActivityPage5State extends State<ActivityPage5> {
       body: SafeArea(
         child: Column(
           children: [
-            getSomeSpace(10),
+            getSomeSpace(20),
             getMiittiActivityText('Mihin aikaan haluat aloittaa miitin?'),
             getSomeSpace(20),
             Row(
@@ -157,7 +157,7 @@ class _ActivityPage5State extends State<ActivityPage5> {
                       color: Colors.white,
                     )
                   : Text(
-                      "Seuravaa",
+                      "Seurava",
                       style: Styles.bodyTextStyle,
                     ),
             ),

@@ -461,7 +461,7 @@ Widget getMiittiActivityText(String title) {
     title,
     textAlign: TextAlign.center,
     style: TextStyle(
-      fontSize: 29.sp,
+      fontSize: 26.sp,
       fontFamily: 'Sora',
       color: Colors.white,
       fontWeight: FontWeight.bold,

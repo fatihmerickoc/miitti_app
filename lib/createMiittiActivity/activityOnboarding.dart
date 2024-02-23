@@ -10,8 +10,6 @@ import 'package:miitti_app/createMiittiActivity/activityPage3.dart';
 import 'package:miitti_app/createMiittiActivity/activityPage4.dart';
 import 'package:miitti_app/createMiittiActivity/activityPage5.dart';
 
-import '../constants/constants.dart';
-
 class ActivityOnboarding extends StatefulWidget {
   const ActivityOnboarding({super.key});
 
@@ -64,48 +62,37 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
     return PopScope(
       canPop: !Navigator.of(context).userGestureInProgress,
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: SafeArea(
+          child: Expanded(
+            child: PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _controller,
               children: [
-                SizedBox(
-                  height: 70.h,
+                // Display each activity page
+                ActivityPage1(
+                  activity: _miittiActivity,
+                  onActivityDataChanged: _updateActivityData,
+                  controller: _controller,
                 ),
-                SizedBox(
-                  height: 700.h,
-                  child: PageView(
-                    physics: NeverScrollableScrollPhysics(),
-                    controller: _controller,
-                    children: [
-                      // Display each activity page
-                      ActivityPage1(
-                        activity: _miittiActivity,
-                        onActivityDataChanged: _updateActivityData,
-                        controller: _controller,
-                      ),
-                      ActivityPage2(
-                        activity: _miittiActivity,
-                        onActivityDataChanged: _updateActivityData,
-                        controller: _controller,
-                      ),
-                      ActivityPage3(
-                        activity: _miittiActivity,
-                        onActivityDataChanged: _updateActivityData,
-                        controller: _controller,
-                      ),
-                      ActivityPage4(
-                        activity: _miittiActivity,
-                        onActivityDataChanged: _updateActivityData,
-                        controller: _controller,
-                      ),
-                      ActivityPage5(
-                        activity: _miittiActivity,
-                        onActivityDataChanged: _updateActivityData,
-                        controller: _controller,
-                      ),
-                    ],
-                  ),
+                ActivityPage2(
+                  activity: _miittiActivity,
+                  onActivityDataChanged: _updateActivityData,
+                  controller: _controller,
+                ),
+                ActivityPage3(
+                  activity: _miittiActivity,
+                  onActivityDataChanged: _updateActivityData,
+                  controller: _controller,
+                ),
+                ActivityPage4(
+                  activity: _miittiActivity,
+                  onActivityDataChanged: _updateActivityData,
+                  controller: _controller,
+                ),
+                ActivityPage5(
+                  activity: _miittiActivity,
+                  onActivityDataChanged: _updateActivityData,
+                  controller: _controller,
                 ),
               ],
             ),
