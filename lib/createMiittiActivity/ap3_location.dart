@@ -17,8 +17,8 @@ import 'package:provider/provider.dart';
 
 import '../constants/constants.dart';
 
-class ActivityPage3 extends StatefulWidget {
-  const ActivityPage3({
+class AP3Location extends StatefulWidget {
+  const AP3Location({
     super.key,
     required this.activity,
     required this.onActivityDataChanged,
@@ -30,10 +30,10 @@ class ActivityPage3 extends StatefulWidget {
   final PageController controller;
 
   @override
-  State<ActivityPage3> createState() => _ActivityPage3State();
+  State<AP3Location> createState() => _AP3LocationState();
 }
 
-class _ActivityPage3State extends State<ActivityPage3> {
+class _AP3LocationState extends State<AP3Location> {
   late MapboxMapController controller;
   final location.Location _location = location.Location();
 

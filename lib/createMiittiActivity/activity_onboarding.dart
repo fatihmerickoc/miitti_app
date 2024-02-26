@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/ap1_participants.dart';
 import 'package:miitti_app/createMiittiActivity/ap2_text.dart';
-import 'package:miitti_app/createMiittiActivity/ap_3_location.dart';
-import 'package:miitti_app/createMiittiActivity/ap_4_category.dart';
-import 'package:miitti_app/createMiittiActivity/ap5_.dart';
+import 'package:miitti_app/createMiittiActivity/ap3_location.dart';
+import 'package:miitti_app/createMiittiActivity/ap4_category.dart';
+import 'package:miitti_app/createMiittiActivity/ap5_time.dart';
 
 class ActivityOnboarding extends StatefulWidget {
   const ActivityOnboarding({super.key});
@@ -66,27 +66,27 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
               controller: _controller,
               children: [
                 // Display each activity page
-                ActP1Participants(
+                AP1Participants(
                   activity: _miittiActivity,
                   onActivityDataChanged: _updateActivityData,
                   controller: _controller,
                 ),
-                ActivityPage2(
+                AP2Text(
                   activity: _miittiActivity,
                   onActivityDataChanged: _updateActivityData,
                   controller: _controller,
                 ),
-                ActivityPage3(
+                AP3Location(
                   activity: _miittiActivity,
                   onActivityDataChanged: _updateActivityData,
                   controller: _controller,
                 ),
-                ActivityPage4(
+                AP4Category(
                   activity: _miittiActivity,
                   onActivityDataChanged: _updateActivityData,
                   controller: _controller,
                 ),
-                ActivityPage5(
+                AP5Time(
                   activity: _miittiActivity,
                   onActivityDataChanged: _updateActivityData,
                   controller: _controller,

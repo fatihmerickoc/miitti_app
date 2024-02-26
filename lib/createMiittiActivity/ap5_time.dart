@@ -10,30 +10,29 @@ import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
 import '../constants/constants.dart';
 
-class ActivityPage5 extends StatefulWidget {
-  const ActivityPage5({
-    Key? key,
+class AP5Time extends StatefulWidget {
+  const AP5Time({
+    super.key,
     required this.activity,
     required this.onActivityDataChanged,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final PersonActivity activity;
   final Function(PersonActivity) onActivityDataChanged;
   final PageController controller;
 
   @override
-  State<ActivityPage5> createState() => _ActivityPage5State();
+  State<AP5Time> createState() => _AP5TimeState();
 }
 
-class _ActivityPage5State extends State<ActivityPage5> {
+class _AP5TimeState extends State<AP5Time> {
   int selectNumber = 0;
   bool decidedLater = false;
   Timestamp activityTime = Timestamp(0, 0);
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     widget.activity.activityTime = activityTime;
     widget.activity.timeDecidedLater = decidedLater;

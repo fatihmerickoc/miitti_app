@@ -7,8 +7,7 @@ import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/utils/utils.dart';
 
 class ActivityPageFinal extends StatefulWidget {
-  const ActivityPageFinal({required this.miittiActivity, Key? key})
-      : super(key: key);
+  const ActivityPageFinal({required this.miittiActivity, super.key});
 
   final PersonActivity miittiActivity;
 
@@ -38,7 +37,7 @@ class _ActivityPageFinalState extends State<ActivityPageFinal> {
       body: SafeArea(
         child: Center(
           child: Container(
-            height: 350.h,
+            height: 400.h,
             width: 350.w,
             decoration: BoxDecoration(
               gradient: const LinearGradient(

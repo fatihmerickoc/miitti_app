@@ -8,23 +8,23 @@ import 'package:miitti_app/widgets/myElevatedButton.dart';
 
 import '../constants/constants.dart';
 
-class ActivityPage4 extends StatefulWidget {
-  const ActivityPage4({
-    Key? key,
+class AP4Category extends StatefulWidget {
+  const AP4Category({
+    super.key,
     required this.activity,
     required this.onActivityDataChanged,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final PersonActivity activity;
   final Function(PersonActivity) onActivityDataChanged;
   final PageController controller;
 
   @override
-  State<ActivityPage4> createState() => _ActivityPage4State();
+  State<AP4Category> createState() => _AP4CategoryState();
 }
 
-class _ActivityPage4State extends State<ActivityPage4> {
+class _AP4CategoryState extends State<AP4Category> {
   String selectedActivity = "";
 
   @override
