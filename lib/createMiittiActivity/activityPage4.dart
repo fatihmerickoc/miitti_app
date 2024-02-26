@@ -10,11 +10,11 @@ import '../constants/constants.dart';
 
 class ActivityPage4 extends StatefulWidget {
   const ActivityPage4({
-    Key? key,
+    super.key,
     required this.activity,
     required this.onActivityDataChanged,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final PersonActivity activity;
   final Function(PersonActivity) onActivityDataChanged;
