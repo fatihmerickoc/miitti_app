@@ -384,25 +384,17 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   Widget showOnList() {
-    int listLength =
-        activities.length > 1 ? _activities.length + 1 : _activities.length;
-
-    try {
-      return Container(
-        margin: EdgeInsets.only(top: 60.h),
-        child: ListView.builder(
-          itemCount: listLength,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 1) {
-              if (_ads.isNotEmpty) {
-                return _ads[0].getWidget(context);
-              } else {
-                return Container();
-              }
-            }
-
-            MiittiActivity activity = _activities[index == 0 ? 0 : index - 1];
-
+    return Container(
+      margin: EdgeInsets.only(top: 60.h),
+      child: ListView.builder(
+        itemCount: _activities.length + (_ads.isNotEmpty ? 1 : 0),
+        itemBuilder: (BuildContext context, int index) {
+          if (index == 1 && _ads.isNotEmpty) {
+            return _ads[0].getWidget(context); // Display ad widget at index 1
+          } else {
+            int activityIndex =
+                _ads.isNotEmpty && index > 1 ? index - 1 : index;
+            MiittiActivity activity = _activities[activityIndex];
             String activityAddress = activity.activityAdress;
 
             List<String> addressParts = activityAddress.split(',');
@@ -486,15 +478,10 @@ class _MapsScreenState extends State<MapsScreen> {
                 ),
               ),
             );
-          },
-        ),
-      );
-    } catch (e) {
-      print("Failed to show list: $e");
-      return Center(
-        child: Text("$e"),
-      );
-    }
+          }
+        },
+      ),
+    );
   }
 
   int getPlaces(double zoomLevel) {
