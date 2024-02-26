@@ -9,7 +9,6 @@ import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/questionAnswer.dart';
 import 'package:miitti_app/utils/utils.dart';
 
@@ -24,7 +23,7 @@ class MyProfileEditForm extends StatefulWidget {
   final MiittiUser user;
 
   @override
-  _MyProfileEditFormState createState() => _MyProfileEditFormState();
+  State<MyProfileEditForm> createState() => _MyProfileEditFormState();
 }
 
 class _MyProfileEditFormState extends State<MyProfileEditForm> {
@@ -60,18 +59,22 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
   }
 
   List<String> updateActiviesId(Set<String> favActivities) {
+    List<String> updatedActivities = [];
     for (var favActivity in favActivities) {
-      if (!activities.containsKey(favActivity)) {
+      if (activities.containsKey(favActivity)) {
+        updatedActivities.add(favActivity);
+      } else {
         //If is found in activities values, set key of the value to favActivity value
         for (var entry in activities.entries) {
           if (entry.value.name == favActivity) {
-            favActivities.remove(favActivity);
-            favActivities.add(entry.key);
+            updatedActivities.add(entry.key);
+            break;
           }
         }
       }
     }
-    return favActivities.toList();
+
+    return updatedActivities;
   }
 
   @override
