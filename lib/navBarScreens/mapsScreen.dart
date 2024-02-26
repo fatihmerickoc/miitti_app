@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';

@@ -708,10 +708,17 @@ packages:
     dependency: "direct main"
     description:
       name: latlong2
+<<<<<<< HEAD
       sha256: "98227922caf49e6056f91b6c56945ea1c7b166f28ffcd5fb8e72fc0b453cc8fe"
       url: "https://pub.dev"
     source: hosted
     version: "0.9.1"
+=======
+      sha256: "18712164760cee655bc790122b0fd8f3d5b3c36da2cb7bf94b68a197fbb0811b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
+>>>>>>> 0f88a61 (stash apply)
   leak_tracker:
     dependency: transitive
     description:
@@ -788,10 +795,17 @@ packages:
     dependency: transitive
     description:
       name: logger
+<<<<<<< HEAD
       sha256: "8c94b8c219e7e50194efc8771cd0e9f10807d8d3e219af473d89b06cc2ee4e04"
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+=======
+      sha256: "6bbb9d6f7056729537a4309bda2e74e18e5d9f14302489cc1e93f33b3fe32cac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2+1"
+>>>>>>> 0f88a61 (stash apply)
   mapbox_gl:
     dependency: "direct main"
     description:
@@ -847,7 +861,13 @@ packages:
       sha256: d584fa6707a52763a52446f02cc621b077888fb63b93bbcb1143a7be5a0c0c04
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "1.11.0"
+<<<<<<< HEAD
+=======
+=======
+    version: "1.12.0"
+>>>>>>> 0f88a61 (stash apply)
   mgrs_dart:
     dependency: transitive
     description:
@@ -856,6 +876,10 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+<<<<<<< HEAD
+=======
+>>>>>>> a9e1374 (stash apply)
+>>>>>>> 0f88a61 (stash apply)
   mime:
     dependency: transitive
     description:
@@ -1055,7 +1079,11 @@ packages:
       sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "6.1.2"
+=======
+    version: "6.1.1"
+>>>>>>> 0f88a61 (stash apply)
   rbush:
     dependency: transitive
     description:
@@ -1064,6 +1092,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+<<<<<<< HEAD
   rxdart:
     dependency: transitive
     description:
@@ -1072,6 +1101,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+=======
+>>>>>>> 0f88a61 (stash apply)
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1229,6 +1260,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+<<<<<<< HEAD
   synchronized:
     dependency: transitive
     description:
@@ -1237,6 +1269,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0+1"
+=======
+>>>>>>> 0f88a61 (stash apply)
   term_glyph:
     dependency: transitive
     description:
@@ -1357,6 +1391,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+<<<<<<< HEAD
   uuid:
     dependency: transitive
     description:
@@ -1365,6 +1400,9 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+=======
+<<<<<<< HEAD
+>>>>>>> 0f88a61 (stash apply)
   vector_graphics:
     dependency: transitive
     description:
@@ -1389,6 +1427,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.11+1"
+=======
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.7"
+>>>>>>> a9e1374 (stash apply)
   vector_math:
     dependency: transitive
     description:
@@ -1420,7 +1468,11 @@ packages:
       sha256: "0a989dc7ca2bb51eac91e8fd00851297cfffd641aa7538b165c62637ca0eaa4a"
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "5.4.0"
+=======
+    version: "5.2.0"
+>>>>>>> 0f88a61 (stash apply)
   wkt_parser:
     dependency: transitive
     description:

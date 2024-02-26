@@ -29,7 +29,6 @@ class _AP4CategoryState extends State<AP4Category> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     selectedActivity = widget.activity.activityCategory;
