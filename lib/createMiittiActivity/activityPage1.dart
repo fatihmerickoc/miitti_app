@@ -40,7 +40,7 @@ class _ActivityPage1State extends State<ActivityPage1> {
       body: SafeArea(
         child: Column(
           children: [
-            getSomeSpace(10),
+            getSomeSpace(20),
             getMiittiActivityText(
                 'Osallistujien määrä, jotka osallistuvat tapahtumaan?'),
             getSomeSpace(20),

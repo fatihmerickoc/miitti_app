@@ -15,6 +15,7 @@ import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/constants/commercial_spot.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
@@ -571,6 +572,25 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       print('Error getting details page: $e');
       return const IndexPage();
+    } finally {
+      stopLoading();
+    }
+  }
+
+  Future<List<CommercialSpot>> fetchCommercialSpots() async {
+    startLoading();
+    try {
+      QuerySnapshot querySnapshot = await _getFireQuery('commercialSpots');
+
+      List<CommercialSpot> spots = querySnapshot.docs
+          .map((doc) =>
+              CommercialSpot.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+
+      return spots;
+    } catch (e) {
+      print('Error fetching commercial spots: $e');
+      return [];
     } finally {
       stopLoading();
     }

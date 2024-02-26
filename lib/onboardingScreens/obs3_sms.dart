@@ -125,20 +125,24 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
       showSnackBar(
           context, "Koodi vahvistettu automaattisesti", Colors.green.shade600);
 
-      ap.checkExistingUser().then((value) async {
-        if (value == true) {
-          ap.getDataFromFirestore().then(
-                (value) => ap.saveUserDataToSP().then(
-                      (value) => ap.setSignIn().then(
-                            (value) => pushNRemoveUntil(context, IndexPage()),
-                          ),
-                    ),
-              );
-        } else {
-          pushNRemoveUntil(context, OnboardingScreen());
-        }
-      });
-      return;
+      try {
+        ap.checkExistingUser().then((value) async {
+          if (value == true) {
+            ap.getDataFromFirestore().then(
+                  (value) => ap.saveUserDataToSP().then(
+                        (value) => ap.setSignIn().then(
+                              (value) => pushNRemoveUntil(context, IndexPage()),
+                            ),
+                      ),
+                );
+          } else {
+            pushNRemoveUntil(context, OnboardingScreen());
+          }
+        });
+        return;
+      } catch (e) {
+        showSnackBar(context, e.toString(), Colors.red.shade800);
+      }
     }
 
     ap.verifyOtp(

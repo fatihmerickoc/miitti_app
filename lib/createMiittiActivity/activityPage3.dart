@@ -8,19 +8,22 @@ import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as location;
 import 'package:location/location.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:miitti_app/constants/commercial_spot.dart';
 import 'package:miitti_app/constants/person_activity.dart';
+import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/constants.dart';
 
 class ActivityPage3 extends StatefulWidget {
   const ActivityPage3({
-    Key? key,
+    super.key,
     required this.activity,
     required this.onActivityDataChanged,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final PersonActivity activity;
   final Function(PersonActivity) onActivityDataChanged;
@@ -43,10 +46,14 @@ class _ActivityPage3State extends State<ActivityPage3> {
 
   bool isLoading = false;
 
+  List<CommercialSpot> spots = [];
+  int selectedSpot = -1;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     initializeLocationAndSave();
+    fetchSpots();
   }
 
   void initializeLocationAndSave() async {
@@ -80,6 +87,16 @@ class _ActivityPage3State extends State<ActivityPage3> {
     }
   }
 
+  void fetchSpots() {
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+
+    ap.fetchCommercialSpots().then((value) {
+      setState(() {
+        spots = value;
+      });
+    });
+  }
+
   void _onMapCreated(MapboxMapController controller) {
     this.controller = controller;
   }
@@ -90,12 +107,12 @@ class _ActivityPage3State extends State<ActivityPage3> {
       body: SafeArea(
         child: Column(
           children: [
-            getSomeSpace(10),
+            getSomeSpace(20),
             getMiittiActivityText(
                 'Valitse tapaamispaikka liikuttamalla karttaa'),
             getSomeSpace(10),
             SizedBox(
-              height: 400.h,
+              height: 340.w,
               width: 350.w,
               child: Stack(
                 children: [
@@ -111,6 +128,31 @@ class _ActivityPage3State extends State<ActivityPage3> {
                     },
                     myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
                     initialCameraPosition: myCameraPosition,
+                    //if map is moved, and selected spot > -1, selected spot is set to -1
+                    onCameraIdle: () {
+                      for (int i = 0; i < spots.length; i++) {
+                        bool onSpot = (spots[i].lati -
+                                        controller
+                                            .cameraPosition!.target.latitude)
+                                    .abs() <
+                                0.0002 &&
+                            (spots[i].long -
+                                        controller
+                                            .cameraPosition!.target.longitude)
+                                    .abs() <
+                                0.0002;
+                        if (onSpot) {
+                          setState(() {
+                            selectedSpot = i;
+                          });
+                          return;
+                        }
+                      }
+
+                      setState(() {
+                        selectedSpot = -1;
+                      });
+                    },
                   ),
                   Center(
                     child: Image.asset(
@@ -121,10 +163,48 @@ class _ActivityPage3State extends State<ActivityPage3> {
                 ],
               ),
             ),
-            Expanded(
-              child: SizedBox(),
-            ),
+            getSomeSpace(20),
+            spots.isNotEmpty
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(width: 20.w),
+                      Text(
+                        "Valitse MiittiSpot:",
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white,
+                            fontFamily: "Rubik"),
+                      ),
+                    ],
+                  )
+                : SizedBox.shrink(),
+            spots.isNotEmpty
+                ? Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: spots.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                            onTap: () => setState(() {
+                                  selectedSpot = index;
+                                  controller.animateCamera(
+                                      CameraUpdate.newLatLngZoom(
+                                          LatLng(spots[index].lati,
+                                              spots[index].long),
+                                          16));
+                                }),
+                            child:
+                                spots[index].getWidget(index == selectedSpot));
+                      },
+                    ),
+                  )
+                : Expanded(child: SizedBox()),
             MyElevatedButton(
+              width: 340.w,
+              height: 60.h,
               onPressed: () async {
                 markerCoordinates = controller.cameraPosition!.target;
 
@@ -134,8 +214,9 @@ class _ActivityPage3State extends State<ActivityPage3> {
 
                   widget.activity.activityLati = latitude;
                   widget.activity.activityLong = longitude;
-                  widget.activity.activityAdress =
-                      await getAddressFromCoordinates(latitude, longitude);
+                  widget.activity.activityAdress = selectedSpot > -1
+                      ? spots[selectedSpot].address
+                      : await getAddressFromCoordinates(latitude, longitude);
 
                   widget.onActivityDataChanged(widget.activity);
 
@@ -156,17 +237,27 @@ class _ActivityPage3State extends State<ActivityPage3> {
                     )
                   : Text(
                       "Seuraava",
-                      style: Styles.bodyTextStyle,
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white,
+                        fontFamily: "Rubik",
+                      ),
                     ),
             ),
-            getSomeSpace(25),
+            getSomeSpace(20),
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
               },
               child: Text(
                 "Peruuta",
-                style: Styles.bodyTextStyle,
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                  fontFamily: "Rubik",
+                ),
               ),
             ),
             getSomeSpace(20),
