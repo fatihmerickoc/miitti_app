@@ -323,101 +323,98 @@ class _MapsScreenState extends State<MapsScreen> {
     return Container(
       margin: EdgeInsets.only(top: 60.h),
       child: ListView.builder(
-        itemCount: _activities.length + 1,
+        itemCount: _activities.length + (_ads.isNotEmpty ? 1 : 0),
         itemBuilder: (BuildContext context, int index) {
-          if (index == 1) {
-            if (_ads.isNotEmpty) {
-              return _ads[0].getWidget(context);
-            } else {
-              return Container();
-            }
-          }
+          if (index == 1 && _ads.isNotEmpty) {
+            return _ads[0].getWidget(context); // Display ad widget at index 1
+          } else {
+            int activityIndex =
+                _ads.isNotEmpty && index > 1 ? index - 1 : index;
+            MiittiActivity activity = _activities[activityIndex];
+            String activityAddress = activity.activityAdress;
 
-          MiittiActivity activity = _activities[index == 0 ? 0 : index - 1];
+            List<String> addressParts = activityAddress.split(',');
+            String cityName = addressParts[0].trim();
 
-          String activityAddress = activity.activityAdress;
-
-          List<String> addressParts = activityAddress.split(',');
-          String cityName = addressParts[0].trim();
-
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            margin: EdgeInsets.all(10.0.w),
-            child: Container(
-              height: 150.h,
-              decoration: BoxDecoration(
-                color: AppColors.wineColor,
-                border: Border.all(color: AppColors.purpleColor, width: 2.0),
+            return Card(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
-              child: Row(
-                children: [
-                  Activity.getSymbol(activity),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            activity.activityTitle,
-                            overflow: TextOverflow.ellipsis,
-                            style: Styles.activityNameTextStyle,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_month,
-                              color: AppColors.lightPurpleColor,
-                            ),
-                            SizedBox(width: 4.w),
-                            Flexible(
-                              child: Text(
-                                activity.timeString,
-                                overflow: TextOverflow.ellipsis,
-                                style: Styles.sectionSubtitleStyle,
-                              ),
-                            ),
-                            SizedBox(width: 16.w),
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: AppColors.lightPurpleColor,
-                            ),
-                            SizedBox(width: 4.w),
-                            Flexible(
-                              child: Text(
-                                cityName,
-                                overflow: TextOverflow.ellipsis,
-                                style: Styles.sectionSubtitleStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                        MyElevatedButton(
-                          width: 250.w,
-                          height: 40.h,
-                          onPressed: () {
-                            goToActivityDetailsPage(activity);
-                          },
-                          child: Text(
-                            "Näytä enemmän",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontFamily: 'Rubik',
+              margin: EdgeInsets.all(10.0.w),
+              child: Container(
+                height: 150.h,
+                decoration: BoxDecoration(
+                  color: AppColors.wineColor,
+                  border: Border.all(color: AppColors.purpleColor, width: 2.0),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Row(
+                  children: [
+                    Activity.getSymbol(activity),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              activity.activityTitle,
+                              overflow: TextOverflow.ellipsis,
+                              style: Styles.activityNameTextStyle,
                             ),
                           ),
-                        ),
-                      ],
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_month,
+                                color: AppColors.lightPurpleColor,
+                              ),
+                              SizedBox(width: 4.w),
+                              Flexible(
+                                child: Text(
+                                  activity.timeString,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Styles.sectionSubtitleStyle,
+                                ),
+                              ),
+                              SizedBox(width: 16.w),
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: AppColors.lightPurpleColor,
+                              ),
+                              SizedBox(width: 4.w),
+                              Flexible(
+                                child: Text(
+                                  cityName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Styles.sectionSubtitleStyle,
+                                ),
+                              ),
+                            ],
+                          ),
+                          MyElevatedButton(
+                            width: 250.w,
+                            height: 40.h,
+                            onPressed: () {
+                              goToActivityDetailsPage(activity);
+                            },
+                            child: Text(
+                              "Näytä enemmän",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontFamily: 'Rubik',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
       ),
     );
