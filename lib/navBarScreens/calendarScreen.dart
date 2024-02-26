@@ -10,7 +10,7 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
-import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/provider/auth_provider.dart';

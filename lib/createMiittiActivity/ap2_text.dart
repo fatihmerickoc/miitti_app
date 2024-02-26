@@ -8,23 +8,23 @@ import 'package:miitti_app/widgets/myElevatedButton.dart';
 
 import '../constants/constants.dart';
 
-class ActivityPage2 extends StatefulWidget {
-  const ActivityPage2({
-    Key? key,
+class AP2Text extends StatefulWidget {
+  const AP2Text({
+    super.key,
     required this.activity,
     required this.onActivityDataChanged,
     required this.controller,
-  }) : super(key: key);
+  });
 
   final PersonActivity activity;
   final Function(PersonActivity) onActivityDataChanged;
   final PageController controller;
 
   @override
-  State<ActivityPage2> createState() => _ActivityPage2State();
+  State<AP2Text> createState() => _AP2TextState();
 }
 
-class _ActivityPage2State extends State<ActivityPage2> {
+class _AP2TextState extends State<AP2Text> {
   // Controllers and Focus Nodes for text fields
   TextEditingController titleController = TextEditingController();
   FocusNode titleFocusNode = FocusNode();

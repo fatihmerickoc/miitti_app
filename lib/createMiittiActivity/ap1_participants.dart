@@ -7,8 +7,8 @@ import 'package:miitti_app/widgets/myElevatedButton.dart';
 
 import '../constants/constants.dart';
 
-class ActivityPage1 extends StatefulWidget {
-  const ActivityPage1({
+class AP1Participants extends StatefulWidget {
+  const AP1Participants({
     super.key,
     required this.activity,
     required this.onActivityDataChanged,
@@ -20,10 +20,10 @@ class ActivityPage1 extends StatefulWidget {
   final PageController controller;
 
   @override
-  State<ActivityPage1> createState() => _ActivityPage1State();
+  State<AP1Participants> createState() => _AP1ParticipantsState();
 }
 
-class _ActivityPage1State extends State<ActivityPage1> {
+class _AP1ParticipantsState extends State<AP1Participants> {
   int selectedValue = 0;
   double friendsCount = 2;
   bool isMultiplePerson = true;

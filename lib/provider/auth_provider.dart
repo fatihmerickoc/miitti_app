@@ -22,7 +22,7 @@ import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/constants/report.dart';
-import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/createMiittiActivity/activityPageFinal.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';

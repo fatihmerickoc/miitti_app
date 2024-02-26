@@ -1,8 +1,5 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -23,17 +20,17 @@ import 'package:provider/provider.dart';
 import '../constants/miittiUser.dart';
 
 class ActivityDetailsPage extends StatefulWidget {
-  bool didGotInvited;
+  final bool didGotInvited;
   final bool? comingFromAdmin;
 
-  ActivityDetailsPage({
+  const ActivityDetailsPage({
     required this.myActivity,
     this.comingFromAdmin,
     this.didGotInvited = false,
     super.key,
   });
 
-  PersonActivity myActivity;
+  final PersonActivity myActivity;
 
   @override
   State<ActivityDetailsPage> createState() => _ActivityDetailsPageState();
@@ -49,9 +46,12 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   int participantCount = 0;
 
+  bool didGotInvited = false;
+
   @override
   void initState() {
     super.initState();
+    didGotInvited = widget.didGotInvited;
     userStatus = getStatusInActivity();
     filteredUsers = fetchUsersJoinedActivity();
     fetchUsersJoinedActivity().then((users) {
@@ -122,7 +122,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         width: 60.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [
                               AppColors.lightRedColor,
                               AppColors.orangeColor,
@@ -354,14 +354,14 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
       setState(() {
         userStatus = UserStatusInActivity.joined;
         widget.myActivity.participants.add(ap.uid);
-        widget.didGotInvited = false;
+        didGotInvited = false;
       });
     }
   }
 
   Widget getMyButton(bool isLoading) {
     String buttonText = getButtonText();
-    if (widget.didGotInvited == true) {
+    if (didGotInvited == true) {
       return Opacity(
         opacity: 0.5,
         child: MyElevatedButton(

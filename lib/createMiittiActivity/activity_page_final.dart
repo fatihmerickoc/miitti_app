@@ -37,7 +37,7 @@ class _ActivityPageFinalState extends State<ActivityPageFinal> {
       body: SafeArea(
         child: Center(
           child: Container(
-            height: 350.h,
+            height: 400.h,
             width: 350.w,
             decoration: BoxDecoration(
               gradient: const LinearGradient(

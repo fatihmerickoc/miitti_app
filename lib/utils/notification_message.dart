@@ -7,7 +7,7 @@ import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
-import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/userProfileEditScreen.dart';
 import 'dart:convert';

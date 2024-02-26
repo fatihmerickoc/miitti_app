@@ -1,15 +1,20 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+//import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
-import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/mapFilter.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -30,13 +35,18 @@ class _MapsScreenState extends State<MapsScreen> {
   List<MiittiActivity> _activities = [];
   List<AdBanner> _ads = [];
 
-  CameraPosition myCameraPosition = CameraPosition(
+  /*CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
     zoom: 12,
     bearing: 0,
-  );
+  );*/
 
-  late MapboxMapController controller;
+  LatLng myPosition = LatLng(60.1699, 24.9325);
+
+  SuperclusterMutableController clusterController =
+      SuperclusterMutableController();
+
+  //late MapboxMapController controller;
 
   int showOnMap = 0;
 
@@ -44,6 +54,7 @@ class _MapsScreenState extends State<MapsScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     initializeLocationAndSave();
+    fetchActivities();
   }
 
   @override
@@ -72,11 +83,18 @@ class _MapsScreenState extends State<MapsScreen> {
     }
 
     // Get the current user location
-    LocationData _locationData = await _location.getLocation();
-    LatLng currentLatLng =
-        LatLng(_locationData.latitude!, _locationData.longitude!);
+    if (_permissionGranted == PermissionStatus.granted ||
+        _permissionGranted == PermissionStatus.grantedLimited) {
+      LocationData _locationData = await _location.getLocation();
+      LatLng currentLatLng =
+          LatLng(_locationData.latitude!, _locationData.longitude!);
 
-    myCameraPosition = CameraPosition(
+      setState(() {
+        myPosition = currentLatLng;
+      });
+    }
+
+    /*myCameraPosition = CameraPosition(
       target: currentLatLng,
       zoom: 12,
       tilt: 0,
@@ -86,7 +104,7 @@ class _MapsScreenState extends State<MapsScreen> {
     if (controller != null) {
       controller
           .animateCamera(CameraUpdate.newCameraPosition(myCameraPosition));
-    }
+    }*/
   }
 
   void fetchActivities() async {
@@ -96,7 +114,12 @@ class _MapsScreenState extends State<MapsScreen> {
     setState(() {
       _activities = activities.reversed.toList();
     });
-    addGeojsonCluster(controller, _activities);
+    clusterController.addAll(_activities
+        .map((activity) => Marker(
+              point: LatLng(activity.activityLati, activity.activityLong),
+              child: Activity.getSymbol(activity),
+            ))
+        .toList());
   }
 
   void fetchAd() async {
@@ -110,7 +133,7 @@ class _MapsScreenState extends State<MapsScreen> {
     }
   }
 
-  static Future<void> addGeojsonCluster(
+  /*static Future<void> addGeojsonCluster(
     MapboxMapController controller,
     List<MiittiActivity> myActivities,
   ) async {
@@ -197,7 +220,7 @@ class _MapsScreenState extends State<MapsScreen> {
         ],
       ),
     );
-  }
+  }*/
 
   goToActivityDetailsPage(MiittiActivity activity) {
     Navigator.push(
@@ -212,7 +235,7 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  void _onFeatureTapped({required LatLng coordinates}) {
+  /*void _onFeatureTapped({required LatLng coordinates}) {
     double zoomLevel = controller.cameraPosition!.zoom;
     int places = getPlaces(zoomLevel);
 
@@ -238,7 +261,7 @@ class _MapsScreenState extends State<MapsScreen> {
     this.controller = controller;
     controller.onFeatureTapped.add(
         (id, point, coordinates) => _onFeatureTapped(coordinates: coordinates));
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +269,48 @@ class _MapsScreenState extends State<MapsScreen> {
       children: [
         showOnMap == 1
             ? showOnList()
-            : MapboxMap(
+            : FlutterMap(
+                options: MapOptions(
+                    initialCenter: myPosition,
+                    initialZoom: 12.0,
+                    onMapReady: () {}),
+                children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://api.mapbox.com/styles/v1/miittiapp/clksrum8a00b301o26yqtge15/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTBja21sazFtYWMzcW50NWd0cW40eTEifQ.FwjMEmDQD1Cj2KlaJuGTTA',
+                    ),
+                    SuperclusterLayer.mutable(
+                        controller: clusterController,
+                        initialMarkers: _activities
+                            .map((activity) => Marker(
+                                  point: LatLng(activity.activityLati,
+                                      activity.activityLong),
+                                  child: GestureDetector(
+                                      onTap: () {
+                                        goToActivityDetailsPage(activity);
+                                      },
+                                      child: Activity.getSymbol(activity)),
+                                ))
+                            .toList(),
+                        onMarkerTap: (marker) {
+                          (marker.child as GestureDetector).onTap!();
+                        },
+                        builder: (context, position, markerCount,
+                                extraClusterData) =>
+                            Stack(children: [
+                              Image.asset("images/circlebackground.png"),
+                              Text("$markerCount",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 20.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "Rubik",
+                                  ))
+                            ]),
+                        indexBuilder: IndexBuilders.rootIsolate)
+                  ]),
+        /*MapboxMap(
                 styleString: MapboxStyles.MAPBOX_STREETS,
                 myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
                 onMapCreated: _onMapCreated,
@@ -258,7 +322,7 @@ class _MapsScreenState extends State<MapsScreen> {
                 tiltGesturesEnabled: false,
                 myLocationEnabled: true,
                 rotateGesturesEnabled: false,
-              ),
+              ),*/
         SafeArea(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,107 +384,117 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   Widget showOnList() {
-    return Container(
-      margin: EdgeInsets.only(top: 60.h),
-      child: ListView.builder(
-        itemCount: _activities.length + 1,
-        itemBuilder: (BuildContext context, int index) {
-          if (index == 1) {
-            if (_ads.isNotEmpty) {
-              return _ads[0].getWidget(context);
-            } else {
-              return Container();
+    int listLength =
+        activities.length > 1 ? _activities.length + 1 : _activities.length;
+
+    try {
+      return Container(
+        margin: EdgeInsets.only(top: 60.h),
+        child: ListView.builder(
+          itemCount: listLength,
+          itemBuilder: (BuildContext context, int index) {
+            if (index == 1) {
+              if (_ads.isNotEmpty) {
+                return _ads[0].getWidget(context);
+              } else {
+                return Container();
+              }
             }
-          }
 
-          MiittiActivity activity = _activities[index == 0 ? 0 : index - 1];
+            MiittiActivity activity = _activities[index == 0 ? 0 : index - 1];
 
-          String activityAddress = activity.activityAdress;
+            String activityAddress = activity.activityAdress;
 
-          List<String> addressParts = activityAddress.split(',');
-          String cityName = addressParts[0].trim();
+            List<String> addressParts = activityAddress.split(',');
+            String cityName = addressParts[0].trim();
 
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            margin: EdgeInsets.all(10.0.w),
-            child: Container(
-              height: 150.h,
-              decoration: BoxDecoration(
-                color: AppColors.wineColor,
-                border: Border.all(color: AppColors.purpleColor, width: 2.0),
+            return Card(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
-              child: Row(
-                children: [
-                  Activity.getSymbol(activity),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            activity.activityTitle,
-                            overflow: TextOverflow.ellipsis,
-                            style: Styles.activityNameTextStyle,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_month,
-                              color: AppColors.lightPurpleColor,
-                            ),
-                            SizedBox(width: 4.w),
-                            Flexible(
-                              child: Text(
-                                activity.timeString,
-                                overflow: TextOverflow.ellipsis,
-                                style: Styles.sectionSubtitleStyle,
-                              ),
-                            ),
-                            SizedBox(width: 16.w),
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: AppColors.lightPurpleColor,
-                            ),
-                            SizedBox(width: 4.w),
-                            Flexible(
-                              child: Text(
-                                cityName,
-                                overflow: TextOverflow.ellipsis,
-                                style: Styles.sectionSubtitleStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                        MyElevatedButton(
-                          width: 250.w,
-                          height: 40.h,
-                          onPressed: () {
-                            goToActivityDetailsPage(activity);
-                          },
-                          child: Text(
-                            "Näytä enemmän",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontFamily: 'Rubik',
+              margin: EdgeInsets.all(10.0.w),
+              child: Container(
+                height: 150.h,
+                decoration: BoxDecoration(
+                  color: AppColors.wineColor,
+                  border: Border.all(color: AppColors.purpleColor, width: 2.0),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Row(
+                  children: [
+                    Activity.getSymbol(activity),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              activity.activityTitle,
+                              overflow: TextOverflow.ellipsis,
+                              style: Styles.activityNameTextStyle,
                             ),
                           ),
-                        ),
-                      ],
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_month,
+                                color: AppColors.lightPurpleColor,
+                              ),
+                              SizedBox(width: 4.w),
+                              Flexible(
+                                child: Text(
+                                  activity.timeString,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Styles.sectionSubtitleStyle,
+                                ),
+                              ),
+                              SizedBox(width: 16.w),
+                              Icon(
+                                Icons.location_on_outlined,
+                                color: AppColors.lightPurpleColor,
+                              ),
+                              SizedBox(width: 4.w),
+                              Flexible(
+                                child: Text(
+                                  cityName,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Styles.sectionSubtitleStyle,
+                                ),
+                              ),
+                            ],
+                          ),
+                          MyElevatedButton(
+                            width: 250.w,
+                            height: 40.h,
+                            onPressed: () {
+                              goToActivityDetailsPage(activity);
+                            },
+                            child: Text(
+                              "Näytä enemmän",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontFamily: 'Rubik',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
+          },
+        ),
+      );
+    } catch (e) {
+      print("Failed to show list: $e");
+      return Center(
+        child: Text("$e"),
+      );
+    }
   }
 
   int getPlaces(double zoomLevel) {

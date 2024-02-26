@@ -5,7 +5,7 @@ import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
-import 'package:miitti_app/createMiittiActivity/activityDetailsPage.dart';
+import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
