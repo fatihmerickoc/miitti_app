@@ -120,31 +120,6 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
 
   void verifyOtp(BuildContext context, String userOtp) {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-
-    if (!ap.userNull && ap.uid.isNotEmpty) {
-      showSnackBar(
-          context, "Koodi vahvistettu automaattisesti", Colors.green.shade600);
-
-      try {
-        ap.checkExistingUser().then((value) async {
-          if (value == true) {
-            ap.getDataFromFirestore().then(
-                  (value) => ap.saveUserDataToSP().then(
-                        (value) => ap.setSignIn().then(
-                              (value) => pushNRemoveUntil(context, IndexPage()),
-                            ),
-                      ),
-                );
-          } else {
-            pushNRemoveUntil(context, OnboardingScreen());
-          }
-        });
-        return;
-      } catch (e) {
-        showSnackBar(context, e.toString(), Colors.red.shade800);
-      }
-    }
-
     ap.verifyOtp(
         context: context,
         verificationId: widget.verificationId,
@@ -152,6 +127,8 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
         onSuccess: () {
           ap.checkExistingUser().then((value) async {
             if (value == true) {
+              showSnackBar(context, "Vahvistaminen onnistui, kiva nähdä taas!",
+                  Colors.green.shade400);
               ap.getDataFromFirestore().then(
                     (value) => ap.saveUserDataToSP().then(
                           (value) => ap.setSignIn().then(
@@ -161,6 +138,8 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
                         ),
                   );
             } else {
+              showSnackBar(context, "Vahvistaminen onnistui, tervetuloa!",
+                  Colors.green.shade400);
               pushNRemoveUntil(context, OnboardingScreen());
             }
           });
