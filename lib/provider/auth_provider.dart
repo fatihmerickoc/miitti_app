@@ -147,13 +147,16 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     startLoading();
     try {
-      PhoneAuthCredential creds = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: userOtp,
-      );
+      if (!(_firebaseAuth.currentUser != null &&
+          _firebaseAuth.currentUser!.uid == _uid)) {
+        PhoneAuthCredential creds = PhoneAuthProvider.credential(
+          verificationId: verificationId,
+          smsCode: userOtp,
+        );
 
-      User? user = (await _firebaseAuth.signInWithCredential(creds)).user;
-      _uid = user?.uid;
+        User? user = (await _firebaseAuth.signInWithCredential(creds)).user;
+        _uid = user?.uid;
+      }
 
       onSuccess();
     } on FirebaseAuthException catch (e) {
