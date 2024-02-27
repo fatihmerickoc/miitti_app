@@ -157,9 +157,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   },
                                 ).then((confirmed) {
                                   if (confirmed != null && confirmed) {
-                                    ap.removeActivity(activity.activityUid);
-                                    setState(() {
-                                      fetchDataFromFirebase();
+                                    ap
+                                        .removeActivity(activity.activityUid)
+                                        .then((value) {
+                                      setState(() {
+                                        fetchDataFromFirebase();
+                                      });
                                     });
                                   } else {
                                     // User canceled the deletion

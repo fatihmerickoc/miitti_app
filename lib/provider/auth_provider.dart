@@ -350,7 +350,7 @@ class AuthProvider extends ChangeNotifier {
         } else {
           print("Checking filters of ${_miittiUser?.userName}");
           if (daysSince(activity.activityTime) <
-              (activity.timeDecidedLater ? -14 : -1)) {
+              (activity.timeDecidedLater ? -30 : -7)) {
             removeActivity(activity.activityUid);
             return false;
           }
@@ -457,9 +457,16 @@ class AuthProvider extends ChangeNotifier {
   Future removeActivity(String activityId) async {
     startLoading();
     try {
-      await _activityDocRef(activityId)
-          .delete()
-          .then((value) => print("Activity Removed!"));
+      var activityRef = _activityDocRef(activityId);
+
+      //Delete messages subcollection
+      await activityRef.collection('messages').get().then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.docs) {
+          ds.reference.delete();
+        }
+      });
+
+      await activityRef.delete().then((value) => print("Activity Removed!"));
     } catch (e) {
       print('Error deleting activity: $e');
       return [];
