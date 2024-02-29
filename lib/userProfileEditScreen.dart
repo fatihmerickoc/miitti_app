@@ -37,7 +37,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   void initState() {
     super.initState();
     //Initialize the list from given data
-    initRequests(Provider.of<AuthProvider>(context, listen: true));
+    initRequests(Provider.of<AuthProvider>(context, listen: false));
     filteredActivities = widget.user.userFavoriteActivities.toList();
   }
 

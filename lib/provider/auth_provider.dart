@@ -1277,12 +1277,14 @@ class AuthProvider extends ChangeNotifier {
 
   void startLoading() {
     _isLoading = true;
-    notifyListeners();
+    //Causes error called "setState() or markNeedsBuild() called during build"
+    //notifyListeners();
   }
 
   void stopLoading() {
     _isLoading = false;
-    notifyListeners();
+    //Causes error called "setState() or markNeedsBuild() called during build"
+    // notifyListeners();
   }
 
 // #endregion
