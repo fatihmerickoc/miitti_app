@@ -62,7 +62,7 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
         body: SafeArea(
           child: Expanded(
             child: PageView(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               controller: _controller,
               children: [
                 // Display each activity page
