@@ -47,4 +47,8 @@ app.*.map.json
 /node_modules/
 =======
 /node_modules/
+<<<<<<< HEAD
 >>>>>>> 2ebcd0d304c01dfec8e8572e93674856e6fa42b1
+=======
+>>>>>>> 0cfa2e6 (activityCreate)
+>>>>>>> 59a3eec (activityCreate)
