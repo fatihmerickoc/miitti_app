@@ -709,6 +709,7 @@ packages:
     description:
       name: latlong2
 <<<<<<< HEAD
+<<<<<<< HEAD
       sha256: "98227922caf49e6056f91b6c56945ea1c7b166f28ffcd5fb8e72fc0b453cc8fe"
       url: "https://pub.dev"
     source: hosted
@@ -719,6 +720,12 @@ packages:
     source: hosted
     version: "0.9.0"
 >>>>>>> 0f88a61 (stash apply)
+=======
+      sha256: "98227922caf49e6056f91b6c56945ea1c7b166f28ffcd5fb8e72fc0b453cc8fe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.1"
+>>>>>>> 9a7372e (merging Samuli's code:)
   leak_tracker:
     dependency: transitive
     description:
@@ -796,6 +803,7 @@ packages:
     description:
       name: logger
 <<<<<<< HEAD
+<<<<<<< HEAD
       sha256: "8c94b8c219e7e50194efc8771cd0e9f10807d8d3e219af473d89b06cc2ee4e04"
       url: "https://pub.dev"
     source: hosted
@@ -806,6 +814,12 @@ packages:
     source: hosted
     version: "2.0.2+1"
 >>>>>>> 0f88a61 (stash apply)
+=======
+      sha256: "8c94b8c219e7e50194efc8771cd0e9f10807d8d3e219af473d89b06cc2ee4e04"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+>>>>>>> 9a7372e (merging Samuli's code:)
   mapbox_gl:
     dependency: "direct main"
     description:
@@ -861,13 +875,15 @@ packages:
       sha256: d584fa6707a52763a52446f02cc621b077888fb63b93bbcb1143a7be5a0c0c04
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
     version: "1.11.0"
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
     version: "1.12.0"
 >>>>>>> 0f88a61 (stash apply)
+=======
+>>>>>>> 9a7372e (merging Samuli's code:)
   mgrs_dart:
     dependency: transitive
     description:
@@ -877,9 +893,12 @@ packages:
     source: hosted
     version: "2.0.0"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> a9e1374 (stash apply)
 >>>>>>> 0f88a61 (stash apply)
+=======
+>>>>>>> 9a7372e (merging Samuli's code:)
   mime:
     dependency: transitive
     description:
@@ -1080,10 +1099,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
 <<<<<<< HEAD
+<<<<<<< HEAD
     version: "6.1.2"
 =======
     version: "6.1.1"
 >>>>>>> 0f88a61 (stash apply)
+=======
+    version: "6.1.2"
+>>>>>>> 9a7372e (merging Samuli's code:)
   rbush:
     dependency: transitive
     description:
@@ -1392,6 +1415,9 @@ packages:
     source: hosted
     version: "3.1.1"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 9a7372e (merging Samuli's code:)
   uuid:
     dependency: transitive
     description:
@@ -1400,9 +1426,12 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 >>>>>>> 0f88a61 (stash apply)
+=======
+>>>>>>> 9a7372e (merging Samuli's code:)
   vector_graphics:
     dependency: transitive
     description:
@@ -1427,16 +1456,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.11+1"
-=======
-  uuid:
-    dependency: transitive
-    description:
-      name: uuid
-      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.7"
->>>>>>> a9e1374 (stash apply)
   vector_math:
     dependency: transitive
     description:
@@ -1469,10 +1488,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
 <<<<<<< HEAD
+<<<<<<< HEAD
     version: "5.4.0"
 =======
     version: "5.2.0"
 >>>>>>> 0f88a61 (stash apply)
+=======
+    version: "5.4.0"
+>>>>>>> 9a7372e (merging Samuli's code:)
   wkt_parser:
     dependency: transitive
     description:
