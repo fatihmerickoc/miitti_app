@@ -43,18 +43,18 @@ class Activity {
     return category;
   }
 
-  static Widget getSymbol(MiittiActivity activity) {
+  static Widget getSymbol(MiittiActivity activity, [double size = 34]) {
     return activity is CommercialActivity
         ? Padding(
-            padding: EdgeInsets.all(13.0.h),
+            padding: EdgeInsets.all((size / 2.8).h),
             child: Stack(
               children: [
                 CircleAvatar(
                   backgroundColor: AppColors.purpleColor,
-                  radius: 37.r,
+                  radius: (size + 3).r,
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(activity.activityPhoto),
-                    radius: 34.r,
+                    radius: size.r,
                     onBackgroundImageError: (exception, stackTrace) => AssetImage(
                         'images/${solveActivityId(activity.activityCategory)}.png'),
                   ),

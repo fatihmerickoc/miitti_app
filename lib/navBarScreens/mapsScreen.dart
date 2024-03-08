@@ -114,12 +114,21 @@ class _MapsScreenState extends State<MapsScreen> {
     setState(() {
       _activities = activities.reversed.toList();
     });
-    clusterController.addAll(_activities
-        .map((activity) => Marker(
-              point: LatLng(activity.activityLati, activity.activityLong),
-              child: Activity.getSymbol(activity),
-            ))
-        .toList());
+    clusterController.addAll(_activities.map(activityMarker).toList());
+  }
+
+  Marker activityMarker(MiittiActivity activity) {
+    return Marker(
+      width: 80.0,
+      height: 80.0,
+      point: LatLng(activity.activityLati, activity.activityLong),
+      child: GestureDetector(
+        onTap: () {
+          goToActivityDetailsPage(activity);
+        },
+        child: Activity.getSymbol(activity),
+      ),
+    );
   }
 
   void fetchAd() async {
@@ -277,23 +286,22 @@ class _MapsScreenState extends State<MapsScreen> {
                 children: [
                     TileLayer(
                       urlTemplate:
-                          'https://api.mapbox.com/styles/v1/miittiapp/clksrum8a00b301o26yqtge15/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTBja21sazFtYWMzcW50NWd0cW40eTEifQ.FwjMEmDQD1Cj2KlaJuGTTA',
+                          "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}{r}.jpg?access_token={accessToken}",
+                      additionalOptions: {
+                        'accessToken': mapboxAccess,
+                        'id': 'mapbox.mapbox-streets-v8',
+                      },
                     ),
                     SuperclusterLayer.mutable(
                         controller: clusterController,
-                        initialMarkers: _activities
-                            .map((activity) => Marker(
-                                  point: LatLng(activity.activityLati,
-                                      activity.activityLong),
-                                  child: GestureDetector(
-                                      onTap: () {
-                                        goToActivityDetailsPage(activity);
-                                      },
-                                      child: Activity.getSymbol(activity)),
-                                ))
-                            .toList(),
+                        initialMarkers:
+                            _activities.map(activityMarker).toList(),
                         onMarkerTap: (marker) {
-                          (marker.child as GestureDetector).onTap!();
+                          Widget child = marker.child;
+                          if (child is GestureDetector) {
+                            child.onTap!();
+                          }
+                          //(marker.child as GestureDetector).onTap!();
                         },
                         builder: (context, position, markerCount,
                                 extraClusterData) =>
