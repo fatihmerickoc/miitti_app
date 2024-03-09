@@ -563,23 +563,6 @@ class AuthProvider extends ChangeNotifier {
     return activity;
   }
 
-  Future<Widget> getDetailsPage(String activityId) async {
-    startLoading();
-    try {
-      Widget widget = const IndexPage();
-      await _personalOrCommercial(
-          activityId,
-          (activity) => widget = ActivityDetailsPage(myActivity: activity),
-          (comActivity) => widget = ComActDetailsPage(myActivity: comActivity));
-      return widget;
-    } catch (e) {
-      print('Error getting details page: $e');
-      return const IndexPage();
-    } finally {
-      stopLoading();
-    }
-  }
-
   Future<List<CommercialSpot>> fetchCommercialSpots() async {
     startLoading();
     try {
@@ -1116,34 +1099,27 @@ class AuthProvider extends ChangeNotifier {
   Future<List<MiittiUser>> fetchUsers() async {
     QuerySnapshot querySnapshot = await _getFireQuery(_usersString);
 
-    return querySnapshot.docs
-        .map((doc) => MiittiUser.fromMap(doc.data() as Map<String, dynamic>))
-        .toList();
+    return querySnapshot.docs.map((doc) => MiittiUser.fromDoc(doc)).toList();
   }
 
-  List<MiittiUser> filterUsersBasedOnArea(
-      MiittiUser currentUser, List<MiittiUser> allUsers) {
-    return allUsers.where((user) {
-      if (user.uid == currentUser.uid) return false; // Exclude the current user
+  Future<QuerySnapshot> lazyFilteredUsers(int type, int batchSize,
+      [DocumentSnapshot? startAfter]) {
+    Query query = _fireStore.collection(_usersString);
 
-      bool sameCity = user.userArea == currentUser.userArea;
+    if (type == 0) {
+      query = query.where('userArea', isEqualTo: miittiUser.userArea);
+    } else if (type == 1) {
+      query = query.where('userFavoriteActivities',
+          arrayContainsAny: miittiUser.userFavoriteActivities);
+    } else {
+      query = query.orderBy('userRegistrationDate', descending: true);
+    }
 
-      return sameCity;
-    }).toList();
-  }
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
 
-  List<MiittiUser> filterUsersBasedOnInterests(
-      MiittiUser currentUser, List<MiittiUser> allUsers) {
-    return allUsers.where((user) {
-      if (user.uid == currentUser.uid) return false; // Exclude the current user
-
-      Set<String> commonInterests = user.userFavoriteActivities
-          .toSet()
-          .intersection(currentUser.userFavoriteActivities.toSet());
-
-      // If there are common interests, include the user in the list
-      return commonInterests.isNotEmpty;
-    }).toList();
+    return query.limit(batchSize).get();
   }
 
   Future<MiittiUser> getUser(String id) async {

@@ -37,15 +37,18 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
   void initState() {
     super.initState();
     //Initialize the list from given data
-    initRequests(Provider.of<AuthProvider>(context, listen: true));
     filteredActivities = widget.user.userFavoriteActivities.toList();
+    initRequests();
   }
 
-  void initRequests(AuthProvider ap) async {
+  void initRequests() async {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
     ap.fetchActivitiesRequestsFrom(widget.user.uid).then((value) {
-      setState(() {
-        userRequests = value;
-      });
+      if (value.isNotEmpty) {
+        setState(() {
+          userRequests = value;
+        });
+      }
       print("Fetched ${value.length} requests");
     });
   }
@@ -708,7 +711,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                         activity.activityUid, widget.user.uid, false)
                     .then((value) {
                   setState(() {
-                    initRequests(ap);
+                    initRequests();
                   });
                 });
               },
@@ -733,7 +736,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
                         activity.activityUid, widget.user.uid, true)
                     .then((value) {
                   setState(() {
-                    initRequests(ap);
+                    initRequests();
                   });
                   if (value) {
                     PushNotifications.sendAcceptedNotification(

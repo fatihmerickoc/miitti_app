@@ -119,8 +119,8 @@ class _MapsScreenState extends State<MapsScreen> {
 
   Marker activityMarker(MiittiActivity activity) {
     return Marker(
-      width: 80.0,
-      height: 80.0,
+      width: 100.0,
+      height: 100.0,
       point: LatLng(activity.activityLati, activity.activityLong),
       child: GestureDetector(
         onTap: () {
@@ -280,16 +280,21 @@ class _MapsScreenState extends State<MapsScreen> {
             ? showOnList()
             : FlutterMap(
                 options: MapOptions(
+                    backgroundColor: AppColors.backgroundColor,
                     initialCenter: myPosition,
                     initialZoom: 12.0,
+                    interactionOptions: InteractionOptions(
+                        flags:
+                            InteractiveFlag.pinchZoom | InteractiveFlag.drag),
+                    minZoom: 5.0,
+                    maxZoom: 17.0,
                     onMapReady: () {}),
                 children: [
                     TileLayer(
                       urlTemplate:
-                          "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}{r}.jpg?access_token={accessToken}",
+                          "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
                       additionalOptions: {
                         'accessToken': mapboxAccess,
-                        'id': 'mapbox.mapbox-streets-v8',
                       },
                     ),
                     SuperclusterLayer.mutable(
@@ -303,19 +308,29 @@ class _MapsScreenState extends State<MapsScreen> {
                           }
                           //(marker.child as GestureDetector).onTap!();
                         },
+                        clusterWidgetSize: Size(100.0.r, 100.0.r),
+                        maxClusterRadius: 205,
                         builder: (context, position, markerCount,
                                 extraClusterData) =>
-                            Stack(children: [
-                              Image.asset("images/circlebackground.png"),
-                              Text("$markerCount",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 20.sp,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "Rubik",
-                                  ))
-                            ]),
+                            Center(
+                              child:
+                                  Stack(alignment: Alignment.center, children: [
+                                Image.asset(
+                                  "images/circlebackground.png",
+                                ),
+                                Positioned(
+                                  top: 20.h,
+                                  child: Text("$markerCount",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 32.sp,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.normal,
+                                        fontFamily: "Rubik",
+                                      )),
+                                )
+                              ]),
+                            ),
                         indexBuilder: IndexBuilders.rootIsolate)
                   ]),
         /*MapboxMap(
