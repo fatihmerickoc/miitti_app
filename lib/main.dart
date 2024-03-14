@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (_) => AuthProvider(),
+        create: (context) => AuthProvider(context),
         child: Builder(
           builder: (context) {
             final ap = Provider.of<AuthProvider>(context, listen: false);

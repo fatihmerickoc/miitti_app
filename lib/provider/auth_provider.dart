@@ -58,16 +58,29 @@ class AuthProvider extends ChangeNotifier {
   PersonActivity? _miittiActivity;
   PersonActivity get miittiActivity => _miittiActivity!;
 
-  AuthProvider() {
-    checkSign();
+  AuthProvider(BuildContext context) {
+    checkSign(context);
   }
 
 // #endregion
 
 // #region SignIn
-  Future<bool> checkSign() async {
+  Future<bool> checkSign(BuildContext context) async {
     final SharedPreferences s = await SharedPreferences.getInstance();
-    _isSignedIn = s.getBool('is_signedin') ?? false;
+    bool signedIn = s.getBool('is_signedin') ?? false;
+    if (signedIn) {
+      bool exists = await checkExistingUser();
+      if (exists) {
+        _isSignedIn = true;
+      } else {
+        showSnackBar(context, "Vaikuttaa siltä, että tilisi on poistettu",
+            Colors.red.shade800);
+        _isSignedIn = false;
+        s.clear();
+      }
+    } else {
+      _isSignedIn = false;
+    }
     notifyListeners();
     return _isSignedIn;
   }
@@ -264,7 +277,7 @@ class AuthProvider extends ChangeNotifier {
 
 // #endregion
 
-// #region Ads
+  // #region Ads
   Future<List<AdBanner>> fetchAds() async {
     try {
       QuerySnapshot querySnapshot = await _getFireQuery('adBanners');
@@ -1221,6 +1234,7 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } else {
       await notFound();
+
       return false;
     }
   }

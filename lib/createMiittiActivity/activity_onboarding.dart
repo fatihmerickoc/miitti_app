@@ -60,41 +60,41 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
       canPop: !Navigator.of(context).userGestureInProgress,
       child: Scaffold(
         body: SafeArea(
-          child: Expanded(
-            child: PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _controller,
-              children: [
-                // Display each activity page
-                AP1Participants(
-                  activity: _miittiActivity,
-                  onActivityDataChanged: _updateActivityData,
-                  controller: _controller,
-                ),
-                AP2Text(
-                  activity: _miittiActivity,
-                  onActivityDataChanged: _updateActivityData,
-                  controller: _controller,
-                ),
-                AP3Location(
-                  activity: _miittiActivity,
-                  onActivityDataChanged: _updateActivityData,
-                  controller: _controller,
-                ),
-                AP4Category(
-                  activity: _miittiActivity,
-                  onActivityDataChanged: _updateActivityData,
-                  controller: _controller,
-                ),
-                AP5Time(
-                  activity: _miittiActivity,
-                  onActivityDataChanged: _updateActivityData,
-                  controller: _controller,
-                ),
-              ],
-            ),
+          //child: Expanded(
+          child: PageView(
+            physics: const NeverScrollableScrollPhysics(),
+            controller: _controller,
+            children: [
+              // Display each activity page
+              AP4Category(
+                activity: _miittiActivity,
+                onActivityDataChanged: _updateActivityData,
+                controller: _controller,
+              ),
+              AP3Location(
+                activity: _miittiActivity,
+                onActivityDataChanged: _updateActivityData,
+                controller: _controller,
+              ),
+              AP5Time(
+                activity: _miittiActivity,
+                onActivityDataChanged: _updateActivityData,
+                controller: _controller,
+              ),
+              AP1Participants(
+                activity: _miittiActivity,
+                onActivityDataChanged: _updateActivityData,
+                controller: _controller,
+              ),
+              AP2Text(
+                activity: _miittiActivity,
+                onActivityDataChanged: _updateActivityData,
+                controller: _controller,
+              ),
+            ],
           ),
         ),
+        //),
       ),
     );
   }

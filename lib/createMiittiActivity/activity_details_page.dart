@@ -142,7 +142,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             ),
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
@@ -298,7 +298,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return ConfirmDialog(
+                return const ConfirmDialog(
                   title: 'Varmistus',
                   leftButtonText: 'Ilmianna',
                   mainText: 'Oletko varma, että haluat ilmiantaa aktiviteetin?',

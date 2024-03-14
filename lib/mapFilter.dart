@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/provider/auth_provider.dart';
 
 import 'helpers/filter_settings.dart';
 
@@ -18,7 +17,6 @@ class _MapFilterState extends State<MapFilter> {
   bool searchSameGender = false;
   bool searchMultiplePeople = true;
 
-  final AuthProvider authProvider = AuthProvider();
   FilterSettings filterSettings = FilterSettings();
 
   RangeValues _values = RangeValues(18, 60);

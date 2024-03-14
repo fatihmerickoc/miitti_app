@@ -2,6 +2,7 @@
 
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -151,7 +152,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
             child: CircleAvatar(
               backgroundColor: Colors.white,
               radius: 45.r,
-              backgroundImage: NetworkImage(user.profilePicture, scale: 0.25),
+              backgroundImage: CachedNetworkImageProvider(user.profilePicture,
+                  maxHeight: 120, maxWidth: 120, scale: 0.5),
             ),
           ),
           _buildUserInfo(user),
