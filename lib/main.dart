@@ -3,9 +3,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:miitti_app/constants/constants_styles.dart';
+import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/home.dart';
 import 'package:miitti_app/index_page.dart';
-import 'package:miitti_app/login/login_intro.dart';
 import 'package:miitti_app/utils/notification_message.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';
@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (_) => AuthProvider(),
+        create: (context) => AuthProvider(context),
         child: Builder(
           builder: (context) {
             final ap = Provider.of<AuthProvider>(context, listen: false);
@@ -64,11 +64,10 @@ class _MyAppState extends State<MyApp> {
               builder: (context, child) => MaterialApp(
                 navigatorKey: navigatorKey,
                 theme: ThemeData(
-                  fontFamily: 'RedHatDisplay',
-                  scaffoldBackgroundColor: ConstantStyles.black,
+                  scaffoldBackgroundColor: AppColors.backgroundColor,
                 ),
                 debugShowCheckedModeBanner: false,
-                home: _buildAuthScreen(ap),
+                home: _buildAuthScreen(ap, context),
                 routes: {
                   '/notificationmessage': (context) =>
                       const NotificationMessage()
@@ -79,17 +78,17 @@ class _MyAppState extends State<MyApp> {
         ));
   }
 
-  Widget _buildAuthScreen(AuthProvider ap) {
+  Widget _buildAuthScreen(AuthProvider ap, BuildContext context) {
     //Just checking if the user is signed up, before opening our app.
     return FutureBuilder<bool>(
-      future: ap.checkSign(),
+      future: ap.checkSign(context),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         //If the user is signed in to our app  before, we redirect them into our main screen, otherwise they go to home screen to register or sign up
         if (ap.isSignedIn) {
           ap.getDataFromSp();
-          return Scaffold(body: IndexPage());
+          return IndexPage();
         } else {
-          return LoginIntro();
+          return HomePage();
         }
       },
     );
