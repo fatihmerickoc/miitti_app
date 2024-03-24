@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
@@ -7,9 +8,14 @@ import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:miitti_app/cannyWebView.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({required this.controller, super.key});
+
+  final WebViewController controller;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -24,7 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: TextStyle(
           fontSize: 17.sp,
           fontFamily: 'Rubik',
-          color: Colors.white,
+          color: AppColors.lightPurpleColor,
         ),
       ),
     );
@@ -72,6 +78,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               SizedBox(height: 20.h),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CannyWebView(
+                        controller: widget.controller,
+                        userEmail: ap.miittiUser.userEmail,
+                        userName: ap.miittiUser.userName,
+                        userId: ap.miittiUser.uid,
+                        userAvatarURL: ap.miittiUser.profilePicture,
+                        userCreated: ap.miittiUser.userRegistrationDate,
+                      ),
+                    ),
+                  );
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
+                  children: [
+                    Text(
+                      'Anna palautetta',
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        color: Colors.white,
+                        ), // Large text
+                    ),
+                    SizedBox(height: 10.h),
+                    Text(
+                      'Ehdota uusia ominaisuuksia, ilmoita ongelmista tai liity keskusteluun parannusehdotuksista!',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center, 
+                    ),
+                  ],
+                ),
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  backgroundColor: MaterialStateProperty.all<Color>(AppColors.mixGradientColor),
+                  minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 140)), // Makes the button 100% wide
+                ),
+              ),
+              SizedBox(height: 10.h),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: TextStyle(
+                        fontSize: 14.sp,
+                        fontFamily: 'Rubik',
+                        color: Colors.white,
+                        ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Voit myös liittyä Discord kanavallemme ',
+                    ),
+                    TextSpan(
+                      text: 'täällä',
+                      style: TextStyle(
+                        color: AppColors.lightPurpleColor,
+                        fontFamily: 'Rubik',
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          launch('https://discord.gg/TwPNwwad');
+                        },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 30.h),
               createSectionTitle('Asiakaspalvelun yhteystiedot'),
               createHyperLink(
                 "Seuraa meitä Instagramissa",
@@ -130,7 +211,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SizedBox(height: 20.h),
               createSectionTitle('Versio'),
-              createText('1.2.8'),
+              Text(
+                '1.2.8',
+                style: TextStyle(
+                  fontSize: 17.sp,
+                  fontFamily: 'Rubik',
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
