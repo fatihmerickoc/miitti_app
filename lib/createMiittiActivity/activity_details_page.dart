@@ -298,7 +298,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return ConfirmDialog(
+                return const ConfirmDialog(
                   title: 'Varmistus',
                   leftButtonText: 'Ilmianna',
                   mainText: 'Oletko varma, että haluat ilmiantaa aktiviteetin?',

@@ -7,6 +7,7 @@ import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_anonymousUser.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
@@ -592,25 +593,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
-        children: [
-          isLoading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.lavenderColor,
-                  ),
-                )
-              : Container(
-                  margin: EdgeInsets.only(top: 60.h),
-                  child: showMyActivities
-                      ? buildJoinedActivities()
-                      : buildOtherActivities(),
-                ),
-          //ToggleSwitch that is right at the top of screen
-          buildMainToggleSwitch(),
-        ],
-      ),
-    );
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+
+    return ap.isAnonymous
+        ? ConstantsAnonymousUser()
+        : SafeArea(
+            child: Stack(
+              children: [
+                isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.lavenderColor,
+                        ),
+                      )
+                    : Container(
+                        margin: EdgeInsets.only(top: 60.h),
+                        child: showMyActivities
+                            ? buildJoinedActivities()
+                            : buildOtherActivities(),
+                      ),
+                //ToggleSwitch that is right at the top of screen
+                buildMainToggleSwitch(),
+              ],
+            ),
+          );
   }
 }

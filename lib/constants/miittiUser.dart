@@ -1,7 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
-import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/helpers/activity.dart';
 
 class MiittiUser {
   String userEmail;

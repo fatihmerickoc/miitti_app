@@ -420,7 +420,13 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                       fcmToken: ap.miittiUser.fcmToken,
                       userRegistrationDate: ap.miittiUser.userRegistrationDate,
                     );
-                    await ap.updateUserInfo(updatedUser, image).then((value) {
+                    await ap
+                        .updateUserInfo(
+                      updatedUser: updatedUser,
+                      imageFile: image,
+                      context: context,
+                    )
+                        .then((value) {
                       ap
                           .saveUserDataToSP()
                           .then((value) => ap.setSignIn().then((value) {

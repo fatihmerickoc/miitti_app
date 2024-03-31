@@ -46,7 +46,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
       setState(() {
         userRequests = value;
       });
-      print("Fetched ${value.length} requests");
+      debugPrint("Fetched ${value.length} requests");
     });
   }
 
@@ -92,7 +92,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
     List<Widget> widgets = [];
 
     if (isLoading) {
-      print("IsLoading");
+      debugPrint("IsLoading");
     }
 
     // Always add the profile image card at the beginning
@@ -449,7 +449,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         );
       } else {
         // Show some red dialog
-        print("You do not have any activities for people to invite");
+        debugPrint("You do not have any activities for people to invite");
         showSnackBar(
             context,
             "Sinulla ei ole miittejä, joihin voit kutsua tämän henkilön.",

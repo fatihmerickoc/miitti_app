@@ -30,12 +30,12 @@ class _NotificationMessageState extends State<NotificationMessage> {
 
     if (data is RemoteMessage) {
       payload = data.data;
-      print("RemoteMessage opened");
+      debugPrint("RemoteMessage opened");
     }
 
     if (data is NotificationResponse) {
       payload = jsonDecode(data.payload!);
-      print("Notification response opened");
+      debugPrint("Notification response opened");
     }
 
     return getPage(payload, context);
@@ -47,7 +47,7 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
   if (payload.containsKey("type")) {
     switch (payload["type"]) {
       case ("invite"):
-        print("Invite clicked ${payload["myData"]}");
+        debugPrint("Invite clicked ${payload["myData"]}");
         return FutureBuilder<MiittiActivity>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getSingleActivity(payload["myData"]),
@@ -56,14 +56,14 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
                 return ActivityDetailsPage(
                     myActivity: snapshot.data! as PersonActivity);
               } else if (snapshot.hasError) {
-                print("Error: ${snapshot.error}");
+                debugPrint("Error: ${snapshot.error}");
                 return const IndexPage();
               } else {
                 return const IndexPage();
               }
             });
       case ("request"):
-        print("Request clicked ${payload["myData"]}");
+        debugPrint("Request clicked ${payload["myData"]}");
         return FutureBuilder<MiittiUser>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getUser(payload["myData"]),
@@ -71,14 +71,14 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return UserProfileEditScreen(user: snapshot.data!);
               } else if (snapshot.hasError) {
-                print("Error: ${snapshot.error}");
+                debugPrint("Error: ${snapshot.error}");
                 return const IndexPage();
               } else {
                 return const CircularProgressIndicator();
               }
             });
       case ("accept"):
-        print("Invite clicked ${payload["myData"]}");
+        debugPrint("Invite clicked ${payload["myData"]}");
         return FutureBuilder<Widget>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getDetailsPage(payload["myData"]),
@@ -86,14 +86,14 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return snapshot.data!;
               } else if (snapshot.hasError) {
-                print("Error: ${snapshot.error}");
+                debugPrint("Error: ${snapshot.error}");
                 return const IndexPage();
               } else {
                 return const CircularProgressIndicator();
               }
             });
       case ("message"):
-        print("Message clicked ${payload["myData"]}");
+        debugPrint("Message clicked ${payload["myData"]}");
         return FutureBuilder<MiittiActivity>(
             future: Provider.of<AuthProvider>(context, listen: false)
                 .getSingleActivity(payload["myData"]),
@@ -106,16 +106,16 @@ Widget getPage(Map<String, dynamic> payload, BuildContext context) {
                   return ComChatPage(activity: a as CommercialActivity);
                 }
               } else if (snapshot.hasError) {
-                print("Error: ${snapshot.error}");
+                debugPrint("Error: ${snapshot.error}");
                 return const IndexPage();
               } else {
                 return const CircularProgressIndicator();
               }
             });
     }
-    print("Type didn't match: ${payload["type"].toString()}");
+    debugPrint("Type didn't match: ${payload["type"].toString()}");
   } else {
-    print("Payload doesn't include type");
+    debugPrint("Payload doesn't include type");
   }
 
   return const IndexPage();

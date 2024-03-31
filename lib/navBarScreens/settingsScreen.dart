@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
 import 'package:miitti_app/home.dart';
+import 'package:miitti_app/login/login_intro.dart';
+import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -97,37 +99,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
               createSectionTitle('Tilin asetukset'),
               GestureDetector(
                   onTap: () => ap.userSignOut().then(
-                        (value) => pushNRemoveUntil(context, const HomePage()),
+                        (value) =>
+                            pushNRemoveUntil(context, const LoginIntro()),
                       ),
                   child: createText('Kirjaudu ulos')),
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const ConfirmDialog(
-                        title: 'Varmistus',
-                        mainText:
-                            'Oletko varma, että haluat poistaa tilisi? Tämä toimenpide on peruuttamaton, ja kaikki tietosi poistetaan pysyvästi.',
-                      );
-                    },
-                  ).then((confirmed) {
-                    if (confirmed != null && confirmed) {
-                      ap.removeUser(ap.miittiUser.uid).then((value) {
-                        showSnackBar(context, value.$2,
-                            value.$1 ? Colors.green : Colors.red);
-                        if (value.$1) {
-                          ap.userSignOut().then(
-                                (value) =>
-                                    pushNRemoveUntil(context, const HomePage()),
-                              );
-                        }
-                      });
-                    }
-                  });
-                },
-                child: createText('Poista tili'),
-              ),
+              ap.isAnonymous
+                  ? GestureDetector(
+                      onTap: () {
+                        pushNRemoveUntil(context, const OnboardingScreen());
+                      },
+                      child: createText('Viimeistele profiili'),
+                    )
+                  : GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const ConfirmDialog(
+                              title: 'Varmistus',
+                              mainText:
+                                  'Oletko varma, että haluat poistaa tilisi? Tämä toimenpide on peruuttamaton, ja kaikki tietosi poistetaan pysyvästi.',
+                            );
+                          },
+                        ).then((confirmed) {
+                          if (confirmed != null && confirmed) {
+                            ap.removeUser(ap.miittiUser.uid).then((value) {
+                              showSnackBar(context, value.$2,
+                                  value.$1 ? Colors.green : Colors.red);
+                              if (value.$1) {
+                                ap.userSignOut().then(
+                                      (value) => pushNRemoveUntil(
+                                          context, const LoginIntro()),
+                                    );
+                              }
+                            });
+                          }
+                        });
+                      },
+                      child: createText('Poista tili'),
+                    ),
               SizedBox(height: 20.h),
               createSectionTitle('Versio'),
               createText('1.2.8'),

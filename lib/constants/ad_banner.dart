@@ -70,7 +70,7 @@ class AdBanner {
 
       return weight;
     } catch (e) {
-      print("Error targeting ad: $e");
+      debugPrint("Error targeting ad: $e");
       return 0;
     }
   }
@@ -143,7 +143,7 @@ class AdBanner {
         ),
       );
     } catch (e) {
-      print("Failed getting banner: $e");
+      debugPrint("Failed getting banner: $e");
       return GestureDetector(
         onTap: () {},
         child: Container(

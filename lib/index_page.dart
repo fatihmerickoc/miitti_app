@@ -88,17 +88,20 @@ class IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+
     return Scaffold(
       // Navigation bar at the bottom
       bottomNavigationBar: _buildBottomNavigationBar(),
       // Only display FAB for tab with index 1
-      floatingActionButton: currentIndex == 1
+      floatingActionButton: currentIndex == 1 && !ap.isAnonymous
           ? SizedBox(
               height: 65.h,
               width: 65.h,
               child: getMyFloatingButton(
                 onPressed: () {
                   //Pushes user to the createActivity Page
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

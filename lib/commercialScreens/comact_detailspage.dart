@@ -219,7 +219,8 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                                   participantCount < 10 ? participantCount : 10,
                               itemBuilder: (BuildContext context, int index) {
                                 MiittiUser user = participantList[index];
-                                print("$index: ${user.userName} osallistuu");
+                                debugPrint(
+                                    "$index: ${user.userName} osallistuu");
                                 return Padding(
                                   padding: EdgeInsets.only(left: 16.0.w),
                                   child: GestureDetector(

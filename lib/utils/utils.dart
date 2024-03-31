@@ -223,7 +223,6 @@ int daysSince(Timestamp timestamp) {
 
 String timestampToString(Timestamp time, {bool justClock = false}) {
   final dateTime = time.toDate();
-  print("DATETIME: $dateTime");
   String clockString =
       "${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
   if (justClock) return clockString;

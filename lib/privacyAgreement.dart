@@ -8,6 +8,7 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 import 'constants/miittiUser.dart';
@@ -33,9 +34,6 @@ class _PrivacyAgreementState extends State<PrivacyAgreement> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading =
-        Provider.of<AuthProvider>(context, listen: true).isLoading;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -81,16 +79,11 @@ class _PrivacyAgreementState extends State<PrivacyAgreement> {
                 height: 80.h,
               ),
               MyElevatedButton(
-                onPressed: () => storeData(),
-                child: isLoading == false
-                    ? Text(
-                        "Hyväksy",
-                        style: Styles.bodyTextStyle,
-                      )
-                    : CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-              ),
+                  onPressed: () => storeData(context),
+                  child: Text(
+                    "Hyväksy",
+                    style: Styles.bodyTextStyle,
+                  )),
               Padding(
                 padding: EdgeInsets.all(5.0.w),
                 child: Text(
@@ -110,21 +103,42 @@ class _PrivacyAgreementState extends State<PrivacyAgreement> {
     );
   }
 
-  void storeData() async {
+  void storeData(BuildContext context) async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    ap.saveUserDatatoFirebase(
-      context: context,
-      userModel: widget.user,
-      image: widget.image,
-      onSucess: () {
-        ap.saveUserDataToSP().then(
-              (value) => ap.setSignIn().then(
-                (value) {
-                  pushNRemoveUntil(context, IndexPage());
-                },
-              ),
-            );
-      },
-    );
+    if (ap.isAnonymous) {
+      ap
+          .updateUserInfo(
+            updatedUser: widget.user,
+            imageFile: widget.image,
+            context: context,
+          )
+          .then(
+            (value) => ap.saveUserDataToSP().then(
+                  (value) => ap.setSignIn().then(
+                        (value) => ap.setAnonymousModeOf().then(
+                              (value) => pushNRemoveUntil(
+                                context,
+                                IndexPage(),
+                              ),
+                            ),
+                      ),
+                ),
+          );
+    } else {
+      ap.saveUserDatatoFirebase(
+        context: context,
+        userModel: widget.user,
+        image: widget.image,
+        onSucess: () {
+          ap.saveUserDataToSP().then(
+                (value) => ap.setSignIn().then(
+                  (value) {
+                    pushNRemoveUntil(context, IndexPage());
+                  },
+                ),
+              );
+        },
+      );
+    }
   }
 }

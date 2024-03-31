@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/adminPanel/admin_homePage.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_anonymousUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/myProfileEditForm.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -56,17 +57,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider ap = Provider.of<AuthProvider>(context, listen: true);
-    final isLoading = ap.isLoading;
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+    bool isLoading = ap.isLoading;
+    bool isAnonymous = ap.isAnonymous;
 
     List<String> answeredQuestions = questionOrder
         .where((question) => ap.miittiUser.userChoices.containsKey(question))
         .toList();
 
-    return Scaffold(
-      appBar: buildAppBar(ap),
-      body: buildBody(isLoading, ap, answeredQuestions),
-    );
+    return isAnonymous
+        ? ConstantsAnonymousUser()
+        : Scaffold(
+            appBar: buildAppBar(ap),
+            body: buildBody(isLoading, ap, answeredQuestions),
+          );
   }
 
   AppBar buildAppBar(AuthProvider ap) {

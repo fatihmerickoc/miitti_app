@@ -42,7 +42,7 @@ class PushNotifications {
     //Save token to user data(needed to access other users tokens in code)
     if (ap.miittiUser.fcmToken != token) {
       ap.miittiUser.fcmToken = token!;
-      ap.updateUserInfo(ap.miittiUser, null);
+      ap.updateUserInfo(updatedUser: ap.miittiUser);
     }
   }
 

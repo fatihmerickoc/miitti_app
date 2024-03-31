@@ -1,4 +1,6 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:location/location.dart';
@@ -7,11 +9,14 @@ import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_customButton.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/mapFilter.dart';
+import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
@@ -39,6 +44,18 @@ class _MapsScreenState extends State<MapsScreen> {
   late MapboxMapController controller;
 
   int showOnMap = 0;
+
+  bool isAnonymous = false;
+
+  @override
+  void initState() {
+    Timer(const Duration(seconds: 1), () {
+      if (isAnonymous) {
+        _showCompleteProfileDialog(context);
+      }
+    });
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -90,10 +107,10 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   void fetchActivities() async {
-    List<MiittiActivity> activities =
-        await Provider.of<AuthProvider>(context, listen: false)
-            .fetchActivities();
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+    List<MiittiActivity> activities = await ap.fetchActivities();
     setState(() {
+      isAnonymous = ap.isAnonymous;
       _activities = activities.reversed.toList();
     });
     addGeojsonCluster(controller, _activities);
@@ -229,7 +246,14 @@ class _MapsScreenState extends State<MapsScreen> {
 
       if (roundedActivityLatitude == roundedLatitude &&
           roundedActivityLong == roundedLong) {
-        goToActivityDetailsPage(activity);
+        if (!isAnonymous) {
+          goToActivityDetailsPage(activity);
+        } else {
+          showSnackBar(
+              context,
+              'Et ole vielä viimeistellyt profiiliasi, joten\n et voi käyttää vielä sovelluksen kaikkia ominaisuuksia.',
+              ConstantStyles.orange);
+        }
       }
     }
   }
@@ -240,12 +264,79 @@ class _MapsScreenState extends State<MapsScreen> {
         (id, point, coordinates) => _onFeatureTapped(coordinates: coordinates));
   }
 
+  void _showCompleteProfileDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            height: 350.h,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: ConstantStyles.black,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(10.w),
+              child: Column(
+                children: [
+                  Divider(
+                    color: Colors.white,
+                    thickness: 2.0,
+                    indent: 100,
+                    endIndent: 100,
+                  ),
+                  Text(
+                    'Hups!',
+                    style: ConstantStyles.title,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Text(
+                      'Näyttää siltä, ettet ole vielä viimeistellyt profiiliasi, joten et voi käyttää vielä\n sovelluksen kaikkia ominaisuuksia.\n\n Korjataanko asia?',
+                      style: ConstantStyles.body,
+                    ),
+                  ),
+                  ConstantsCustomButton(
+                    buttonText: 'Viimeistele profiili',
+                    onPressed: () {
+                      pushNRemoveUntil(context, const OnboardingScreen());
+                    },
+                    padding: EdgeInsets.symmetric(horizontal: 100.w),
+                  ), //Removed extra padding in ConstantsCustomButton
+                  ConstantStyles().gapH10,
+                  ConstantsCustomButton(
+                    buttonText: 'Ei vielä',
+                    padding: EdgeInsets.symmetric(horizontal: 145.w),
+                    isWhiteButton: true,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ), //Removed extra padding in ConstantsCustomButton
+                  Spacer(),
+                  Text(
+                    'Voit myös viimeistellä profiiliasi myöhemmin asetussivulla!',
+                    style: ConstantStyles.warning,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         showOnMap == 1
-            ? showOnList()
+            ? showOnList(isAnonymous)
             : MapboxMap(
                 styleString: MapboxStyles.MAPBOX_STREETS,
                 myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
@@ -319,7 +410,7 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  Widget showOnList() {
+  Widget showOnList(bool isAnonymous) {
     return Container(
       margin: EdgeInsets.only(top: 60.h),
       child: ListView.builder(
@@ -396,7 +487,14 @@ class _MapsScreenState extends State<MapsScreen> {
                             width: 250.w,
                             height: 40.h,
                             onPressed: () {
-                              goToActivityDetailsPage(activity);
+                              if (!isAnonymous) {
+                                goToActivityDetailsPage(activity);
+                              } else {
+                                showSnackBar(
+                                    context,
+                                    'Et ole vielä viimeistellyt profiiliasi, joten\n et voi käyttää vielä sovelluksen kaikkia ominaisuuksia.',
+                                    ConstantStyles.orange);
+                              }
                             },
                             child: Text(
                               "Näytä enemmän",

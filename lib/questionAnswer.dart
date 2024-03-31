@@ -14,12 +14,13 @@ class QuestionAnswer extends StatefulWidget {
 class _QuestionAnswerState extends State<QuestionAnswer> {
   final List<bool> _isExpandedList = List.generate(15, (_) => false);
   final List<bool> _isSavedList = List.generate(15, (_) => false);
-  final List<TextEditingController> _isControllers =
-      List.generate(15, (_) => TextEditingController());
 
   final List<GlobalKey> _itemKeys = List.generate(15, (index) => GlobalKey());
 
   final _scrollController = ScrollController();
+
+  final List<QuestionField> _questionFields =
+      List.generate(15, (_) => QuestionField());
 
   int answerLimit = 5;
   int currentAnswers = 0;
@@ -37,6 +38,10 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
 
   @override
   void dispose() {
+    for (var field in _questionFields) {
+      field.controller.dispose();
+      field.focusNode.dispose();
+    }
     _justFocusNode.dispose();
     super.dispose();
   }
@@ -47,7 +52,7 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
       for (int i = 0; i < questionOrder.length; i++) {
         String question = questionOrder[i];
         if (answers.containsKey(question)) {
-          _isControllers[i].text = answers[question]!;
+          _questionFields[i].controller.text = answers[question]!;
           _isSavedList[i] = true;
           currentAnswers++;
         }
@@ -151,20 +156,38 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
       children: [
         GestureDetector(
           onTap: () {
-            if (currentAnswers < 5 || _isSavedList[index]) {
-              setState(() {
-                _isExpandedList[index] = !_isExpandedList[index];
-                if (_isExpandedList[index]) {
-                  // If the item has expanded, then scroll to it
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Scrollable.ensureVisible(
-                      _itemKeys[index].currentContext!,
-                      duration: const Duration(milliseconds: 300),
-                    );
-                  });
+            setState(() {
+              // Collapse any currently expanded items and unfocus their text fields
+              for (int i = 0; i < _isExpandedList.length; i++) {
+                if (i != index && _isExpandedList[i]) {
+                  _isExpandedList[i] = false;
+                  _questionFields[i]
+                      .focusNode
+                      .unfocus(); // Unfocus other fields
                 }
-              });
-            }
+              }
+
+              // Expand or collapse the tapped item
+              _isExpandedList[index] = !_isExpandedList[index];
+              if (_isExpandedList[index]) {
+                // If the item is now expanded, focus its text field
+                FocusScope.of(context)
+                    .requestFocus(_questionFields[index].focusNode);
+              } else {
+                // Otherwise, ensure it's unfocused
+                _questionFields[index].focusNode.unfocus();
+              }
+
+              // Existing logic to ensure the item is visible
+              if (_isExpandedList[index]) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Scrollable.ensureVisible(
+                    _itemKeys[index].currentContext!,
+                    duration: const Duration(milliseconds: 300),
+                  );
+                });
+              }
+            });
           },
           child: _buildQuestionRow(question, index),
         ),
@@ -211,10 +234,11 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
         children: [
           TextFormField(
             style: Styles.bodyTextStyle,
-            focusNode: _justFocusNode,
+            focusNode: _questionFields[index].focusNode, // Update this
+
             maxLines: 5,
             maxLength: 100,
-            controller: _isControllers[index],
+            controller: _questionFields[index].controller, // And this
             onTap: () {
               if (_justFocusNode.hasFocus) {
                 _justFocusNode.unfocus();
@@ -255,8 +279,8 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
         height: 50.h,
         width: 150.w,
         onPressed: () {
-          if (_isControllers[index].text.isNotEmpty) {
-            answers[question] = _isControllers[index].text;
+          if (_questionFields[index].controller.text.isNotEmpty) {
+            answers[question] = _questionFields[index].controller.text;
             if (!answered) {
               setState(() => currentAnswers++);
             }
@@ -278,4 +302,13 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
       ),
     );
   }
+}
+
+class QuestionField {
+  TextEditingController controller;
+  FocusNode focusNode;
+
+  QuestionField()
+      : controller = TextEditingController(),
+        focusNode = FocusNode();
 }

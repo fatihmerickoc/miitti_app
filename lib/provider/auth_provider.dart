@@ -10,6 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/commercialScreens/comchat_page.dart';
@@ -18,6 +20,8 @@ import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/commercial_spot.dart';
 import 'package:miitti_app/constants/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
+import 'package:miitti_app/constants/constants_widgets.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
@@ -26,8 +30,8 @@ import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/createMiittiActivity/activity_page_final.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';
+import 'package:miitti_app/login/login_decideScreen.dart';
 import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
-import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // #endregion
@@ -45,6 +49,9 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isAnonymous = false;
+  bool get isAnonymous => _isAnonymous;
+
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
@@ -60,6 +67,7 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider() {
     checkSign();
+    checkAnon();
   }
 
 // #endregion
@@ -68,8 +76,17 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> checkSign() async {
     final SharedPreferences s = await SharedPreferences.getInstance();
     _isSignedIn = s.getBool('is_signedin') ?? false;
+
     notifyListeners();
     return _isSignedIn;
+  }
+
+  Future<bool> checkAnon() async {
+    final SharedPreferences s = await SharedPreferences.getInstance();
+    _isAnonymous = s.getBool('is_anonymous') ?? false;
+
+    notifyListeners();
+    return _isAnonymous;
   }
 
   Future setSignIn() async {
@@ -79,9 +96,23 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void signInWithPhone(BuildContext context, String phoneNumber) async {
+  Future setAnonymousModeOn() async {
+    SharedPreferences s = await SharedPreferences.getInstance();
+    await s.setBool('is_anonymous', true);
+    _isAnonymous = true;
+    notifyListeners();
+  }
+
+  Future setAnonymousModeOf() async {
+    SharedPreferences s = await SharedPreferences.getInstance();
+    await s.setBool('is_anonymous', false);
+    _isAnonymous = false;
+    notifyListeners();
+  }
+
+  Future<void> signInWithPhone(BuildContext context, String phoneNumber) async {
     try {
-      startLoading();
+      ConstantsWidgets().showLoadingDialog(context);
       await _firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential phoneAuthCredential) async {
@@ -95,29 +126,47 @@ class AuthProvider extends ChangeNotifier {
 
           checkExistingUser().then((value) async {
             if (value == true) {
-              getDataFromFirestore().then(
-                (value) => saveUserDataToSP().then(
-                  (value) => setSignIn().then(
-                    (value) => pushNRemoveUntil(context, const IndexPage()),
-                  ),
-                ),
-              );
+              //check if the user is anonymous
+              checkAnonymousUser().then((value) {
+                if (value == true) {
+                  getDataFromFirestore().then(
+                    (value) => saveUserDataToSP().then(
+                      (value) => setSignIn().then(
+                        (value) => setAnonymousModeOn().then(
+                          (value) =>
+                              pushNRemoveUntil(context, const IndexPage()),
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  getDataFromFirestore().then(
+                    (value) => saveUserDataToSP().then(
+                      (value) => setSignIn().then(
+                        (value) => pushNRemoveUntil(context, const IndexPage()),
+                      ),
+                    ),
+                  );
+                }
+              });
+
+              return;
             } else {
-              pushNRemoveUntil(context, const OnboardingScreen());
+              pushNRemoveUntil(context, const LoginDecideScreen());
             }
           });
-          stopLoading();
+          Navigator.of(context).pop();
           debugPrint("$phoneNumber signed in");
         },
         verificationFailed: (error) {
-          stopLoading();
+          Navigator.of(context).pop();
           showSnackBar(context, "Failed phone verification: $error",
               Colors.red.shade800);
 
           throw Exception(error.message);
         },
         codeSent: (verificationId, forceResendingToken) {
-          stopLoading();
+          Navigator.of(context).pop();
           debugPrint("sending code to $phoneNumber");
           if (context.mounted) {
             Navigator.of(context).push(
@@ -132,7 +181,6 @@ class AuthProvider extends ChangeNotifier {
         codeAutoRetrievalTimeout: (verificationId) {},
       );
     } on FirebaseAuthException catch (e) {
-      stopLoading();
       debugPrint("Kirjautuminen epäonnistui: ${e.message}");
       showSnackBar(context, "Kirjautuminen epäonnistui: ${e.message}",
           Colors.red.shade800);
@@ -145,7 +193,7 @@ class AuthProvider extends ChangeNotifier {
     required String userOtp,
     required Function onSuccess,
   }) async {
-    startLoading();
+    ConstantsWidgets().showLoadingDialog(context);
     try {
       if (!(_firebaseAuth.currentUser != null &&
           _firebaseAuth.currentUser!.uid == _uid)) {
@@ -160,11 +208,120 @@ class AuthProvider extends ChangeNotifier {
 
       onSuccess();
     } on FirebaseAuthException catch (e) {
-      print("Vahvistus epäonnistui: ${e.message} (${e.code})");
+      debugPrint("Vahvistus epäonnistui: ${e.message} (${e.code})");
       showSnackBar(context, 'SMS vahvistus epäonnistui ${e.message}',
           Colors.red.shade800);
     } finally {
-      stopLoading();
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try {
+      //begin interactive sign process
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+
+      //obtain auth details for request
+      final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+
+      //create new credentials for user
+      final credential = GoogleAuthProvider.credential(
+        accessToken: gAuth.accessToken,
+        idToken: gAuth.idToken,
+      );
+
+      //finally, lets sign in
+      ConstantsWidgets().showLoadingDialog(context);
+      User? user =
+          (await FirebaseAuth.instance.signInWithCredential(credential)).user;
+
+      //assign _uid to user id
+      _uid = user?.uid;
+
+      checkExistingUser().then((value) async {
+        if (value == true) {
+          //check if the user is anonymous
+          checkAnonymousUser().then((value) {
+            if (value == true) {
+              getDataFromFirestore().then(
+                (value) => saveUserDataToSP().then(
+                  (value) => setSignIn().then(
+                    (value) => setAnonymousModeOn().then(
+                      (value) => pushNRemoveUntil(context, const IndexPage()),
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              getDataFromFirestore().then(
+                (value) => saveUserDataToSP().then(
+                  (value) => setSignIn().then(
+                    (value) => pushNRemoveUntil(context, const IndexPage()),
+                  ),
+                ),
+              );
+            }
+          });
+
+          return;
+        } else {
+          pushNRemoveUntil(context, const LoginDecideScreen());
+        }
+      });
+    } catch (error) {
+      Navigator.of(context).pop();
+      showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
+      debugPrint('Got error signing with Google $error');
+    } finally {
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> signInWithApple(BuildContext context) async {
+    try {
+      ConstantsWidgets().showLoadingDialog(context);
+
+      final appleProvider = AppleAuthProvider();
+      User? user =
+          (await FirebaseAuth.instance.signInWithProvider(appleProvider)).user;
+
+      _uid = user?.uid;
+
+      checkExistingUser().then((value) async {
+        if (value == true) {
+          //check if the user is anonymous
+          checkAnonymousUser().then((value) {
+            if (value == true) {
+              getDataFromFirestore().then(
+                (value) => saveUserDataToSP().then(
+                  (value) => setSignIn().then(
+                    (value) => setAnonymousModeOn().then(
+                      (value) => pushNRemoveUntil(context, const IndexPage()),
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              getDataFromFirestore().then(
+                (value) => saveUserDataToSP().then(
+                  (value) => setSignIn().then(
+                    (value) => pushNRemoveUntil(context, const IndexPage()),
+                  ),
+                ),
+              );
+            }
+          });
+
+          return;
+        } else {
+          pushNRemoveUntil(context, const LoginDecideScreen());
+        }
+      });
+    } catch (error) {
+      showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
+      debugPrint('Got error signing with Apple $error');
+    } finally {
+      Navigator.of(context).pop();
     }
   }
 
@@ -198,7 +355,7 @@ class AuthProvider extends ChangeNotifier {
           .doc(reportedId)
           .set(report.toMap());
     } catch (e) {
-      print("Reporting failed: $e");
+      debugPrint("Reporting failed: $e");
     } finally {
       Timer(const Duration(seconds: 1), () {
         _isLoading = false;
@@ -235,7 +392,7 @@ class AuthProvider extends ChangeNotifier {
           .doc(reportedId)
           .set(report.toMap());
     } catch (e) {
-      print("Reporting failed: $e");
+      debugPrint("Reporting failed: $e");
     } finally {
       Timer(const Duration(seconds: 1), () {
         _isLoading = false;
@@ -257,7 +414,7 @@ class AuthProvider extends ChangeNotifier {
 
       return list;
     } catch (e) {
-      print('Error fetching reported activities: $e');
+      debugPrint('Error fetching reported activities: $e');
       return [];
     }
   }
@@ -275,7 +432,7 @@ class AuthProvider extends ChangeNotifier {
 
       return AdBanner.sortBanners(list, miittiUser);
     } catch (e) {
-      print("Error fetching ads $e");
+      debugPrint("Error fetching ads $e");
       return [];
     }
   }
@@ -286,7 +443,7 @@ class AuthProvider extends ChangeNotifier {
         'views': FieldValue.increment(1),
       });
     } catch (e) {
-      print('Error adding view: $e');
+      debugPrint('Error adding view: $e');
     }
   }
 
@@ -296,7 +453,7 @@ class AuthProvider extends ChangeNotifier {
         'clicks': FieldValue.increment(1),
       });
     } catch (e) {
-      print('Error adding view: $e');
+      debugPrint('Error adding view: $e');
     }
   }
 // #endregion
@@ -307,7 +464,7 @@ class AuthProvider extends ChangeNotifier {
     required BuildContext context,
     required PersonActivity activityModel,
   }) async {
-    startLoading();
+    ConstantsWidgets().showLoadingDialog(context);
     try {
       activityModel.admin = _miittiUser!.uid;
       activityModel.adminAge = calculateAge(_miittiUser!.userBirthday);
@@ -330,12 +487,11 @@ class AuthProvider extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message.toString(), Colors.red.shade800);
     } finally {
-      stopLoading();
+      Navigator.of(context).pop();
     }
   }
 
   Future<List<MiittiActivity>> fetchActivities() async {
-    startLoading();
     try {
       FilterSettings filterSettings = FilterSettings();
       await filterSettings.loadPreferences();
@@ -346,9 +502,9 @@ class AuthProvider extends ChangeNotifier {
           .map((doc) => PersonActivity.fromDoc(doc))
           .where((activity) {
         if (_miittiUser == null) {
-          print("User is null");
+          debugPrint("User is null");
         } else {
-          print("Checking filters of ${_miittiUser?.userName}");
+          debugPrint("Checking filters of ${_miittiUser?.userName}");
           if (daysSince(activity.activityTime) <
               (activity.timeDecidedLater ? -30 : -7)) {
             removeActivity(activity.activityUid);
@@ -377,9 +533,9 @@ class AuthProvider extends ChangeNotifier {
           .map((doc) => CommercialActivity.fromDoc(doc))
           .where((activity) {
         if (_miittiUser == null) {
-          print("User is null");
+          debugPrint("User is null");
         } else {
-          print("Checking filters of ${_miittiUser?.userName}");
+          debugPrint("Checking filters of ${_miittiUser?.userName}");
           if (daysSince(activity.endTime) < -1) {
             return false;
           }
@@ -392,16 +548,12 @@ class AuthProvider extends ChangeNotifier {
       list.addAll(List<MiittiActivity>.from(comActivities));
       return list;
     } catch (e, s) {
-      print('Error fetching activities: $e');
-      print(s);
+      debugPrint('Error fetching activities: $e');
       return [];
-    } finally {
-      stopLoading();
     }
   }
 
   Future<List<MiittiActivity>> fetchUserActivities() async {
-    startLoading();
     try {
       QuerySnapshot querySnapshot =
           await _queryWhereContains(_activitiesString, 'participants', uid);
@@ -447,15 +599,12 @@ class AuthProvider extends ChangeNotifier {
       list.addAll(List<MiittiActivity>.from(commercialActivities));
       return list;
     } catch (e) {
-      print('Error fetching user activities: $e');
+      debugPrint('Error fetching user activities: $e');
       return [];
-    } finally {
-      stopLoading();
     }
   }
 
   Future removeActivity(String activityId) async {
-    startLoading();
     try {
       var activityRef = _activityDocRef(activityId);
 
@@ -466,17 +615,16 @@ class AuthProvider extends ChangeNotifier {
         }
       });
 
-      await activityRef.delete().then((value) => print("Activity Removed!"));
+      await activityRef
+          .delete()
+          .then((value) => debugPrint("Activity Removed!"));
     } catch (e) {
-      print('Error deleting activity: $e');
+      debugPrint('Error deleting activity: $e');
       return [];
-    } finally {
-      stopLoading();
-    }
+    } finally {}
   }
 
   Future<List<PersonActivity>> fetchAdminActivities() async {
-    startLoading();
     try {
       QuerySnapshot querySnapshot =
           await _queryWhereEquals(_activitiesString, 'admin', uid);
@@ -486,31 +634,24 @@ class AuthProvider extends ChangeNotifier {
 
       return activities;
     } catch (e) {
-      print('Error fetching user activities: $e');
+      debugPrint('Error fetching user activities: $e');
       return [];
-    } finally {
-      stopLoading();
     }
   }
 
   Future<int> adminActivitiesLength() async {
-    startLoading();
     try {
       QuerySnapshot querySnapshot =
           await _queryWhereEquals(_activitiesString, 'admin', uid);
 
       return querySnapshot.docs.length;
     } catch (e) {
-      print('Error fetching user activities: $e');
+      debugPrint('Error fetching user activities: $e');
       return 0;
-    } finally {
-      stopLoading();
     }
   }
 
   Future<List<Map<String, dynamic>>> fetchActivitiesRequests() async {
-    startLoading();
-
     try {
       QuerySnapshot querySnapshot =
           await _queryWhereEquals(_activitiesString, 'admin', uid);
@@ -530,18 +671,14 @@ class AuthProvider extends ChangeNotifier {
 
       return usersAndActivityIds.toList();
     } catch (e) {
-      print('Error fetching admin activities: $e');
+      debugPrint('Error fetching admin activities: $e');
       return [];
-    } finally {
-      stopLoading();
     }
   }
 
   Future<List<PersonActivity>> fetchActivitiesRequestsFrom(
       String userId) async {
     try {
-      startLoading();
-
       QuerySnapshot querySnapshot = await _fireStore
           .collection('activities')
           .where('admin', isEqualTo: uid)
@@ -552,26 +689,20 @@ class AuthProvider extends ChangeNotifier {
           querySnapshot.docs.map((doc) => PersonActivity.fromDoc(doc)).toList();
       return activities;
     } catch (e) {
-      print('Error fetching admin activities: $e');
+      debugPrint('Error fetching admin activities: $e');
       return [];
-    } finally {
-      stopLoading();
     }
   }
 
   Future<MiittiActivity> getSingleActivity(String activityId) async {
-    _isLoading = true;
-    notifyListeners();
     MiittiActivity activity;
 
     activity = await _personalOrCommercial(activityId, (a) {}, (comA) {});
 
-    stopLoading();
     return activity;
   }
 
   Future<Widget> getDetailsPage(String activityId) async {
-    startLoading();
     try {
       Widget widget = const IndexPage();
       await _personalOrCommercial(
@@ -580,15 +711,12 @@ class AuthProvider extends ChangeNotifier {
           (comActivity) => widget = ComActDetailsPage(myActivity: comActivity));
       return widget;
     } catch (e) {
-      print('Error getting details page: $e');
+      debugPrint('Error getting details page: $e');
       return const IndexPage();
-    } finally {
-      stopLoading();
     }
   }
 
   Future<List<CommercialSpot>> fetchCommercialSpots() async {
-    startLoading();
     try {
       QuerySnapshot querySnapshot = await _getFireQuery('commercialSpots');
 
@@ -599,10 +727,8 @@ class AuthProvider extends ChangeNotifier {
 
       return spots;
     } catch (e) {
-      print('Error fetching commercial spots: $e');
+      debugPrint('Error fetching commercial spots: $e');
       return [];
-    } finally {
-      stopLoading();
     }
   }
 
@@ -612,46 +738,33 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> sendActivityRequest(String activityId) async {
     try {
-      startLoading();
-
       await _activityDocRef(activityId).update({
         'requests': FieldValue.arrayUnion([_uid])
       }).then((value) {
-        print("User joined the activity successfully");
+        debugPrint("User joined the activity successfully");
       }).catchError((error) {
-        print("Error joining the activity: $error");
+        debugPrint("Error joining the activity: $error");
       });
     } catch (e) {
-      print('Error while joining activity: $e');
-    } finally {
-      Timer(const Duration(seconds: 1), () {
-        stopLoading();
-      });
+      debugPrint('Error while joining activity: $e');
     }
   }
 
   Future<void> joinActivity(String activityId) async {
     try {
-      startLoading();
-
       await _comActivityDocRef(activityId).update({
         'participants': FieldValue.arrayUnion([_uid])
       }).then((value) {
-        print("User joined the activity successfully");
+        debugPrint("User joined the activity successfully");
       }).catchError((error) {
-        print("Error joining the activity: $error");
+        debugPrint("Error joining the activity: $error");
       });
     } catch (e) {
-      print('Error while joining activity: $e');
-    } finally {
-      Timer(const Duration(seconds: 1), () {
-        stopLoading();
-      });
+      debugPrint('Error while joining activity: $e');
     }
   }
 
   Future<bool> reactToInvite(String activityId, bool accepted) async {
-    startLoading();
     bool operationCompleted = false;
     try {
       await _tryGetUser(uid, (user) async {
@@ -664,9 +777,7 @@ class AuthProvider extends ChangeNotifier {
         }
       }, () {});
     } catch (e) {
-      print('Found error accepting invite: $e');
-    } finally {
-      stopLoading();
+      debugPrint('Found error accepting invite: $e');
     }
     return operationCompleted;
   }
@@ -675,31 +786,23 @@ class AuthProvider extends ChangeNotifier {
     String userId,
     String activityId,
   ) async {
-    startLoading();
-
     try {
       await _tryGetUser(uid, (user) async {
         user.invitedActivities.add(activityId);
         await _userDocRef(userId)
             .update({'invitedActivities': user.invitedActivities.toList()});
       }, () {});
-
-      stopLoading();
     } catch (e) {
-      stopLoading();
       debugPrint('Got this error while inviting user to your activity $e');
     }
   }
 
   Future<bool> checkIfUserJoined(String activityUid,
       {bool commercial = false}) async {
-    startLoading();
     final snapshot = await _fireStore
         .collection(commercial ? 'commercialActivities' : 'activities')
         .doc(activityUid)
         .get();
-
-    stopLoading();
 
     if (snapshot.exists) {
       final activity = commercial
@@ -713,7 +816,6 @@ class AuthProvider extends ChangeNotifier {
 
   Future<UserStatusInActivity> getUserStatusInActivity(
       String activityUid) async {
-    startLoading();
     try {
       final snapshot = await _getActivityDoc(activityUid);
 
@@ -728,10 +830,8 @@ class AuthProvider extends ChangeNotifier {
 
       return UserStatusInActivity.none;
     } catch (e) {
-      print('Error getting user status in activity: $e');
+      debugPrint('Error getting user status in activity: $e');
       return UserStatusInActivity.none;
-    } finally {
-      stopLoading();
     }
   }
 
@@ -751,7 +851,6 @@ class AuthProvider extends ChangeNotifier {
     String userId,
     bool accept,
   ) async {
-    startLoading();
     bool joined = false;
 
     try {
@@ -760,7 +859,7 @@ class AuthProvider extends ChangeNotifier {
       await _fireStore.runTransaction((transaction) async {
         final activitySnapshot = await transaction.get(activityRef);
         if (!activitySnapshot.exists) {
-          print('Activity does not exist.');
+          debugPrint('Activity does not exist.');
           return;
         }
 
@@ -782,11 +881,8 @@ class AuthProvider extends ChangeNotifier {
           'requests': requests,
         });
       });
-
-      stopLoading();
     } catch (e) {
-      stopLoading();
-      print('Error while joining activity: $e');
+      debugPrint('Error while joining activity: $e');
     }
     return joined;
   }
@@ -795,7 +891,6 @@ class AuthProvider extends ChangeNotifier {
     String activityId,
     bool isRequested,
   ) async {
-    startLoading();
     try {
       if (!isRequested) {
         //check if activity or commercial activity
@@ -817,11 +912,9 @@ class AuthProvider extends ChangeNotifier {
         });
       }
 
-      print("User removed from activity successfully.");
+      debugPrint("User removed from activity successfully.");
     } catch (e) {
-      print('Error removing user from activity: $e');
-    } finally {
-      stopLoading();
+      debugPrint('Error removing user from activity: $e');
     }
   }
 
@@ -835,7 +928,6 @@ class AuthProvider extends ChangeNotifier {
 // #region Chatting
 
   Future<Widget> getChatPage(String activityId) async {
-    startLoading();
     try {
       Widget widget = const IndexPage();
 
@@ -846,10 +938,8 @@ class AuthProvider extends ChangeNotifier {
 
       return widget;
     } catch (e) {
-      print('Error getting chat page: $e');
+      debugPrint('Error getting chat page: $e');
       return const IndexPage();
-    } finally {
-      stopLoading();
     }
   }
 
@@ -885,32 +975,83 @@ class AuthProvider extends ChangeNotifier {
     return await _tryGetUser(uid, (user) {}, () {});
   }
 
-  void saveUserDatatoFirebase({
+  Future<bool> checkAnonymousUser() async {
+    MiittiUser user = await getUser(uid);
+    if (user.userArea.isEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<void> saveUserDatatoFirebase({
     required BuildContext context,
     required MiittiUser userModel,
     required File? image,
     required Function onSucess,
   }) async {
-    startLoading();
     try {
+      ConstantsWidgets().showLoadingDialog(context);
       await uploadUserImage(_firebaseAuth.currentUser!.uid, image)
           .then((value) {
         userModel.profilePicture = value;
       }).onError((error, stackTrace) {});
-      userModel.userPhoneNumber = _firebaseAuth.currentUser!.phoneNumber!;
+      userModel.userPhoneNumber =
+          _firebaseAuth.currentUser!.phoneNumber ?? '+358000000000';
       userModel.uid = _firebaseAuth.currentUser!.uid;
       _miittiUser = userModel;
 
-      await _userDocRef(uid).set(userModel.toMap()).then((value) {
+      await _userDocRef(uid).set(userModel.toMap()).then((value) async {
         onSucess();
-        stopLoading();
       }).onError(
         (error, stackTrace) {},
       );
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message.toString(), Colors.red.shade800);
-      print("Userdata to firebase error: $e");
-      stopLoading();
+      debugPrint("Userdata to firebase error: $e");
+    } finally {
+      Navigator.of(context);
+    }
+  }
+
+  Future<void> saveAnonUserToFirebase({
+    required BuildContext context,
+    required Function onSucess,
+  }) async {
+    try {
+      ConstantsWidgets().showLoadingDialog(context);
+
+      MiittiUser userModel = MiittiUser(
+        userName: '',
+        userEmail: '',
+        uid: uid,
+        userPhoneNumber: '+358000000000',
+        userBirthday: '',
+        userArea: '',
+        userFavoriteActivities: {},
+        userChoices: {},
+        userGender: '',
+        userLanguages: {},
+        profilePicture: '',
+        invitedActivities: {},
+        userStatus: '',
+        userSchool: '',
+        fcmToken: '',
+        userRegistrationDate: DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      );
+
+      _miittiUser = userModel;
+
+      await _userDocRef(uid).set(userModel.toMap()).then((value) async {
+        onSucess();
+      }).onError(
+        (error, stackTrace) {},
+      );
+    } on FirebaseAuthException catch (e) {
+      showSnackBar(context, e.message.toString(), Colors.red.shade800);
+      debugPrint("Userdata to firebase error: $e");
+    } finally {
+      Navigator.of(context);
     }
   }
 
@@ -979,7 +1120,7 @@ class AuthProvider extends ChangeNotifier {
           userRegistrationDate: snapshot['userRegistrationDate']);
       _uid = _miittiUser!.uid;
     }).onError((error, stackTrace) {
-      print('ERROR: ${error.toString()}');
+      debugPrint('ERROR: ${error.toString()}');
     });
   }
 
@@ -988,11 +1129,11 @@ class AuthProvider extends ChangeNotifier {
       DateTime now = DateTime.now().toUtc();
       String timestampString = now.toIso8601String();
       await _userDocRef(uid).update({'userStatus': timestampString});
-      print("Userstatus set");
+      debugPrint("Userstatus set");
     } catch (e, s) {
-      if (_uid == null) print("UID is null");
-      print('Got an error setting user status $e and my uid is $_uid');
-      print('$s');
+      if (_uid == null) debugPrint("UID is null");
+      debugPrint('Got an error setting user status $e and my uid is $_uid');
+      debugPrint('$s');
     }
   }
 
@@ -1000,20 +1141,24 @@ class AuthProvider extends ChangeNotifier {
     SharedPreferences s = await SharedPreferences.getInstance();
     await _firebaseAuth.signOut();
     _isSignedIn = false;
+    _isAnonymous = false;
     notifyListeners();
     s.clear();
   }
 
-  Future updateUserInfo(MiittiUser updatedUser, File? imageFile) async {
-    _isLoading = true;
-    notifyListeners();
+  Future updateUserInfo({
+    required MiittiUser updatedUser,
+    BuildContext? context,
+    File? imageFile,
+  }) async {
     try {
+      if (context != null && context.mounted) {
+        ConstantsWidgets().showLoadingDialog(context);
+      }
       if (imageFile != null) {
         await uploadUserImage(_firebaseAuth.currentUser!.uid, imageFile)
             .then((value) {
           updatedUser.profilePicture = value;
-        }).onError((error, stackTrace) {
-          print("HATA UPDATEUSERINFO: $error");
         });
       }
 
@@ -1026,24 +1171,24 @@ class AuthProvider extends ChangeNotifier {
       });
 
       // Update the user in the provider
-      stopLoading();
     } on FirebaseAuthException catch (e) {
-      print('Error updating user info: ${e.message}');
+      debugPrint('Error updating user info: ${e.message}');
+    } finally {
+      if (context != null && context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
   Future<(bool logOut, String message)> removeUser(String userId) async {
-    startLoading();
-
     //Deleting user image from storage
     try {
       await FirebaseStorage.instance
           .ref('userImages/$userId/profilePicture.jpg')
           .delete();
-      print("Deleted from storage");
+      debugPrint("Deleted from storage");
     } catch (e, s) {
-      stopLoading();
-      print("Error removing user image from storage: $e");
+      debugPrint("Error removing user image from storage: $e");
       await FirebaseCrashlytics.instance
           .recordError(e, s, reason: 'a non-fatal error');
       return (
@@ -1055,10 +1200,9 @@ class AuthProvider extends ChangeNotifier {
     //Deleting userdata from firestore
     try {
       await _userDocRef(userId).delete();
-      print("Deteted from firestore");
+      debugPrint("Deteted from firestore");
     } catch (e, s) {
-      stopLoading();
-      print("Error removing user from firestore: $e");
+      debugPrint("Error removing user from firestore: $e");
       await FirebaseCrashlytics.instance
           .recordError(e, s, reason: 'a non-fatal error');
       return (
@@ -1072,11 +1216,10 @@ class AuthProvider extends ChangeNotifier {
       if (!adminId.contains(_firebaseAuth.currentUser!.uid) &&
           _firebaseAuth.currentUser!.uid.isNotEmpty) {
         await _firebaseAuth.currentUser?.delete();
-        print("deleted from auth");
+        debugPrint("deleted from auth");
       }
     } catch (e, s) {
-      stopLoading();
-      print("Error removing user from auth: $e");
+      debugPrint("Error removing user from auth: $e");
       await FirebaseCrashlytics.instance
           .recordError(e, s, reason: 'a non-fatal error');
       return (
@@ -1089,12 +1232,12 @@ class AuthProvider extends ChangeNotifier {
       if (!adminId.contains(userId)) {
         SharedPreferences s = await SharedPreferences.getInstance();
         _isSignedIn = false;
+        _isAnonymous = false;
         await s.clear().then((v) {
           if (v) {
-            print("deleted from shared pref");
+            debugPrint("deleted from shared pref");
           } else {
-            print("not deleted from shared pref");
-            stopLoading();
+            debugPrint("not deleted from shared pref");
             return (
               false,
               "Tilisi on poistettu palvelimelta, mutta tietojen poistaminen puhelimelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista."
@@ -1103,8 +1246,7 @@ class AuthProvider extends ChangeNotifier {
         });
       }
     } catch (e, s) {
-      stopLoading();
-      print("Error removing user from the device $e");
+      debugPrint("Error removing user from the device $e");
       await FirebaseCrashlytics.instance
           .recordError(e, s, reason: 'a non-fatal error');
       return (
@@ -1112,7 +1254,6 @@ class AuthProvider extends ChangeNotifier {
         "Tilisi on poistettu palvelimelta, mutta tietojen poistaminen laitteelta epäonnistui.\n Poista sovelluksen tiedot puhelimen asetuksista.'"
       );
     }
-    stopLoading();
     return (true, "Tilisi on poistettu onnistuneesti");
   }
 
@@ -1154,20 +1295,18 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<MiittiUser> getUser(String id) async {
-    startLoading();
     DocumentSnapshot doc = await _getUserDoc(id);
     MiittiUser user = MiittiUser.fromDoc(doc);
-    stopLoading();
+
     return user;
   }
 
   Future<CommercialUser> getCommercialUser(String id) async {
-    startLoading();
     DocumentSnapshot doc =
         await _fireStore.collection("commercialUsers").doc(id).get();
     CommercialUser user =
         CommercialUser.fromMap(doc.data() as Map<String, dynamic>);
-    stopLoading();
+
     return user;
   }
 
@@ -1182,7 +1321,7 @@ class AuthProvider extends ChangeNotifier {
       });
       return fetchUsersByUids(activity.participants);
     } catch (e, s) {
-      print("Error fetching users by activity id: $e, stack: $s");
+      debugPrint("Error fetching users by activity id: $e, stack: $s");
       return [];
     }
   }
@@ -1192,11 +1331,11 @@ class AuthProvider extends ChangeNotifier {
       List<MiittiUser> users = [];
       for (final uid in userIds) {
         await _tryGetUser(
-            uid, (user) => users.add(user), () => print("User not found"));
+            uid, (user) => users.add(user), () => debugPrint("User not found"));
       }
       return users;
     } catch (e) {
-      print("Error fetching users: $e");
+      debugPrint("Error fetching users: $e");
       return [];
     }
   }
@@ -1266,25 +1405,13 @@ class AuthProvider extends ChangeNotifier {
       isPersonal(activity);
       return activity;
     } else {
-      print("is commercial");
+      debugPrint("is commercial");
       DocumentSnapshot comSnapshot = await _comActivityDocRef(uid).get();
       CommercialActivity commercialActivity =
           CommercialActivity.fromDoc(comSnapshot);
       isCommercial(commercialActivity);
       return commercialActivity;
     }
-  }
-
-  void startLoading() {
-    _isLoading = true;
-    //Causes error called "setState() or markNeedsBuild() called during build"
-    //notifyListeners();
-  }
-
-  void stopLoading() {
-    _isLoading = false;
-    //Causes error called "setState() or markNeedsBuild() called during build"
-    // notifyListeners();
   }
 
 // #endregion

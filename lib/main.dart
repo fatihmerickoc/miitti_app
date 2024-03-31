@@ -3,7 +3,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/index_page.dart';
+import 'package:miitti_app/login/login_intro.dart';
 import 'package:miitti_app/utils/notification_message.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/constants/constants.dart';
@@ -64,7 +66,8 @@ class _MyAppState extends State<MyApp> {
               builder: (context, child) => MaterialApp(
                 navigatorKey: navigatorKey,
                 theme: ThemeData(
-                  scaffoldBackgroundColor: AppColors.backgroundColor,
+                  fontFamily: 'RedHatDisplay',
+                  scaffoldBackgroundColor: ConstantStyles.black,
                 ),
                 debugShowCheckedModeBanner: false,
                 home: _buildAuthScreen(ap),
@@ -88,7 +91,7 @@ class _MyAppState extends State<MyApp> {
           ap.getDataFromSp();
           return IndexPage();
         } else {
-          return HomePage();
+          return LoginIntro();
         }
       },
     );

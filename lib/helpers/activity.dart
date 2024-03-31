@@ -21,24 +21,25 @@ class Activity {
   }
 
   static String solveActivityId(String category) {
-    print("Solving category: $category");
+    debugPrint("Solving category: $category");
     if (!activities.containsKey(category)) {
       bool categoryFound = false;
       for (String key in activities.keys) {
         if (activities[key]!.name == category) {
           category = key;
           categoryFound = true;
-          print("found $category");
+          debugPrint("found $category");
           break;
         }
       }
 
       if (!categoryFound) {
-        print("$category not found in activities. Defaulting to adventure.");
+        debugPrint(
+            "$category not found in activities. Defaulting to adventure.");
         category = 'adventure';
       }
     } else {
-      print(category);
+      debugPrint(category);
     }
     return category;
   }
