@@ -9,6 +9,7 @@ import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_anonymousDialog.dart';
 import 'package:miitti_app/constants/constants_customButton.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
@@ -49,11 +50,6 @@ class _MapsScreenState extends State<MapsScreen> {
 
   @override
   void initState() {
-    Timer(const Duration(seconds: 1), () {
-      if (isAnonymous) {
-        _showCompleteProfileDialog(context);
-      }
-    });
     super.initState();
   }
 
@@ -262,73 +258,6 @@ class _MapsScreenState extends State<MapsScreen> {
     this.controller = controller;
     controller.onFeatureTapped.add(
         (id, point, coordinates) => _onFeatureTapped(coordinates: coordinates));
-  }
-
-  void _showCompleteProfileDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            height: 350.h,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: ConstantStyles.black,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(10.w),
-              child: Column(
-                children: [
-                  Divider(
-                    color: Colors.white,
-                    thickness: 2.0,
-                    indent: 100,
-                    endIndent: 100,
-                  ),
-                  Text(
-                    'Hups!',
-                    style: ConstantStyles.title,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: Text(
-                      'Näyttää siltä, ettet ole vielä viimeistellyt profiiliasi, joten et voi käyttää vielä\n sovelluksen kaikkia ominaisuuksia.\n\n Korjataanko asia?',
-                      style: ConstantStyles.body,
-                    ),
-                  ),
-                  ConstantsCustomButton(
-                    buttonText: 'Viimeistele profiili',
-                    onPressed: () {
-                      pushNRemoveUntil(context, const OnboardingScreen());
-                    },
-                    padding: EdgeInsets.symmetric(horizontal: 100.w),
-                  ), //Removed extra padding in ConstantsCustomButton
-                  ConstantStyles().gapH10,
-                  ConstantsCustomButton(
-                    buttonText: 'Ei vielä',
-                    padding: EdgeInsets.symmetric(horizontal: 145.w),
-                    isWhiteButton: true,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ), //Removed extra padding in ConstantsCustomButton
-                  Spacer(),
-                  Text(
-                    'Voit myös viimeistellä profiiliasi myöhemmin asetussivulla!',
-                    style: ConstantStyles.warning,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override

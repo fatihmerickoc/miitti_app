@@ -201,20 +201,23 @@ void pushNRemoveUntil(BuildContext context, Widget page) {
 }
 
 int calculateAge(String birthDateString) {
-  // Parse the birth date string into a DateTime object
-  List<String> dateParts = birthDateString.split('/');
-  int month = int.parse(dateParts[0]);
-  int day = int.parse(dateParts[1]);
-  int year = int.parse(dateParts[2]);
-  DateTime birthDate = DateTime(year, month, day);
+  if (birthDateString.isNotEmpty) {
+    // Parse the birth date string into a DateTime object
+    List<String> dateParts = birthDateString.split('/');
+    int month = int.parse(dateParts[0]);
+    int day = int.parse(dateParts[1]);
+    int year = int.parse(dateParts[2]);
+    DateTime birthDate = DateTime(year, month, day);
 
-  // Calculate the difference between the birth date and the current date
-  Duration difference = DateTime.now().difference(birthDate);
+    // Calculate the difference between the birth date and the current date
+    Duration difference = DateTime.now().difference(birthDate);
 
-  // Calculate the age of the person in years
-  int age = difference.inDays ~/ 365;
+    // Calculate the age of the person in years
+    int age = difference.inDays ~/ 365;
 
-  return age;
+    return age;
+  }
+  return 18;
 }
 
 int daysSince(Timestamp timestamp) {

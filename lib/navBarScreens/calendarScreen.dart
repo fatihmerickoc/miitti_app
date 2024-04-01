@@ -7,6 +7,7 @@ import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_anonymousDialog.dart';
 import 'package:miitti_app/constants/constants_anonymousUser.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
@@ -53,16 +54,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    //Fetching all the data from database
     fetchDataFromFirebase();
   }
 
   Future fetchDataFromFirebase() async {
     //This method ensures that all the data is coming successfully from Database through AuthProvider and then updates the State
     final ap = Provider.of<AuthProvider>(context, listen: false);
+
     final joinedActivities = await ap.fetchUserActivities();
     final comingRequests = await ap.fetchActivitiesRequests();
 
+    if (ap.isAnonymous && context.mounted) {
+      showDialog(
+          context: context, builder: (context) => ConstantsAnonymousDialog());
+    }
     _myJoinedActivities = joinedActivities;
     _otherRequests = comingRequests;
     isLoading = false;

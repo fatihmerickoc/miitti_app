@@ -45,10 +45,6 @@ class LoginDecideScreen extends StatelessWidget {
                   //continue building profile button
                   ConstantsCustomButton(
                     buttonText: 'Jatka profiilin luomista',
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 100.w,
-                      vertical: 12.h,
-                    ),
                     onPressed: () {
                       //continue profile
                       pushNRemoveUntil(context, const OnboardingScreen());

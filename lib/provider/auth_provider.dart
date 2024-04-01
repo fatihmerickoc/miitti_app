@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:miitti_app/chatPage.dart';
@@ -30,6 +31,7 @@ import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/createMiittiActivity/activity_page_final.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';
+import 'package:miitti_app/login/login_auth.dart';
 import 'package:miitti_app/login/login_decideScreen.dart';
 import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -216,13 +218,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signInWithGoogle(BuildContext context) async {
+  Future signInWithGoogle(BuildContext context) async {
     try {
       //begin interactive sign process
       final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
 
+      //if user cancels the sign-in attempt
+      if (gUser == null) return;
+
       //obtain auth details for request
-      final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+      final GoogleSignInAuthentication gAuth = await gUser.authentication;
 
       //create new credentials for user
       final credential = GoogleAuthProvider.credential(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/adminPanel/admin_homePage.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_anonymousDialog.dart';
 import 'package:miitti_app/constants/constants_anonymousUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/myProfileEditForm.dart';
@@ -28,6 +29,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // TODO: implement initState
     super.initState();
     filteredActivities = getActivities();
+    Future.delayed(Duration(seconds: 1)).then((value) {
+      final ap = Provider.of<AuthProvider>(context, listen: false);
+      if (ap.isAnonymous) {
+        showDialog(
+            context: context, builder: (context) => ConstantsAnonymousDialog());
+      }
+    });
   }
 
   List<String> getActivities() {

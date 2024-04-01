@@ -97,6 +97,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final user = snapshot.data![index];
+
                 return Card(
                   color: AppColors.wineColor,
                   child: Container(

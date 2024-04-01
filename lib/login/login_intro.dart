@@ -26,10 +26,8 @@ class LoginIntro extends StatelessWidget {
             ConstantsCustomButton(
               buttonText: 'Aloitetaan!',
               onPressed: () {
-                Navigator.of(context).pushAndRemoveUntil(
+                Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const LoginAuth()),
-                  (Route<dynamic> route) =>
-                      false, // Keep this false to remove all routes
                 );
               },
             ),

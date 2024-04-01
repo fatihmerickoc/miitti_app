@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
         //If the user is signed in to our app  before, we redirect them into our main screen, otherwise they go to home screen to register or sign up
         if (ap.isSignedIn) {
           ap.getDataFromSp();
-          return IndexPage();
+          return Scaffold(body: IndexPage());
         } else {
           return LoginIntro();
         }

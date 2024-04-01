@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:miitti_app/constants/constants_anonymousDialog.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 
 class ConstantsWidgets {
@@ -83,7 +84,7 @@ class ConstantsWidgets {
     return false;
   }
 
-  Future<dynamic> showLoadingDialog(BuildContext context) {
+  Future showLoadingDialog(BuildContext context) {
     return showDialog(
       context: context,
       builder: ((context) {

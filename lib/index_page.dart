@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:miitti_app/constants/constants_anonymousDialog.dart';
+import 'package:miitti_app/constants/constants_widgets.dart';
 import 'package:miitti_app/createMiittiActivity/activity_onboarding.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -94,20 +96,24 @@ class IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
       // Navigation bar at the bottom
       bottomNavigationBar: _buildBottomNavigationBar(),
       // Only display FAB for tab with index 1
-      floatingActionButton: currentIndex == 1 && !ap.isAnonymous
+      floatingActionButton: currentIndex == 1
           ? SizedBox(
               height: 65.h,
               width: 65.h,
               child: getMyFloatingButton(
-                onPressed: () {
-                  //Pushes user to the createActivity Page
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ActivityOnboarding(),
-                    ),
-                  );
+                onPressed: () async {
+                  if (ap.isAnonymous) {
+                    showDialog(
+                        context: context,
+                        builder: (context) => const ConstantsAnonymousDialog());
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ActivityOnboarding(),
+                      ),
+                    );
+                  }
                 },
               ),
             )
