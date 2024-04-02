@@ -1,9 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:math';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -22,125 +25,95 @@ class PeopleScreen extends StatefulWidget {
 class _PeopleScreenState extends State<PeopleScreen> {
   Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
 
-  late Future<List<MiittiUser>> _filteredUsersFuture;
+  final batchSize = 4;
 
-  late Future<List<MiittiUser>> _filteredByActivitiesUsersFuture;
+  List<bool> listLoading = [true, true, true];
 
-  late Future<List<MiittiUser>> _newestUsersFuture;
+  List<DocumentSnapshot?> lastDocuments = [null, null, null];
+
+  final List<List<MiittiUser>> _filteredUsers = [[], [], []];
 
   @override
   void initState() {
     super.initState();
-    _filteredUsersFuture = _fetchAndFilterUsers('area');
-    _filteredByActivitiesUsersFuture = _fetchAndFilterUsers('interest');
-    _newestUsersFuture = _fetchAndFilterUsers('newest');
+    initLists();
   }
 
-  Future<List<MiittiUser>> _fetchAndFilterUsers(String type) async {
+  void initLists() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
-    List<MiittiUser> allUsers = await ap.fetchUsers();
-    if (type == 'area') {
-      List<MiittiUser> filteredUsers =
-          ap.filterUsersBasedOnArea(ap.miittiUser, allUsers);
-      return filteredUsers;
-    } else if (type == 'interest') {
-      List<MiittiUser> filteredUsers =
-          ap.filterUsersBasedOnInterests(ap.miittiUser, allUsers);
-      return filteredUsers;
-    } else {
-      return allUsers.where((user) {
-        if (user.uid == ap.miittiUser.uid) {
-          return false; // Exclude the current user
-        }
 
-        // If there are common interests, include the user in the list
-        return true;
-      }).toList();
+    List responses =
+        await Future.wait([initList(0, ap), initList(1, ap), initList(2, ap)]);
+
+    setState(() {
+      for (int i = 0; i < 3; i++) {
+        _filteredUsers[i] = responses[i];
+        listLoading[i] = false;
+      }
+    });
+  }
+
+  Future<List<MiittiUser>> initList(int type, AuthProvider ap) async {
+    try {
+      QuerySnapshot snapshot = await ap.lazyFilteredUsers(type, batchSize);
+      if (snapshot.docs.isNotEmpty) {
+        lastDocuments[type] = snapshot.docs.last;
+        return snapshot.docs
+            .map((doc) => MiittiUser.fromDoc(doc))
+            .where((user) => user.uid != ap.uid)
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      print(e);
+      return [];
     }
+  }
+
+  void loadMoreUsers(int type) async {
+    if (listLoading[type] || lastDocuments[type] == null) {
+      return;
+    }
+
+    listLoading[type] = true;
+
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    final snapshot = await ap.lazyFilteredUsers(
+        type, batchSize + _filteredUsers.length, lastDocuments[type]);
+    if (snapshot.docs.isNotEmpty) {
+      if (snapshot.docs.length < batchSize) {
+        lastDocuments[type] = null;
+      } else {
+        lastDocuments[type] = snapshot.docs.last;
+        print("updatedLastDoc");
+      }
+
+      setState(() {
+        _filteredUsers[type].addAll(snapshot.docs
+            .map((doc) => MiittiUser.fromDoc(doc))
+            .where((user) => user.uid != ap.uid)
+            .toList());
+      });
+    } else {
+      lastDocuments[type] = null;
+    }
+    listLoading[type] = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-
     return SafeArea(
-      child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          children: ap.isAnonymous
-              ? [
-                  _buildSectionHeader("Miitin uudet käyttäjät"),
-                  _buildAnonymousGridView(),
-                ]
-              : [
-                  _buildSectionHeader("Löydä kavereita läheltä"),
-                  myListView('area'),
-                  _buildSectionHeader("Yhteisiä kiinnostuksen kohteita"),
-                  myListView('interest'),
-                  _buildSectionHeader("Miitin uudet käyttäjät"),
-                  myListView('newest'),
-                ]),
-    );
-  }
-
-  Widget _buildAnonymousGridView() {
-    return FutureBuilder<List<MiittiUser>>(
-      future: getTheFutureListView('newest'),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return SizedBox(
-            height: 700.h,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 5,
-              ),
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final user = snapshot.data![index];
-
-                return Card(
-                  color: AppColors.wineColor,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      border:
-                          Border.all(color: AppColors.purpleColor, width: 2.0),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(8.0.w),
-                          child: CircleAvatar(
-                            radius: 40.r,
-                            backgroundImage: NetworkImage(user.profilePicture),
-                          ),
-                        ),
-                        Text(
-                          "${user.userName}, ${calculateAge(user.userBirthday)}",
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: Colors.white,
-                            fontFamily: 'Rubik',
-                          ),
-                        ),
-                        ConstantStyles().gapH5,
-                        buildUserActivitiesText(user),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return const Center(child: Text('Tuli virhe!'));
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(color: ConstantStyles.white),
-          );
-        }
-      },
-    );
+        child: ListView(
+      padding: EdgeInsets.only(left: 20.w),
+      children: [
+        _buildSectionHeader("Löydä kavereita läheltä"),
+        myListView(0),
+        _buildSectionHeader("Yhteisiä kiinnostuksen kohteita"),
+        myListView(1),
+        _buildSectionHeader("Miitin uudet käyttäjät"),
+        myListView(2),
+      ],
+    ));
   }
 
   Widget _buildSectionHeader(String text) {
@@ -179,7 +152,8 @@ class _PeopleScreenState extends State<PeopleScreen> {
             child: CircleAvatar(
               backgroundColor: Colors.white,
               radius: 45.r,
-              backgroundImage: NetworkImage(user.profilePicture),
+              backgroundImage: CachedNetworkImageProvider(user.profilePicture,
+                  maxHeight: 120, maxWidth: 120, scale: 0.5),
             ),
           ),
           _buildUserInfo(user),
@@ -253,48 +227,49 @@ class _PeopleScreenState extends State<PeopleScreen> {
     );
   }
 
-  Widget myListView(String type) {
-    return FutureBuilder<List<MiittiUser>>(
-      future: getTheFutureListView(type),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(color: ConstantStyles.white),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Tuli virhe!'),
-          );
-        } else {
-          return SizedBox(
-            height: 225.w,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final user = snapshot.data![index];
-                return Row(
-                  children: [
-                    buildCard(user),
-                    if (index != snapshot.data!.length - 1)
-                      SizedBox(width: 20.w),
-                  ],
-                );
-              },
-            ),
-          );
-        }
-      },
+  Widget myListView(int type) {
+    final list = _filteredUsers[type];
+    if (list.isEmpty) {
+      return SizedBox(
+          height: 225.w,
+          child: Center(
+              child: Text(
+            'Ei tuloksia',
+            style: TextStyle(color: Colors.white, fontSize: 20.sp),
+          )));
+    }
+    return SizedBox(
+      height: 225.w,
+      child: NotificationListener(
+        onNotification: (notification) {
+          if (notification is ScrollUpdateNotification) {
+            if (notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent / 2 &&
+                notification.scrollDelta! > 0) {
+              loadMoreUsers(type);
+            }
+          }
+          return true;
+        },
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            final user = list[index];
+            return Row(
+              children: [
+                buildCard(user),
+                if (index != list.length - 1) SizedBox(width: 20.w),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
-  Future<List<MiittiUser>> getTheFutureListView(String type) {
-    if (type == 'area') {
-      return _filteredUsersFuture;
-    } else if (type == 'interest') {
-      return _filteredByActivitiesUsersFuture;
-    } else {
-      return _newestUsersFuture;
-    }
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

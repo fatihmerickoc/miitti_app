@@ -165,6 +165,9 @@ const List<String> adminId = [
   'TI4jAfRnjnUWM46zwsL4pYUrF3Z2',
 ];
 
+const String mapboxAccess =
+    'pk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTBja21sazFtYWMzcW50NWd0cW40eTEifQ.FwjMEmDQD1Cj2KlaJuGTTA';
+
 class Cutout extends StatelessWidget {
   const Cutout({
     super.key,

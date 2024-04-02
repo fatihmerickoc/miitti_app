@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/person_activity.dart';
+import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/constants.dart';
 
@@ -144,6 +146,8 @@ class _AP2TextState extends State<AP2Text> {
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.linear,
                   );
+
+                  storeData();
                 } else {
                   showSnackBar(
                       context,
@@ -172,6 +176,14 @@ class _AP2TextState extends State<AP2Text> {
           ],
         ),
       ),
+    );
+  }
+
+  void storeData() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider.saveMiittiActivityDataToFirebase(
+      context: context,
+      activityModel: widget.activity,
     );
   }
 }

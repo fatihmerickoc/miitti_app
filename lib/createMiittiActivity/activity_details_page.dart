@@ -122,7 +122,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         width: 60.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [
                               AppColors.lightRedColor,
                               AppColors.orangeColor,
@@ -142,7 +142,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
             ),
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),

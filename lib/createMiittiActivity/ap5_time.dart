@@ -143,7 +143,11 @@ class _AP5TimeState extends State<AP5Time> {
                   widget.activity.timeDecidedLater = decidedLater;
 
                   widget.onActivityDataChanged(widget.activity);
-                  storeData();
+
+                  widget.controller.nextPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.linear,
+                  );
                 } else {
                   showSnackBar(
                       context,
@@ -174,14 +178,6 @@ class _AP5TimeState extends State<AP5Time> {
           ],
         ),
       ),
-    );
-  }
-
-  void storeData() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    authProvider.saveMiittiActivityDataToFirebase(
-      context: context,
-      activityModel: widget.activity,
     );
   }
 }

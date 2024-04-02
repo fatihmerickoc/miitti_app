@@ -93,6 +93,7 @@ class _ActivityOnboardingState extends State<ActivityOnboarding> {
             ],
           ),
         ),
+        //),
       ),
     );
   }

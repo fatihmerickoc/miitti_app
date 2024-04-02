@@ -10,7 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:miitti_app/chatPage.dart';
@@ -31,7 +31,7 @@ import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/createMiittiActivity/activity_page_final.dart';
 import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';
-import 'package:miitti_app/login/login_auth.dart';
+
 import 'package:miitti_app/login/login_decideScreen.dart';
 import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -426,7 +426,7 @@ class AuthProvider extends ChangeNotifier {
 
 // #endregion
 
-// #region Ads
+  // #region Ads
   Future<List<AdBanner>> fetchAds() async {
     try {
       QuerySnapshot querySnapshot = await _getFireQuery('adBanners');
@@ -1269,34 +1269,27 @@ class AuthProvider extends ChangeNotifier {
   Future<List<MiittiUser>> fetchUsers() async {
     QuerySnapshot querySnapshot = await _getFireQuery(_usersString);
 
-    return querySnapshot.docs
-        .map((doc) => MiittiUser.fromMap(doc.data() as Map<String, dynamic>))
-        .toList();
+    return querySnapshot.docs.map((doc) => MiittiUser.fromDoc(doc)).toList();
   }
 
-  List<MiittiUser> filterUsersBasedOnArea(
-      MiittiUser currentUser, List<MiittiUser> allUsers) {
-    return allUsers.where((user) {
-      if (user.uid == currentUser.uid) return false; // Exclude the current user
+  Future<QuerySnapshot> lazyFilteredUsers(int type, int batchSize,
+      [DocumentSnapshot? startAfter]) {
+    Query query = _fireStore.collection(_usersString);
 
-      bool sameCity = user.userArea == currentUser.userArea;
+    if (type == 0) {
+      query = query.where('userArea', isEqualTo: miittiUser.userArea);
+    } else if (type == 1) {
+      query = query.where('userFavoriteActivities',
+          arrayContainsAny: miittiUser.userFavoriteActivities);
+    } else {
+      query = query.orderBy('userRegistrationDate', descending: true);
+    }
 
-      return sameCity;
-    }).toList();
-  }
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
 
-  List<MiittiUser> filterUsersBasedOnInterests(
-      MiittiUser currentUser, List<MiittiUser> allUsers) {
-    return allUsers.where((user) {
-      if (user.uid == currentUser.uid) return false; // Exclude the current user
-
-      Set<String> commonInterests = user.userFavoriteActivities
-          .toSet()
-          .intersection(currentUser.userFavoriteActivities.toSet());
-
-      // If there are common interests, include the user in the list
-      return commonInterests.isNotEmpty;
-    }).toList();
+    return query.limit(batchSize).get();
   }
 
   Future<MiittiUser> getUser(String id) async {
@@ -1396,6 +1389,7 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } else {
       await notFound();
+
       return false;
     }
   }
