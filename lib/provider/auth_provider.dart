@@ -76,8 +76,9 @@ class AuthProvider extends ChangeNotifier {
 // #region SignIn
   Future<bool> checkSign(BuildContext context) async {
     final SharedPreferences s = await SharedPreferences.getInstance();
-    bool signedIn = s.getBool('is_signedin') ?? false;
-    if (signedIn) {
+    _isSignedIn = s.getBool('is_signedin') ?? false;
+
+    /* if (signedIn) {
       bool exists = await checkExistingUser();
       if (exists) {
         _isSignedIn = true;
@@ -89,7 +90,7 @@ class AuthProvider extends ChangeNotifier {
       }
     } else {
       _isSignedIn = false;
-    }
+    }*/
     notifyListeners();
     return _isSignedIn;
   }
@@ -1012,6 +1013,8 @@ class AuthProvider extends ChangeNotifier {
           .then((value) {
         userModel.profilePicture = value;
       }).onError((error, stackTrace) {});
+      userModel.userRegistrationDate =
+          DateFormat('dd/MM/yyyy').format(DateTime.now());
       userModel.userPhoneNumber =
           _firebaseAuth.currentUser!.phoneNumber ?? '+358000000000';
       userModel.uid = _firebaseAuth.currentUser!.uid;

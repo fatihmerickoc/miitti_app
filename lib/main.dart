@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/home.dart';
 import 'package:miitti_app/index_page.dart';
+import 'package:miitti_app/login/login_intro.dart';
 import 'package:miitti_app/utils/notification_message.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';
@@ -65,6 +66,7 @@ class _MyAppState extends State<MyApp> {
                 navigatorKey: navigatorKey,
                 theme: ThemeData(
                   scaffoldBackgroundColor: AppColors.backgroundColor,
+                  fontFamily: 'RedHatDisplay',
                 ),
                 debugShowCheckedModeBanner: false,
                 home: _buildAuthScreen(ap, context),
@@ -88,7 +90,7 @@ class _MyAppState extends State<MyApp> {
           ap.getDataFromSp();
           return IndexPage();
         } else {
-          return HomePage();
+          return LoginIntro();
         }
       },
     );
