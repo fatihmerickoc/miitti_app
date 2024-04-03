@@ -103,7 +103,7 @@ class _LoginAuthState extends State<LoginAuth> {
                   style: ConstantStyles.textField,
                 ),
 
-                //custom textformfield
+                //phone textformfield
                 ConstantsCustomTextField(
                   hintText: 'esim. 0449759068',
                   controller: phoneController,

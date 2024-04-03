@@ -708,24 +708,10 @@ packages:
     dependency: "direct main"
     description:
       name: latlong2
-<<<<<<< HEAD
-<<<<<<< HEAD
       sha256: "98227922caf49e6056f91b6c56945ea1c7b166f28ffcd5fb8e72fc0b453cc8fe"
       url: "https://pub.dev"
     source: hosted
     version: "0.9.1"
-=======
-      sha256: "18712164760cee655bc790122b0fd8f3d5b3c36da2cb7bf94b68a197fbb0811b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.0"
->>>>>>> 0f88a61 (stash apply)
-=======
-      sha256: "98227922caf49e6056f91b6c56945ea1c7b166f28ffcd5fb8e72fc0b453cc8fe"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.1"
->>>>>>> 9a7372e (merging Samuli's code:)
   leak_tracker:
     dependency: transitive
     description:
@@ -802,24 +788,10 @@ packages:
     dependency: transitive
     description:
       name: logger
-<<<<<<< HEAD
-<<<<<<< HEAD
       sha256: "8c94b8c219e7e50194efc8771cd0e9f10807d8d3e219af473d89b06cc2ee4e04"
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
-=======
-      sha256: "6bbb9d6f7056729537a4309bda2e74e18e5d9f14302489cc1e93f33b3fe32cac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2+1"
->>>>>>> 0f88a61 (stash apply)
-=======
-      sha256: "8c94b8c219e7e50194efc8771cd0e9f10807d8d3e219af473d89b06cc2ee4e04"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
->>>>>>> 9a7372e (merging Samuli's code:)
   mapbox_gl:
     dependency: "direct main"
     description:
@@ -876,14 +848,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
-    version: "1.12.0"
->>>>>>> 0f88a61 (stash apply)
-=======
->>>>>>> 9a7372e (merging Samuli's code:)
   mgrs_dart:
     dependency: transitive
     description:
@@ -892,13 +856,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a9e1374 (stash apply)
->>>>>>> 0f88a61 (stash apply)
-=======
->>>>>>> 9a7372e (merging Samuli's code:)
   mime:
     dependency: transitive
     description:
@@ -1098,15 +1055,7 @@ packages:
       sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
-<<<<<<< HEAD
     version: "6.1.2"
-=======
-    version: "6.1.1"
->>>>>>> 0f88a61 (stash apply)
-=======
-    version: "6.1.2"
->>>>>>> 9a7372e (merging Samuli's code:)
   rbush:
     dependency: transitive
     description:
@@ -1115,10 +1064,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fbae464 (checking that account not deleted on startup)
   rxdart:
     dependency: transitive
     description:
@@ -1127,11 +1072,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
-<<<<<<< HEAD
-=======
->>>>>>> 0f88a61 (stash apply)
-=======
->>>>>>> fbae464 (checking that account not deleted on startup)
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1245,25 +1185,18 @@ packages:
     dependency: transitive
     description:
       name: sqflite
-      sha256: a9016f495c927cb90557c909ff26a6d92d9bd54fc42ba92e19d4e79d61e798c6
+      sha256: "5ce2e1a15e822c3b4bfb5400455775e421da7098eed8adc8f26298ada7c9308c"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.3"
   sqflite_common:
     dependency: transitive
     description:
       name: sqflite_common
-<<<<<<< HEAD
       sha256: "3da423ce7baf868be70e2c0976c28a1bb2f73644268b7ffa7d2e08eab71f16a4"
       url: "https://pub.dev"
     source: hosted
     version: "2.5.4"
-=======
-      sha256: "28d8c66baee4968519fb8bd6cdbedad982d6e53359091f0b74544a9f32ec72d5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.3"
->>>>>>> fbae464 (checking that account not deleted on startup)
   stack_trace:
     dependency: transitive
     description:
@@ -1296,10 +1229,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fbae464 (checking that account not deleted on startup)
   synchronized:
     dependency: transitive
     description:
@@ -1308,11 +1237,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0+1"
-<<<<<<< HEAD
-=======
->>>>>>> 0f88a61 (stash apply)
-=======
->>>>>>> fbae464 (checking that account not deleted on startup)
   term_glyph:
     dependency: transitive
     description:
@@ -1433,10 +1357,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 9a7372e (merging Samuli's code:)
   uuid:
     dependency: transitive
     description:
@@ -1445,12 +1365,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 0f88a61 (stash apply)
-=======
->>>>>>> 9a7372e (merging Samuli's code:)
   vector_graphics:
     dependency: transitive
     description:
@@ -1506,15 +1420,7 @@ packages:
       sha256: "0a989dc7ca2bb51eac91e8fd00851297cfffd641aa7538b165c62637ca0eaa4a"
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
-<<<<<<< HEAD
     version: "5.4.0"
-=======
-    version: "5.2.0"
->>>>>>> 0f88a61 (stash apply)
-=======
-    version: "5.4.0"
->>>>>>> 9a7372e (merging Samuli's code:)
   wkt_parser:
     dependency: transitive
     description:
