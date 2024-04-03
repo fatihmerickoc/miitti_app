@@ -142,10 +142,10 @@ class _AP2TextState extends State<AP2Text> {
                   widget.onActivityDataChanged(widget.activity);
 
                   // Move to the next page using the provided controller
-                  widget.controller.nextPage(
+                  /*widget.controller.nextPage(
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.linear,
-                  );
+                  );*/
 
                   storeData();
                 } else {

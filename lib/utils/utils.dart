@@ -200,6 +200,13 @@ void pushNRemoveUntil(BuildContext context, Widget page) {
   );
 }
 
+void pushReplacement(BuildContext context, Widget page) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => page),
+  );
+}
+
 int calculateAge(String birthDateString) {
   if (birthDateString.isNotEmpty) {
     // Parse the birth date string into a DateTime object

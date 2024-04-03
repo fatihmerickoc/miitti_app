@@ -337,7 +337,6 @@ class AuthProvider extends ChangeNotifier {
     } catch (error) {
       showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
       debugPrint('Got error signing with Apple $error');
-    } finally {
       Navigator.of(context).pop();
     }
   }
@@ -494,7 +493,7 @@ class AuthProvider extends ChangeNotifier {
       await _activityDocRef(activityModel.activityUid)
           .set(activityModel.toMap())
           .then((value) {
-        pushNRemoveUntil(
+        pushReplacement(
           context,
           ActivityPageFinal(
             miittiActivity: _miittiActivity!,
@@ -503,8 +502,7 @@ class AuthProvider extends ChangeNotifier {
       });
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message.toString(), Colors.red.shade800);
-    } finally {
-      Navigator.of(context).pop();
+      pushReplacement(context, const IndexPage());
     }
   }
 
