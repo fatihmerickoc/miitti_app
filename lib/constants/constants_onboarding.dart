@@ -4,12 +4,17 @@ class ConstantsOnboarding {
   String title;
   String warningText;
   String hintText;
+
   Widget? mainWidget;
+  TextInputType? keyboardType;
+  bool? isBirthday;
 
   ConstantsOnboarding({
     required this.title,
     required this.warningText,
     required this.hintText,
     this.mainWidget,
+    this.keyboardType,
+    this.isBirthday,
   });
 }

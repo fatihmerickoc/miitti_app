@@ -14,6 +14,7 @@ import 'package:miitti_app/onboardingScreens/obs5_info.dart';
 import 'package:miitti_app/onboardingScreens/obs6_photo.dart';
 import 'package:miitti_app/onboardingScreens/obs7_qa.dart';
 import 'package:miitti_app/onboardingScreens/onboarding.dart';
+import 'package:miitti_app/utils/utils.dart';
 
 class CompleteProfileOnboard extends StatefulWidget {
   const CompleteProfileOnboard({super.key});
@@ -24,9 +25,10 @@ class CompleteProfileOnboard extends StatefulWidget {
 
 class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   late PageController _pageController;
-  late TextEditingController _textEditingController;
 
   File? myImage;
+
+  late List<TextEditingController> _formControllers;
 
   final List<ConstantsOnboarding> onboardingScreens = [
     ConstantsOnboarding(
@@ -34,23 +36,28 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
       warningText:
           'Olet uniikki, muistathan siis käyttää vain omia henkilötietoja!',
       hintText: 'Syötä etunimesi',
+      keyboardType: TextInputType.name,
     ),
     ConstantsOnboarding(
       title: 'Lisää aktiivinen sähköpostiosoite',
       warningText:
           'Emme käytä sähköpostiasi koskaan markkinointiin ilman lupaasi!',
       hintText: 'Syötä sähköpostiosoitteesi',
+      keyboardType: TextInputType.emailAddress,
     ),
     ConstantsOnboarding(
       title: 'Mikä on puhelinnumerosi?',
       warningText:
           'Lähetämme hetken kuluttua vahvistuskoodin sisältävän tekstiviestin.',
       hintText: '+358453301000',
+      keyboardType: TextInputType.phone,
     ),
     ConstantsOnboarding(
       title: 'Kerro meille syntymäpäiväsi',
       warningText: 'Laskemme tämän perusteella ikäsi',
       hintText: 'Syötä syntymäpäiväsi',
+      keyboardType: TextInputType.datetime,
+      isBirthday: true,
     ),
   ];
 
@@ -73,30 +80,21 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
     userRegistrationDate: '',
   );
 
-  void _updateUserData(MiittiUser updatedUser) {
-    setState(() {
-      _miittiUser = updatedUser;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
+    _formControllers =
+        List.generate(onboardingScreens.length, (_) => TextEditingController());
     _pageController = PageController();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _textEditingController.dispose();
+    for (var controller in _formControllers) {
+      controller.dispose();
+    }
     super.dispose();
-  }
-
-  void _updateTheImage(File sendedImage) {
-    setState(() {
-      myImage = sendedImage;
-    });
   }
 
   @override
@@ -123,10 +121,28 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                           style: ConstantStyles.title,
                         ),
                         ConstantStyles().gapH20,
-                        ConstantsCustomTextField(
-                          hintText: screen.hintText,
-                          controller: _textEditingController,
-                        ),
+                        screen.mainWidget ??
+                            ConstantsCustomTextField(
+                              readOnly:
+                                  screen.isBirthday != null ? true : false,
+                              onTap: () {
+                                //if user is on the birthday screen
+                                if (screen.isBirthday != null) {
+                                  pickBirthdayDate(
+                                    context: context,
+                                    onDateTimeChanged: (dateTime) {
+                                      setState(() {
+                                        _formControllers[index].text =
+                                            '${dateTime.month}/${dateTime.day}/${dateTime.year}';
+                                      });
+                                    },
+                                  );
+                                }
+                              },
+                              hintText: screen.hintText,
+                              controller: _formControllers[index],
+                              keyboardType: screen.keyboardType,
+                            ),
                         ConstantStyles().gapH5,
                         Text(
                           screen.warningText,
@@ -136,10 +152,25 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                         ConstantsCustomButton(
                           buttonText: 'Seuraava',
                           onPressed: () {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.linear,
-                            );
+                            if (_pageController.page != 3) {
+                              if (_formControllers[index]
+                                  .text
+                                  .trim()
+                                  .isNotEmpty) {
+                                _pageController.nextPage(
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.linear,
+                                );
+                              } else {
+                                showSnackBar(
+                                  context,
+                                  'Kysymys "${screen.title}" ei voi olla tyhjä!',
+                                  ConstantStyles.red,
+                                );
+                              }
+                            } else {
+                              //save all the values to firebase
+                            }
                           },
                         ), //Removed extra padding in ConstantsCustomButton
                         ConstantStyles().gapH10,
