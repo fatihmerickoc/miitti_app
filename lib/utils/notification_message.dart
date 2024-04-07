@@ -39,6 +39,7 @@ class _NotificationMessageState extends State<NotificationMessage> {
       print("Notification response opened");
     }
 
+    //Navigate insted of creating here
     getPage(payload, context).then((page) {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => page));

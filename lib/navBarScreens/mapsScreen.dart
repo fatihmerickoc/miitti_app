@@ -272,6 +272,8 @@ class _MapsScreenState extends State<MapsScreen> {
         (id, point, coordinates) => _onFeatureTapped(coordinates: coordinates));
   }*/
 
+  //Commenting this to merge
+
   @override
   Widget build(BuildContext context) {
     return Stack(
