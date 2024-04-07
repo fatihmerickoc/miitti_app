@@ -1,28 +1,27 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
-import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+//import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/constants/ad_banner.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/constants_anonymousDialog.dart';
-import 'package:miitti_app/constants/constants_customButton.dart';
-import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/mapFilter.dart';
-import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
 
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
@@ -37,13 +36,18 @@ class _MapsScreenState extends State<MapsScreen> {
   List<MiittiActivity> _activities = [];
   List<AdBanner> _ads = [];
 
-  CameraPosition myCameraPosition = CameraPosition(
+  LatLng myPosition = LatLng(60.1699, 24.9325);
+
+  SuperclusterMutableController clusterController =
+      SuperclusterMutableController();
+
+  /*CameraPosition myCameraPosition = CameraPosition(
     target: LatLng(60.1699, 24.9325),
     zoom: 12,
     bearing: 0,
-  );
+  );*/
 
-  late MapboxMapController controller;
+  //late MapboxMapController controller;
 
   int showOnMap = 0;
 
@@ -58,6 +62,7 @@ class _MapsScreenState extends State<MapsScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     initializeLocationAndSave();
+    fetchActivities();
   }
 
   @override
@@ -86,11 +91,18 @@ class _MapsScreenState extends State<MapsScreen> {
     }
 
     // Get the current user location
-    LocationData _locationData = await _location.getLocation();
-    LatLng currentLatLng =
-        LatLng(_locationData.latitude!, _locationData.longitude!);
+    if (_permissionGranted == PermissionStatus.granted ||
+        _permissionGranted == PermissionStatus.grantedLimited) {
+      LocationData _locationData = await _location.getLocation();
+      LatLng currentLatLng =
+          LatLng(_locationData.latitude!, _locationData.longitude!);
 
-    myCameraPosition = CameraPosition(
+      setState(() {
+        myPosition = currentLatLng;
+      });
+    }
+
+    /*myCameraPosition = CameraPosition(
       target: currentLatLng,
       zoom: 12,
       tilt: 0,
@@ -100,7 +112,7 @@ class _MapsScreenState extends State<MapsScreen> {
     if (controller != null) {
       controller
           .animateCamera(CameraUpdate.newCameraPosition(myCameraPosition));
-    }
+    }*/
   }
 
   void fetchActivities() async {
@@ -110,7 +122,22 @@ class _MapsScreenState extends State<MapsScreen> {
       isAnonymous = ap.isAnonymous;
       _activities = activities.reversed.toList();
     });
-    addGeojsonCluster(controller, _activities);
+    clusterController.addAll(_activities.map(activityMarker).toList());
+    //addGeojsonCluster(controller, _activities);
+  }
+
+  Marker activityMarker(MiittiActivity activity) {
+    return Marker(
+      width: 100.0,
+      height: 100.0,
+      point: LatLng(activity.activityLati, activity.activityLong),
+      child: GestureDetector(
+        onTap: () {
+          goToActivityDetailsPage(activity);
+        },
+        child: Activity.getSymbol(activity),
+      ),
+    );
   }
 
   void fetchAd() async {
@@ -124,7 +151,7 @@ class _MapsScreenState extends State<MapsScreen> {
     }
   }
 
-  static Future<void> addGeojsonCluster(
+  /*static Future<void> addGeojsonCluster(
     MapboxMapController controller,
     List<MiittiActivity> myActivities,
   ) async {
@@ -211,7 +238,7 @@ class _MapsScreenState extends State<MapsScreen> {
         ],
       ),
     );
-  }
+  }*/
 
   goToActivityDetailsPage(MiittiActivity activity) {
     Navigator.push(
@@ -226,7 +253,7 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  void _onFeatureTapped({required LatLng coordinates}) {
+  /* void _onFeatureTapped({required LatLng coordinates}) {
     double zoomLevel = controller.cameraPosition!.zoom;
     int places = getPlaces(zoomLevel);
 
@@ -259,7 +286,9 @@ class _MapsScreenState extends State<MapsScreen> {
     this.controller = controller;
     controller.onFeatureTapped.add(
         (id, point, coordinates) => _onFeatureTapped(coordinates: coordinates));
-  }
+  }*/
+
+  //Commenting this to merge
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +296,62 @@ class _MapsScreenState extends State<MapsScreen> {
       children: [
         showOnMap == 1
             ? showOnList(isAnonymous)
-            : MapboxMap(
+            : FlutterMap(
+                options: MapOptions(
+                    backgroundColor: AppColors.backgroundColor,
+                    initialCenter: myPosition,
+                    initialZoom: 13.0,
+                    interactionOptions: InteractionOptions(
+                        flags:
+                            InteractiveFlag.pinchZoom | InteractiveFlag.drag),
+                    minZoom: 5.0,
+                    maxZoom: 18.0,
+                    onMapReady: () {}),
+                children: [
+                    TileLayer(
+                      urlTemplate:
+                          "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+                      additionalOptions: {
+                        'accessToken': mapboxAccess,
+                      },
+                    ),
+                    SuperclusterLayer.mutable(
+                        controller: clusterController,
+                        initialMarkers:
+                            _activities.map(activityMarker).toList(),
+                        onMarkerTap: (marker) {
+                          Widget child = marker.child;
+                          if (child is GestureDetector) {
+                            child.onTap!();
+                          }
+                          //(marker.child as GestureDetector).onTap!();
+                        },
+                        clusterWidgetSize: Size(100.0.r, 100.0.r),
+                        maxClusterRadius: 205,
+                        builder: (context, position, markerCount,
+                                extraClusterData) =>
+                            Center(
+                              child:
+                                  Stack(alignment: Alignment.center, children: [
+                                Image.asset(
+                                  "images/circlebackground.png",
+                                ),
+                                Positioned(
+                                  top: 20.h,
+                                  child: Text("$markerCount",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 32.sp,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.normal,
+                                        fontFamily: "Rubik",
+                                      )),
+                                )
+                              ]),
+                            ),
+                        indexBuilder: IndexBuilders.rootIsolate)
+                  ]),
+        /*MapboxMap(
                 styleString: MapboxStyles.MAPBOX_STREETS,
                 myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
                 onMapCreated: _onMapCreated,
@@ -279,7 +363,7 @@ class _MapsScreenState extends State<MapsScreen> {
                 tiltGesturesEnabled: false,
                 myLocationEnabled: true,
                 rotateGesturesEnabled: false,
-              ),
+              ),*/
         SafeArea(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

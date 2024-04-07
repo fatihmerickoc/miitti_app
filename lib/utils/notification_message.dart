@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:miitti_app/chatPage.dart';
 import 'package:miitti_app/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
@@ -38,85 +39,62 @@ class _NotificationMessageState extends State<NotificationMessage> {
       debugPrint("Notification response opened");
     }
 
-    return getPage(payload, context);
+    //Navigate insted of creating here
+    getPage(payload, context).then((page) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => page));
+    });
+
+    return const Scaffold(
+        backgroundColor: ConstantStyles.black,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ));
   }
 }
 
-Widget getPage(Map<String, dynamic> payload, BuildContext context) {
+Future<Widget> getPage(
+    Map<String, dynamic> payload, BuildContext context) async {
   //Open activity page
-  if (payload.containsKey("type")) {
-    switch (payload["type"]) {
-      case ("invite"):
-        debugPrint("Invite clicked ${payload["myData"]}");
-        return FutureBuilder<MiittiActivity>(
-            future: Provider.of<AuthProvider>(context, listen: false)
-                .getSingleActivity(payload["myData"]),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return ActivityDetailsPage(
-                    myActivity: snapshot.data! as PersonActivity);
-              } else if (snapshot.hasError) {
-                debugPrint("Error: ${snapshot.error}");
-                return const IndexPage();
-              } else {
-                return const IndexPage();
-              }
-            });
-      case ("request"):
-        debugPrint("Request clicked ${payload["myData"]}");
-        return FutureBuilder<MiittiUser>(
-            future: Provider.of<AuthProvider>(context, listen: false)
-                .getUser(payload["myData"]),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return UserProfileEditScreen(user: snapshot.data!);
-              } else if (snapshot.hasError) {
-                debugPrint("Error: ${snapshot.error}");
-                return const IndexPage();
-              } else {
-                return const CircularProgressIndicator();
-              }
-            });
-      case ("accept"):
-        debugPrint("Invite clicked ${payload["myData"]}");
-        return FutureBuilder<Widget>(
-            future: Provider.of<AuthProvider>(context, listen: false)
-                .getDetailsPage(payload["myData"]),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return snapshot.data!;
-              } else if (snapshot.hasError) {
-                debugPrint("Error: ${snapshot.error}");
-                return const IndexPage();
-              } else {
-                return const CircularProgressIndicator();
-              }
-            });
-      case ("message"):
-        debugPrint("Message clicked ${payload["myData"]}");
-        return FutureBuilder<MiittiActivity>(
-            future: Provider.of<AuthProvider>(context, listen: false)
-                .getSingleActivity(payload["myData"]),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                MiittiActivity a = snapshot.data!;
-                if (a is PersonActivity) {
-                  return ChatPage(activity: a);
-                } else {
-                  return ComChatPage(activity: a as CommercialActivity);
-                }
-              } else if (snapshot.hasError) {
-                debugPrint("Error: ${snapshot.error}");
-                return const IndexPage();
-              } else {
-                return const CircularProgressIndicator();
-              }
-            });
-    }
-    debugPrint("Type didn't match: ${payload["type"].toString()}");
-  } else {
-    debugPrint("Payload doesn't include type");
-  }
+  try {
+    if (payload.containsKey("type")) {
+      AuthProvider provider = Provider.of<AuthProvider>(context, listen: false);
+      switch (payload["type"]) {
+        case ("invite"):
+          print("Invite clicked ${payload["myData"]}");
+          PersonActivity activity = await provider
+              .getSingleActivity(payload["myData"]) as PersonActivity;
+          return ActivityDetailsPage(myActivity: activity);
 
-  return const IndexPage();
+        case ("request"):
+          print("Request clicked ${payload["myData"]}");
+          MiittiUser user = await provider.getUser(payload["myData"]);
+          return UserProfileEditScreen(user: user);
+
+        case ("accept"):
+          print("Accept clicked ${payload["myData"]}");
+          PersonActivity activity = await provider
+              .getSingleActivity(payload["myData"]) as PersonActivity;
+          return ActivityDetailsPage(myActivity: activity);
+
+        case ("message"):
+          print("Message clicked ${payload["myData"]}");
+          MiittiActivity activity =
+              await provider.getSingleActivity(payload["myData"]);
+          if (activity is PersonActivity) {
+            return ChatPage(activity: activity);
+          } else {
+            return ComChatPage(activity: activity as CommercialActivity);
+          }
+      }
+      print("Type didn't match: ${payload["type"].toString()}");
+    } else {
+      print("Payload doesn't include that type");
+    }
+
+    return const IndexPage();
+  } catch (e) {
+    print("Error: $e");
+    return const IndexPage();
+  }
 }
