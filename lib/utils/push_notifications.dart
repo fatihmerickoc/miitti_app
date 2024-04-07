@@ -92,7 +92,7 @@ class PushNotifications {
 
     if (message != null) {
       print("Launched from terminated state");
-      Future.delayed(const Duration(seconds: 1), () {
+      Future.delayed(const Duration(seconds: 2), () {
         navigatorKey.currentState!
             .pushNamed("/notificationmessage", arguments: message);
       });

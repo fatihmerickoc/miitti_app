@@ -1393,9 +1393,9 @@ class AuthProvider extends ChangeNotifier {
     return _fireStore.collection(_comactString).doc(activityId);
   }
 
-  Future<bool> _tryGetUser(
-      String uid, Function(MiittiUser user) exists, Function notFound) async {
-    DocumentSnapshot snapshot = await _getUserDoc(uid);
+  Future<bool> _tryGetUser(String userId, Function(MiittiUser user) exists,
+      Function notFound) async {
+    DocumentSnapshot snapshot = await _getUserDoc(userId);
     if (snapshot.exists) {
       await exists(MiittiUser.fromDoc(snapshot));
       return true;
@@ -1410,7 +1410,7 @@ class AuthProvider extends ChangeNotifier {
       String activityId,
       Function(PersonActivity activity) isPersonal,
       Function(CommercialActivity comActivity) isCommercial) async {
-    DocumentSnapshot snapshot = await _getActivityDoc(uid);
+    DocumentSnapshot snapshot = await _getActivityDoc(activityId);
     if (snapshot.exists) {
       PersonActivity activity = PersonActivity.fromDoc(snapshot);
       isPersonal(activity);
