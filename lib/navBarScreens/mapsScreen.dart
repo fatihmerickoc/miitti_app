@@ -284,12 +284,12 @@ class _MapsScreenState extends State<MapsScreen> {
                 options: MapOptions(
                     backgroundColor: AppColors.backgroundColor,
                     initialCenter: myPosition,
-                    initialZoom: 12.0,
+                    initialZoom: 13.0,
                     interactionOptions: InteractionOptions(
                         flags:
                             InteractiveFlag.pinchZoom | InteractiveFlag.drag),
                     minZoom: 5.0,
-                    maxZoom: 17.0,
+                    maxZoom: 18.0,
                     onMapReady: () {}),
                 children: [
                     TileLayer(

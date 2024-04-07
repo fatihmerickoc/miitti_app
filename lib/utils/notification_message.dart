@@ -89,7 +89,7 @@ Future<Widget> getPage(
       }
       print("Type didn't match: ${payload["type"].toString()}");
     } else {
-      print("Payload doesn't include type");
+      print("Payload doesn't include that type");
     }
 
     return const IndexPage();
