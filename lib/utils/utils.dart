@@ -40,6 +40,22 @@ Future<File?> pickImage(BuildContext context) async {
   return image;
 }
 
+Future<File?> pickImageFromCamera(BuildContext context) async {
+  File? image;
+  try {
+    final XFile? pickedImage =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedImage != null) {
+      image = File(pickedImage.path);
+    }
+  } catch (e) {
+    if (context.mounted) {
+      showSnackBar(context, e.toString(), Colors.red.shade800);
+    }
+  }
+  return image;
+}
+
 Widget getMiittiLogo() {
   return Container(
     margin: EdgeInsets.only(top: 40.h),

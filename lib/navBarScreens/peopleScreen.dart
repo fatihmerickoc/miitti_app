@@ -23,7 +23,7 @@ class PeopleScreen extends StatefulWidget {
 class _PeopleScreenState extends State<PeopleScreen> {
   Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
 
-  final batchSize = 4;
+  final batchSize = 6;
 
   List<bool> listLoading = [true, true, true];
 
@@ -58,7 +58,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
         lastDocuments[type] = snapshot.docs.last;
         return snapshot.docs
             .map((doc) => MiittiUser.fromDoc(doc))
-            .where((user) => user.uid != ap.uid)
+            .where((user) => user.uid != ap.uid && user.userName != "")
             .toList();
       }
       return [];

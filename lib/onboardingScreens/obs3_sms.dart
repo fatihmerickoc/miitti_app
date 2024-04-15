@@ -67,11 +67,12 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
                     height: 70.h,
                     textStyle: Styles.titleTextStyle,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          width: 1.5,
-                          color: AppColors.purpleColor,
-                        )),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        width: 1.5,
+                        color: AppColors.purpleColor,
+                      ),
+                    ),
                   ),
                   onCompleted: (value) {
                     setState(() {

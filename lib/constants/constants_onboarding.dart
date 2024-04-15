@@ -3,18 +3,17 @@ import 'package:flutter/material.dart';
 class ConstantsOnboarding {
   String title;
   String warningText;
-  String hintText;
+  String? hintText;
 
-  Widget? mainWidget;
   TextInputType? keyboardType;
-  bool? isBirthday;
+
+  bool? isFullView = false;
 
   ConstantsOnboarding({
     required this.title,
     required this.warningText,
-    required this.hintText,
-    this.mainWidget,
+    this.hintText,
     this.keyboardType,
-    this.isBirthday,
+    this.isFullView,
   });
 }

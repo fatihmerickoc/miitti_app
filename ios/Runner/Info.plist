@@ -53,6 +53,8 @@
 	<string>sk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTFqdTJxZzAyMzgzbG1scnFkaXBzdmoifQ.qzMDjlrnbE_uWsoZyyS8ng</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Salli sijainti aktiviteettien lähellä löytämiseksi ja luomiseksi.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Pääsy kameraan profiilikuvan lataamista varten.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Pääsy kuviisi profiilikuvan lataamista varten.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
