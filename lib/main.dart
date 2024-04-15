@@ -4,7 +4,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/home.dart';
 import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/login/completeProfile/completeProfile_onboard.dart';
 import 'package:miitti_app/login/login_intro.dart';

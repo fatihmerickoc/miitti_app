@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/constants/constants_onboarding.dart';
 import 'package:miitti_app/index_page.dart';
-import 'package:miitti_app/onboardingScreens/onboarding.dart';
+import 'package:miitti_app/login/completeProfile/completeProfile_onboard.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
@@ -141,7 +142,7 @@ class _OnBordingScreenSmsState extends State<OnBordingScreenSms> {
             } else {
               showSnackBar(context, "Vahvistaminen onnistui, tervetuloa!",
                   Colors.green.shade400);
-              pushNRemoveUntil(context, OnboardingScreen());
+              pushNRemoveUntil(context, CompleteProfileOnboard());
             }
           });
         });

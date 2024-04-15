@@ -3,7 +3,6 @@ import 'package:miitti_app/constants/constants_customButton.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/login/completeProfile/completeProfile_onboard.dart';
-import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
