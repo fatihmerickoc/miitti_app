@@ -241,16 +241,23 @@ class _MapsScreenState extends State<MapsScreen> {
   }*/
 
   goToActivityDetailsPage(MiittiActivity activity) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => activity is PersonActivity
-            ? ActivityDetailsPage(
-                myActivity: activity,
-              )
-            : ComActDetailsPage(myActivity: activity as CommercialActivity),
-      ),
-    );
+    if (!isAnonymous) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => activity is PersonActivity
+              ? ActivityDetailsPage(
+                  myActivity: activity,
+                )
+              : ComActDetailsPage(myActivity: activity as CommercialActivity),
+        ),
+      );
+    } else {
+      showSnackBar(
+          context,
+          'Et ole vielä viimeistellyt profiiliasi, joten\n et voi käyttää vielä sovelluksen kaikkia ominaisuuksia.',
+          ConstantStyles.orange);
+    }
   }
 
   /* void _onFeatureTapped({required LatLng coordinates}) {
@@ -501,14 +508,7 @@ class _MapsScreenState extends State<MapsScreen> {
                             width: 250.w,
                             height: 40.h,
                             onPressed: () {
-                              if (!isAnonymous) {
-                                goToActivityDetailsPage(activity);
-                              } else {
-                                showSnackBar(
-                                    context,
-                                    'Et ole vielä viimeistellyt profiiliasi, joten\n et voi käyttää vielä sovelluksen kaikkia ominaisuuksia.',
-                                    ConstantStyles.orange);
-                              }
+                              goToActivityDetailsPage(activity);
                             },
                             child: Text(
                               "Näytä enemmän",
