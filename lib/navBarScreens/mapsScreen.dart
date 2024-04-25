@@ -1,8 +1,11 @@
 // ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
 import 'dart:math';
 
+import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
@@ -20,6 +23,7 @@ import 'package:miitti_app/mapFilter.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 
@@ -301,63 +305,7 @@ class _MapsScreenState extends State<MapsScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        showOnMap == 1
-            ? showOnList(isAnonymous)
-            : FlutterMap(
-                options: MapOptions(
-                    backgroundColor: AppColors.backgroundColor,
-                    initialCenter: myPosition,
-                    initialZoom: 13.0,
-                    interactionOptions: InteractionOptions(
-                        flags:
-                            InteractiveFlag.pinchZoom | InteractiveFlag.drag),
-                    minZoom: 5.0,
-                    maxZoom: 18.0,
-                    onMapReady: () {}),
-                children: [
-                    TileLayer(
-                      urlTemplate:
-                          "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
-                      additionalOptions: {
-                        'accessToken': mapboxAccess,
-                      },
-                    ),
-                    SuperclusterLayer.mutable(
-                        controller: clusterController,
-                        initialMarkers:
-                            _activities.map(activityMarker).toList(),
-                        onMarkerTap: (marker) {
-                          Widget child = marker.child;
-                          if (child is GestureDetector) {
-                            child.onTap!();
-                          }
-                          //(marker.child as GestureDetector).onTap!();
-                        },
-                        clusterWidgetSize: Size(100.0.r, 100.0.r),
-                        maxClusterRadius: 205,
-                        builder: (context, position, markerCount,
-                                extraClusterData) =>
-                            Center(
-                              child:
-                                  Stack(alignment: Alignment.center, children: [
-                                Image.asset(
-                                  "images/circlebackground.png",
-                                ),
-                                Positioned(
-                                  top: 20.h,
-                                  child: Text("$markerCount",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 32.sp,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.normal,
-                                        fontFamily: "Rubik",
-                                      )),
-                                )
-                              ]),
-                            ),
-                        indexBuilder: IndexBuilders.rootIsolate)
-                  ]),
+        showOnMap == 1 ? showOnList() : showMap(),
         /*MapboxMap(
                 styleString: MapboxStyles.MAPBOX_STREETS,
                 myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
@@ -431,7 +379,75 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  Widget showOnList(bool isAnonymous) {
+  Widget showMap() {
+    return FutureBuilder(
+        future: getPath(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          return FlutterMap(
+              options: MapOptions(
+                  backgroundColor: AppColors.backgroundColor,
+                  initialCenter: myPosition,
+                  initialZoom: 13.0,
+                  interactionOptions: InteractionOptions(
+                      flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag),
+                  minZoom: 5.0,
+                  maxZoom: 18.0,
+                  onMapReady: () {}),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+                  additionalOptions: {
+                    'accessToken': mapboxAccess,
+                  },
+                  tileProvider: CachedTileProvider(
+                      store: HiveCacheStore(
+                    snapshot.data.toString(),
+                  )),
+                ),
+                SuperclusterLayer.mutable(
+                    controller: clusterController,
+                    initialMarkers: _activities.map(activityMarker).toList(),
+                    onMarkerTap: (marker) {
+                      Widget child = marker.child;
+                      if (child is GestureDetector) {
+                        child.onTap!();
+                      }
+                      //(marker.child as GestureDetector).onTap!();
+                    },
+                    clusterWidgetSize: Size(100.0.r, 100.0.r),
+                    maxClusterRadius: 205,
+                    builder: (context, position, markerCount,
+                            extraClusterData) =>
+                        Center(
+                          child: Stack(alignment: Alignment.center, children: [
+                            Image.asset(
+                              "images/circlebackground.png",
+                            ),
+                            Positioned(
+                              top: 20.h,
+                              child: Text("$markerCount",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 32.sp,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.normal,
+                                    fontFamily: "Rubik",
+                                  )),
+                            )
+                          ]),
+                        ),
+                    indexBuilder: IndexBuilders.rootIsolate)
+              ]);
+        });
+  }
+
+  Widget showOnList() {
     return Container(
       margin: EdgeInsets.only(top: 60.h),
       child: ListView.builder(
@@ -555,5 +571,10 @@ class _MapsScreenState extends State<MapsScreen> {
     };
 
     return zoomToDecimalPlaces[zoomLevel.roundToDouble()] ?? 0;
+  }
+
+  Future<String> getPath() async {
+    final cacheDirectory = await getTemporaryDirectory();
+    return cacheDirectory.path;
   }
 }
