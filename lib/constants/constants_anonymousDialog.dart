@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants_customButton.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
-import 'package:miitti_app/onboardingScreens/onboarding.dart';
+import 'package:miitti_app/login/completeProfile/completeProfile_onboard.dart';
 import 'package:miitti_app/utils/utils.dart';
 
 class ConstantsAnonymousDialog extends StatelessWidget {
@@ -48,7 +48,7 @@ class ConstantsAnonymousDialog extends StatelessWidget {
                 ConstantsCustomButton(
                   buttonText: 'Viimeistele profiili',
                   onPressed: () {
-                    pushNRemoveUntil(context, const OnboardingScreen());
+                    pushNRemoveUntil(context, const CompleteProfileOnboard());
                   },
                 ), //Removed extra padding in ConstantsCustomButton
                 ConstantStyles().gapH10,

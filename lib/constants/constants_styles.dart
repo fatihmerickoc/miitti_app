@@ -38,6 +38,12 @@ class ConstantStyles {
     color: Colors.white.withOpacity(0.6),
   );
 
+  static TextStyle question = TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
+
   final gapW5 = SizedBox(width: 5.w);
   final gapW10 = SizedBox(width: 10.w);
   final gapW15 = SizedBox(width: 15.w);

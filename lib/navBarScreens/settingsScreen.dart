@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/helpers/confirmdialog.dart';
-import 'package:miitti_app/home.dart';
+import 'package:miitti_app/login/completeProfile/completeProfile_onboard.dart';
 import 'package:miitti_app/login/login_intro.dart';
-import 'package:miitti_app/onboardingScreens/onboarding.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -106,7 +105,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ap.isAnonymous
                   ? GestureDetector(
                       onTap: () {
-                        pushNRemoveUntil(context, const OnboardingScreen());
+                        pushNRemoveUntil(
+                            context, const CompleteProfileOnboard());
                       },
                       child: createText('Viimeistele profiili'),
                     )
