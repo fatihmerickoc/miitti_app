@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/login/completeProfile/completeProfile_onboard.dart';
+import 'package:miitti_app/login/login_decideScreen.dart';
 import 'package:miitti_app/login/login_intro.dart';
 import 'package:miitti_app/utils/notification_message.dart';
 import 'package:miitti_app/provider/auth_provider.dart';

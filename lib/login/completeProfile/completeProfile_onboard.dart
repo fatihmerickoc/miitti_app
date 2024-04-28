@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:miitti_app/constants/constants.dart';
@@ -18,7 +20,6 @@ import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/index_page.dart';
 import 'package:miitti_app/login/completeProfile/completeProfile_answerPage.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/utils/push_notifications.dart';
 
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -73,6 +74,10 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
       isFullView: true,
     ),
     ConstantsOnboarding(
+      title: 'Mikä on elämäntilanteesi?',
+      warningText: 'Näin osaamme yhdistää sinut paremmin uusiin tuttavuuksiin',
+    ),
+    ConstantsOnboarding(
       title: 'Kerro itsestäsi',
       warningText: 'Valitse 1-10 Q&A -avausta, johon haluat vastata',
       isFullView: true,
@@ -124,7 +129,18 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   ];
   Set<String> selectedLanguages = {};
 
-  //PAGE 6 CITY
+  //PAGE 6 LIFE SITUATION
+  bool noLifeSituation = false;
+  final List<String> lifeOptions = [
+    'Opiskelija',
+    'Työelämässä',
+    'Yrittäjä',
+    'Etsimässä itseään',
+  ];
+
+  String selectedLifeOption = '';
+
+  //PAGE 7 CITY
   final List<String> cities = [
     'Helsinki',
     'Espoo',
@@ -139,7 +155,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   ];
   Set<String> selectedCities = {};
 
-  //PAGE 7 Q&A
+  //PAGE 8 Q&A
   final List<String> questionsAboutMe = [
     'Kuvailen itseäni näillä viidellä emojilla',
     'Persoonaani kuvaa parhaiten se, että',
@@ -184,13 +200,13 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   int currentAnswers = 0;
   Map<String, String> userChoices = {};
 
-  //PAGE 8 PICTURE
+  //PAGE 9 PICTURE
   File? image;
 
-  //PAGE 9 ACTIVITIES
+  //PAGE 10 ACTIVITIES
   Set<String> favoriteActivities = <String>{};
 
-  //PAGE 10 RULES
+  //PAGE 11 RULES
   List<String> miittiRules = <String>[
     'Käyttäydyn muita ihmisiä kohtaan ystävällisesti ja kunnioittavasti',
     'Esiinnyn sovelluksessa omana itsenäni, enkä käytä muiden kuvia tai henkilötietoja.',
@@ -199,6 +215,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   ];
   List<String> userAcceptedRules = <String>[];
   bool warningSignVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -386,7 +403,70 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             },
           ),
         );
+
       case 6:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 220.h,
+              child: ListView.builder(
+                itemCount: lifeOptions.length,
+                itemBuilder: (context, index) {
+                  String option = lifeOptions[index];
+                  return GestureDetector(
+                    onTap: () {
+                      if (!noLifeSituation) {
+                        setState(() {
+                          selectedLifeOption = option;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(10.w),
+                      margin: EdgeInsets.only(bottom: 8.h),
+                      decoration: BoxDecoration(
+                        color: const Color.fromRGBO(224, 84, 148, 0.05),
+                        border: Border.all(
+                          color: selectedLifeOption == option
+                              ? ConstantStyles.pink
+                              : Colors.transparent,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        option,
+                        style: ConstantStyles.body,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CupertinoSwitch(
+                activeColor: ConstantStyles.pink,
+                value: noLifeSituation,
+                onChanged: (bool value) {
+                  setState(() {
+                    selectedLifeOption = "";
+                    noLifeSituation = value;
+                  });
+                },
+              ),
+              title: Text(
+                'Jätän tämän tyhjäksi',
+                style: ConstantStyles.hintText.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: noLifeSituation
+                        ? Colors.white
+                        : const Color.fromRGBO(255, 255, 255, 0.20)),
+              ),
+            )
+          ],
+        );
+      case 7:
         return Column(
           children: [
             Row(
@@ -527,7 +607,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             ),
           ],
         );
-      case 7:
+      case 8:
         return Expanded(
           child: Column(
             children: [
@@ -618,8 +698,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             ],
           ),
         );
-
-      case 8:
+      case 9:
         return Expanded(
           child: GridView.builder(
             itemCount: activities.keys.toList().length,
@@ -679,7 +758,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           ),
         );
 
-      case 9:
+      case 10:
         return Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -726,6 +805,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             ],
           ),
         );
+
       default:
         {
           return ConstantsCustomTextField(
@@ -837,8 +917,17 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           );
           return;
         }
-
       case 6:
+        if (selectedLifeOption.isEmpty && noLifeSituation == false) {
+          showSnackBar(
+            context,
+            'Valitse  1 elämäntilanteesi tai jätä sen tyhjäksi!',
+            ConstantStyles.red,
+          );
+          return;
+        }
+
+      case 7:
         if (userChoices.isEmpty) {
           showSnackBar(
             context,
@@ -847,7 +936,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           );
           return;
         }
-      case 7:
+      case 8:
         if (image == null) {
           showSnackBar(
             context,
@@ -856,7 +945,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           );
           return;
         }
-      case 8:
+      case 9:
         if (favoriteActivities.isEmpty || favoriteActivities.length > 9) {
           showSnackBar(
             context,
@@ -865,7 +954,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           );
           return;
         }
-      case 9:
+      case 10:
         if (userAcceptedRules.length != miittiRules.length) {
           setState(() {
             warningSignVisible = true;
@@ -895,7 +984,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         profilePicture: '',
         invitedActivities: {},
         userStatus: '',
-        userSchool: '',
+        userSchool: noLifeSituation ? '' : selectedLifeOption,
         fcmToken: '',
         userRegistrationDate: DateFormat('dd/MM/yyyy').format(DateTime.now()),
       );

@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants_customButton.dart';
 import 'package:miitti_app/constants/constants_customTextField.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/constants_widgets.dart';
+import 'package:miitti_app/login/phone/phone_auth.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -19,23 +21,6 @@ class LoginAuth extends StatefulWidget {
 }
 
 class _LoginAuthState extends State<LoginAuth> {
-  final TextEditingController phoneController = TextEditingController();
-
-  @override
-  void dispose() {
-    phoneController.dispose();
-    super.dispose();
-  }
-
-  void sendPhoneNumberToFirebase(AuthProvider authProvider) {
-    String phoneNumber = phoneController.text.trim();
-    if (phoneNumber[0] == '0') {
-      // Remove the first character of the phone so  it is in this format +358449759068
-      phoneNumber = phoneNumber.substring(1);
-    }
-    authProvider.signInWithPhone(context, "+358$phoneNumber");
-  }
-
   @override
   Widget build(BuildContext context) {
     final ap = Provider.of<AuthProvider>(context, listen: true);
@@ -56,19 +41,19 @@ class _LoginAuthState extends State<LoginAuth> {
 
                 ConstantStyles().gapH50,
 
-                //welcome title
+                //title
                 Text(
-                  'Tervetuloa!',
+                  'Heippa,',
                   style: ConstantStyles.title,
                 ),
 
-                //welcome subtitle
+                //subtitle
                 Text(
-                  'Aloitetaan matkasi kohti yhteisöllisempää huomista!',
-                  style: ConstantStyles.body,
+                  'Hauska tutustua, aika upgreidata sosiaalinen elämäsi?',
+                  style: ConstantStyles.question,
                 ),
 
-                ConstantStyles().gapH10,
+                ConstantStyles().gapH20,
 
                 //apple sign in
                 Platform.isIOS
@@ -97,64 +82,38 @@ class _LoginAuthState extends State<LoginAuth> {
                 //pink divider
                 ConstantsWidgets().createPinkDivider('Tai'),
 
-                //textformfield title
-                Text(
-                  'Puhelinnumero',
-                  style: ConstantStyles.textField,
-                ),
-
-                //phone textformfield
-                ConstantsCustomTextField(
-                  hintText: 'esim. 0449759068',
-                  controller: phoneController,
-                ),
-
-                SizedBox(
-                  height: 160.h,
-                ),
-
-                //privacy agreement text
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      launchUrlString('https://www.miitti.app/kayttoehdot');
-                    },
-                    child: RichText(
-                      text: TextSpan(
-                        style: ConstantStyles.warning,
-                        children: const <TextSpan>[
-                          TextSpan(
-                              text:
-                                  'Kirjautumalla sisään hyväksyt sovelluksen '),
-                          TextSpan(
-                            text: 'käyttöehdot',
-                            style: TextStyle(
-                              color: Colors.white,
-                              decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                //sign with phone
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PhoneAuth(),
+                    ),
+                  ),
+                  child: Container(
+                    width: 350.w,
+                    margin: EdgeInsets.symmetric(
+                      vertical: 20.h,
+                      horizontal: 10.w,
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 8.w,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      border: Border.all(
+                        color: ConstantStyles.pink,
+                      ),
+                    ),
+                    child: Text(
+                      'Kirjaudu puhelinnumerolla',
+                      textAlign: TextAlign.center,
+                      style: ConstantStyles.body.copyWith(
+                        fontWeight: FontWeight.w300,
+                        color: const Color.fromRGBO(255, 255, 255, 0.60),
                       ),
                     ),
                   ),
-                ),
-
-                ConstantStyles().gapH10,
-
-                //continue custom button
-                ConstantsCustomButton(
-                  buttonText: 'Seuraava',
-                  onPressed: () {
-                    if (phoneController.text.trim().isNotEmpty) {
-                      sendPhoneNumberToFirebase(ap);
-                    } else {
-                      showSnackBar(
-                          context,
-                          'Huom! Sinun täytyy antaa puhelinnumerosi kirjautuaksesi sisään.',
-                          ConstantStyles.red);
-                    }
-                  },
                 ),
               ],
             ),

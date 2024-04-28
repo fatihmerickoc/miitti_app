@@ -33,7 +33,7 @@ import 'package:miitti_app/helpers/filter_settings.dart';
 import 'package:miitti_app/index_page.dart';
 
 import 'package:miitti_app/login/login_decideScreen.dart';
-import 'package:miitti_app/onboardingScreens/obs3_sms.dart';
+import 'package:miitti_app/login/phone/phone_sms.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // #endregion
@@ -180,16 +180,15 @@ class AuthProvider extends ChangeNotifier {
           throw Exception(error.message);
         },
         codeSent: (verificationId, forceResendingToken) {
-          Navigator.of(context).pop();
           debugPrint("sending code to $phoneNumber");
           if (context.mounted) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => OnBordingScreenSms(
-                  verificationId: verificationId,
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (context) => PhoneSms(
+                    verificationId: verificationId,
+                  ),
                 ),
-              ),
-            );
+                (route) => route.isFirst);
           }
         },
         codeAutoRetrievalTimeout: (verificationId) {},
@@ -562,7 +561,7 @@ class AuthProvider extends ChangeNotifier {
       List<MiittiActivity> list = List<MiittiActivity>.from(activities);
       list.addAll(List<MiittiActivity>.from(comActivities));
       return list;
-    } catch (e, s) {
+    } catch (e) {
       debugPrint('Error fetching activities: $e');
       return [];
     }

@@ -5,6 +5,40 @@ import 'package:miitti_app/constants/constants_anonymousDialog.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 
 class ConstantsWidgets {
+  //MAIN PAGE WIDGETS
+  Widget getLanguagesButtons() {
+    Set<String> appLanguages = {
+      'Suomi',
+      'English',
+      'Svenska',
+    };
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (String language in appLanguages)
+          Container(
+            margin: EdgeInsets.only(right: 15.w, bottom: 45.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A1026),
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(
+                color: language == 'Suomi'
+                    ? ConstantStyles.pink
+                    : Colors.transparent,
+                width: 1.0,
+              ),
+            ),
+            child: Text(
+              language,
+              style: ConstantStyles.warning,
+            ),
+          ),
+      ],
+    );
+  }
+
+  //LOGIN PAGE WIDGETS
   Widget getMiittiLogo() {
     return SvgPicture.asset(
       'images/miittiLogo.svg',
