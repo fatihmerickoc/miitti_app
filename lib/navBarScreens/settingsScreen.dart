@@ -140,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
               SizedBox(height: 20.h),
               createSectionTitle('Versio'),
-              createText('1.2.8'),
+              createText('1.5.2'),
             ],
           ),
         ),

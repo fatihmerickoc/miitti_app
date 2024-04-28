@@ -403,7 +403,6 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             },
           ),
         );
-
       case 6:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -564,7 +563,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                         MaterialPageRoute(
                           builder: (context) => CompleteProfileAnswerPage(
                             question: question,
-                            questionAnswer: null,
+                            questionAnswer: userChoices[question],
                           ),
                         ),
                       );

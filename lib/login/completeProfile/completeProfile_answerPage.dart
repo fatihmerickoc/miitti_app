@@ -28,6 +28,9 @@ class _CompleteProfileAnswerPageState extends State<CompleteProfileAnswerPage> {
   void initState() {
     super.initState();
     answerController = TextEditingController();
+    if (widget.questionAnswer != null) {
+      answerController.text = widget.questionAnswer!;
+    }
   }
 
   @override
