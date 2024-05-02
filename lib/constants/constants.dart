@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:miitti_app/helpers/activity.dart';
+import 'package:miitti_app/utils/activity.dart';
 
 class AppColors {
   static const Color backgroundColor = Color(0xFF090215);

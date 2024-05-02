@@ -1,20 +1,20 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:miitti_app/chatPage.dart';
-import 'package:miitti_app/commercialScreens/comchat_page.dart';
-import 'package:miitti_app/constants/commercial_activity.dart';
+import 'package:miitti_app/screens/chat_page.dart';
+import 'package:miitti_app/screens/commercialScreens/comchat_page.dart';
+import 'package:miitti_app/data/commercial_activity.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
-import 'package:miitti_app/constants/miitti_activity.dart';
-import 'package:miitti_app/constants/person_activity.dart';
-import 'package:miitti_app/constants/miittiUser.dart';
-import 'package:miitti_app/createMiittiActivity/activity_details_page.dart';
-import 'package:miitti_app/index_page.dart';
-import 'package:miitti_app/userProfileEditScreen.dart';
+import 'package:miitti_app/data/miitti_activity.dart';
+import 'package:miitti_app/data/person_activity.dart';
+import 'package:miitti_app/data/miitti_user.dart';
+import 'package:miitti_app/screens/createMiittiActivity/activity_details_page.dart';
+import 'package:miitti_app/screens/index_page.dart';
+import 'package:miitti_app/screens/user_profile_edit_screen.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 
-import 'package:miitti_app/provider/auth_provider.dart';
+import 'package:miitti_app/utils/auth_provider.dart';
 
 class NotificationMessage extends StatefulWidget {
   const NotificationMessage({super.key});
