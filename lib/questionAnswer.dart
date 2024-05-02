@@ -4,8 +4,8 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 
 class QuestionAnswer extends StatefulWidget {
-  Map<String, String>? recievedData;
-  QuestionAnswer({required this.recievedData, super.key});
+  final Map<String, String>? recievedData;
+  const QuestionAnswer({required this.recievedData, super.key});
 
   @override
   State<QuestionAnswer> createState() => _QuestionAnswerState();
@@ -31,7 +31,6 @@ class _QuestionAnswerState extends State<QuestionAnswer> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getPreviousData();
   }

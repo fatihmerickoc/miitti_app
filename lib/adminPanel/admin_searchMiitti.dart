@@ -71,10 +71,10 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     await ap.removeActivity(activityId);
     showAllMiitit == 0 ? getAllTheActivities() : getReportedActivities();
-    if (context.mounted) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       showSnackBar(
           context, 'Miitin poistaminen onnistui!', Colors.green.shade600);
-    }
+    });
   }
 
   Widget getListTileButton(Color mainColor, String text, Function() onPressed) {

@@ -15,8 +15,6 @@ import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/constants.dart';
-
 class AP3Location extends StatefulWidget {
   const AP3Location({
     super.key,

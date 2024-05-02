@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
 import 'package:miitti_app/constants/miittiUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
@@ -440,24 +439,30 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
         });
       } else if (myActivities.length > 1) {
         //If user has 2 or more activites to invite to
-        showDialog(
-          context: context,
-          barrierColor: Colors.white.withOpacity(0.9),
-          builder: (BuildContext context) {
-            return createSelectBetweenActivitesDialog(myActivities);
-          },
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierColor: Colors.white.withOpacity(0.9),
+            builder: (BuildContext context) {
+              return createSelectBetweenActivitesDialog(myActivities);
+            },
+          );
+        });
       } else {
         // Show some red dialog
         debugPrint("You do not have any activities for people to invite");
-        showSnackBar(
-            context,
-            "Sinulla ei ole miittejä, joihin voit kutsua tämän henkilön.",
-            Colors.red.shade800);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showSnackBar(
+              context,
+              "Sinulla ei ole miittejä, joihin voit kutsua tämän henkilön.",
+              Colors.red.shade800);
+        });
       }
     } else {
-      showSnackBar(
-          context, "Sinun täytyy luoda miitti ensin!", Colors.orange.shade800);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showSnackBar(context, "Sinun täytyy luoda miitti ensin!",
+            Colors.orange.shade800);
+      });
     }
   }
 

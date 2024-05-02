@@ -23,7 +23,6 @@ class _MapFilterState extends State<MapFilter> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     filterSettings.loadPreferences().then((_) {
       setState(() {

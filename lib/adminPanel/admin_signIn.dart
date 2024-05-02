@@ -23,7 +23,7 @@ class _AdminRegistrationState extends State<AdminSignIn> {
         passwordController.text == 'admin') {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AdminHomePage()),
+        MaterialPageRoute(builder: (context) => const AdminHomePage()),
       );
     } else {
       showSnackBar(

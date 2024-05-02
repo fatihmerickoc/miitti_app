@@ -1,17 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:miitti_app/constants/constants_customButton.dart';
-import 'package:miitti_app/constants/constants_customTextField.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/constants/constants_widgets.dart';
 import 'package:miitti_app/login/phone/phone_auth.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
-import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class LoginAuth extends StatefulWidget {
   const LoginAuth({super.key});

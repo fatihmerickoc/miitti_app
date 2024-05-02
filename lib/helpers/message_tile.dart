@@ -11,13 +11,13 @@ class MessageTile extends StatelessWidget {
   final String time; // Add this line
 
   const MessageTile({
-    Key? key,
+    super.key,
     required this.message,
     required this.sender,
     required this.senderName,
     required this.sentByMe,
     required this.time, // Add this line
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

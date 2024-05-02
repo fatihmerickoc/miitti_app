@@ -186,7 +186,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   ap.miittiUser.uid == user.uid
-                                                      ? ProfileScreen()
+                                                      ? const ProfileScreen()
                                                       : UserProfileEditScreen(
                                                           user: user)));
                                     },
@@ -202,7 +202,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                             ),
                           );
                         } else {
-                          return CircularProgressIndicator(
+                          return const CircularProgressIndicator(
                             color: AppColors.purpleColor,
                           );
                         }
@@ -220,13 +220,13 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         ),
                       ),
                     ),
-                    Expanded(
+                    const Expanded(
                       child: SizedBox(),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.people,
                           color: AppColors.lightPurpleColor,
                         ),
@@ -237,7 +237,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         SizedBox(
                           width: 20.w,
                         ),
-                        Icon(
+                        const Icon(
                           Icons.location_on_outlined,
                           color: AppColors.lightPurpleColor,
                         ),
@@ -250,7 +250,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.airplane_ticket_outlined,
                           color: AppColors.lightPurpleColor,
                         ),
@@ -263,7 +263,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                         SizedBox(
                           width: 20.w,
                         ),
-                        Icon(
+                        const Icon(
                           Icons.calendar_month,
                           color: AppColors.lightPurpleColor,
                         ),

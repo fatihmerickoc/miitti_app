@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:miitti_app/constants/miitti_activity.dart';
 import 'package:miitti_app/constants/person_activity.dart';
@@ -19,7 +19,7 @@ class PushNotifications {
     //on background notification tapped
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (message.notification != null) {
-        print("Background notification tapped");
+        debugPrint("Background notification tapped");
         navigatorKey.currentState!
             .pushNamed("/notificationmessage", arguments: message);
       }
@@ -29,15 +29,15 @@ class PushNotifications {
     await _firebaseMessaging.requestPermission();
 
     if (Platform.isIOS) {
-      final apnstToken = await _firebaseMessaging.getAPNSToken();
+      await _firebaseMessaging.getAPNSToken();
       await Future.delayed(const Duration(seconds: 1));
     }
 
     //get the device FCM(Firebase Cloud Messaging) token
     final token = await _firebaseMessaging.getToken();
-    print("###### PRINT DEVICE TOKEN TO USE FOR PUSH NOTIFCIATION ######");
-    print(token);
-    print("############################################################");
+    debugPrint("###### PRINT DEVICE TOKEN TO USE FOR PUSH NOTIFCIATION ######");
+    debugPrint(token);
+    debugPrint("############################################################");
 
     //Save token to user data(needed to access other users tokens in code)
     if (ap.miittiUser.fcmToken != token) {
@@ -49,7 +49,7 @@ class PushNotifications {
   static Future firebaseBackgroundMessage(RemoteMessage message) async {
     if (message.notification != null) {
       String? title = message.notification?.title;
-      print("Notification received $title");
+      debugPrint("Notification received $title");
     }
   }
 
@@ -60,7 +60,7 @@ class PushNotifications {
         AndroidInitializationSettings('@mipmap/ic_launcher');
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
-      onDidReceiveLocalNotification: (id, title, body, payload) => null,
+      onDidReceiveLocalNotification: (id, title, body, payload) {},
     );
     final InitializationSettings initializationSettings =
         InitializationSettings(
@@ -75,7 +75,7 @@ class PushNotifications {
     // to handle foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       String payloadData = jsonEncode(message.data);
-      print("Got a message in foreground");
+      debugPrint("Got a message in foreground");
       if (message.notification != null) {
         PushNotifications.showSimpleNotification(
             title: message.notification!.title!,
@@ -91,7 +91,7 @@ class PushNotifications {
         await FirebaseMessaging.instance.getInitialMessage();
 
     if (message != null) {
-      print("Launched from terminated state");
+      debugPrint("Launched from terminated state");
       Future.delayed(const Duration(seconds: 2), () {
         navigatorKey.currentState!
             .pushNamed("/notificationmessage", arguments: message);
@@ -160,7 +160,7 @@ class PushNotifications {
 
   static Future sendNotification(String receiverToken, String title,
       String message, String type, String data) async {
-    print("Trying to send message: $message");
+    debugPrint("Trying to send message: $message");
     final callable =
         FirebaseFunctions.instance.httpsCallable("sendNotificationTo");
     try {
@@ -171,10 +171,10 @@ class PushNotifications {
         "type": type,
         "myData": data,
       });
-      print("Result sending notification: ${response.data}");
+      debugPrint("Result sending notification: ${response.data}");
     } on FirebaseFunctionsException catch (e, s) {
-      print("Error calling ${callable.toString()}: $e");
-      print("$s");
+      debugPrint("Error calling ${callable.toString()}: $e");
+      debugPrint("$s");
     }
   }
 

@@ -4,7 +4,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -241,7 +240,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         ? await pickImageFromCamera(context)
         : await pickImage(context);
 
-    if (context.mounted) {
+    if (mounted) {
       Navigator.pop(context);
     }
     setState(() {});
@@ -968,7 +967,6 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         curve: Curves.linear,
       );
     } else {
-      print("BURAYA GELDINIZ");
       MiittiUser miittiUser = MiittiUser(
         userName: _formControllers[0].text.trim(),
         userEmail: _formControllers[1].text.trim(),

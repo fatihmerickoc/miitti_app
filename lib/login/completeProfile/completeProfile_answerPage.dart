@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants_customButton.dart';
 
 import 'package:miitti_app/constants/constants_styles.dart';
-import 'package:miitti_app/utils/utils.dart';
 
 class CompleteProfileAnswerPage extends StatefulWidget {
   final String question;

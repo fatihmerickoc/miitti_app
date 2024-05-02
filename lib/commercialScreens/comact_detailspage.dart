@@ -24,13 +24,13 @@ import '../constants/miittiUser.dart';
 class ComActDetailsPage extends StatefulWidget {
   final bool? comingFromAdmin;
 
-  ComActDetailsPage({
+  const ComActDetailsPage({
     required this.myActivity,
     this.comingFromAdmin,
     super.key,
   });
 
-  CommercialActivity myActivity;
+  final CommercialActivity myActivity;
 
   @override
   State<ComActDetailsPage> createState() => _ActivityDetailsPageState();

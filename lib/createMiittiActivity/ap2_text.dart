@@ -40,7 +40,6 @@ class _AP2TextState extends State<AP2Text> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     titleController.text = widget.activity.activityTitle;
     subTitleController.text = widget.activity.activityDescription;

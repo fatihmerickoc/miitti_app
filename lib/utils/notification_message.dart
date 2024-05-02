@@ -61,24 +61,24 @@ Future<Widget> getPage(
       AuthProvider provider = Provider.of<AuthProvider>(context, listen: false);
       switch (payload["type"]) {
         case ("invite"):
-          print("Invite clicked ${payload["myData"]}");
+          debugPrint("Invite clicked ${payload["myData"]}");
           PersonActivity activity = await provider
               .getSingleActivity(payload["myData"]) as PersonActivity;
           return ActivityDetailsPage(myActivity: activity);
 
         case ("request"):
-          print("Request clicked ${payload["myData"]}");
+          debugPrint("Request clicked ${payload["myData"]}");
           MiittiUser user = await provider.getUser(payload["myData"]);
           return UserProfileEditScreen(user: user);
 
         case ("accept"):
-          print("Accept clicked ${payload["myData"]}");
+          debugPrint("Accept clicked ${payload["myData"]}");
           PersonActivity activity = await provider
               .getSingleActivity(payload["myData"]) as PersonActivity;
           return ActivityDetailsPage(myActivity: activity);
 
         case ("message"):
-          print("Message clicked ${payload["myData"]}");
+          debugPrint("Message clicked ${payload["myData"]}");
           MiittiActivity activity =
               await provider.getSingleActivity(payload["myData"]);
           if (activity is PersonActivity) {
@@ -87,14 +87,14 @@ Future<Widget> getPage(
             return ComChatPage(activity: activity as CommercialActivity);
           }
       }
-      print("Type didn't match: ${payload["type"].toString()}");
+      debugPrint("Type didn't match: ${payload["type"].toString()}");
     } else {
-      print("Payload doesn't include that type");
+      debugPrint("Payload doesn't include that type");
     }
 
     return const IndexPage();
   } catch (e) {
-    print("Error: $e");
+    debugPrint("Error: $e");
     return const IndexPage();
   }
 }

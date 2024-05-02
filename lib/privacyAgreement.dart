@@ -8,7 +8,6 @@ import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 import 'constants/miittiUser.dart';

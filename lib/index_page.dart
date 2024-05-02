@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:miitti_app/constants/constants_anonymousDialog.dart';
-import 'package:miitti_app/constants/constants_widgets.dart';
 import 'package:miitti_app/createMiittiActivity/activity_onboarding.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/provider/auth_provider.dart';
@@ -19,7 +18,7 @@ import 'navBarScreens/profileScreen.dart';
 class IndexPage extends StatefulWidget {
   final int? initialPage;
 
-  const IndexPage({Key? key, this.initialPage}) : super(key: key);
+  const IndexPage({super.key, this.initialPage});
 
   @override
   IndexPageState createState() => IndexPageState();

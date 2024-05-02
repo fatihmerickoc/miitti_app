@@ -1,9 +1,5 @@
-// ignore_for_file: prefer_const_constructors, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables, unused_field, prefer_final_fields, sort_child_properties_last, unused_local_variable, unnecessary_null_comparison
-import 'dart:math';
-
 import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
@@ -40,7 +36,7 @@ class _MapsScreenState extends State<MapsScreen> {
   List<MiittiActivity> _activities = [];
   List<AdBanner> _ads = [];
 
-  LatLng myPosition = LatLng(60.1699, 24.9325);
+  LatLng myPosition = const LatLng(60.1699, 24.9325);
 
   SuperclusterMutableController clusterController =
       SuperclusterMutableController();
@@ -75,31 +71,31 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   void initializeLocationAndSave() async {
-    bool? _serviceEnabled;
-    PermissionStatus? _permissionGranted;
+    bool? serviceEnabled;
+    PermissionStatus? permissionGranted;
 
-    _serviceEnabled = await _location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await _location.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await _location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _location.requestService();
+      if (!serviceEnabled) {
         //Show user a red dialog about opening the service
       }
     }
 
-    _permissionGranted = await _location.hasPermission();
-    if (_permissionGranted != PermissionStatus.granted) {
-      _permissionGranted = await _location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await _location.hasPermission();
+    if (permissionGranted != PermissionStatus.granted) {
+      permissionGranted = await _location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         //Show user a red dialog about opening the  location
       }
     }
 
     // Get the current user location
-    if (_permissionGranted == PermissionStatus.granted ||
-        _permissionGranted == PermissionStatus.grantedLimited) {
-      LocationData _locationData = await _location.getLocation();
+    if (permissionGranted == PermissionStatus.granted ||
+        permissionGranted == PermissionStatus.grantedLimited) {
+      LocationData locationData = await _location.getLocation();
       LatLng currentLatLng =
-          LatLng(_locationData.latitude!, _locationData.longitude!);
+          LatLng(locationData.latitude!, locationData.longitude!);
 
       setState(() {
         myPosition = currentLatLng;
@@ -344,7 +340,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   Map<String, dynamic>? result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MapFilter(),
+                      builder: (context) => const MapFilter(),
                     ),
                   );
                   if (result != null) {
@@ -358,7 +354,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   width: 60.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [
                         AppColors.lightRedColor,
                         AppColors.orangeColor,
@@ -384,7 +380,7 @@ class _MapsScreenState extends State<MapsScreen> {
         future: getPath(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -393,7 +389,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   backgroundColor: AppColors.backgroundColor,
                   initialCenter: myPosition,
                   initialZoom: 13.0,
-                  interactionOptions: InteractionOptions(
+                  interactionOptions: const InteractionOptions(
                       flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag),
                   minZoom: 5.0,
                   maxZoom: 18.0,
@@ -402,7 +398,7 @@ class _MapsScreenState extends State<MapsScreen> {
                 TileLayer(
                   urlTemplate:
                       "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
-                  additionalOptions: {
+                  additionalOptions: const {
                     'accessToken': mapboxAccess,
                   },
                   tileProvider: CachedTileProvider(
@@ -465,7 +461,7 @@ class _MapsScreenState extends State<MapsScreen> {
             String cityName = addressParts[0].trim();
 
             return Card(
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
               margin: EdgeInsets.all(10.0.w),
@@ -474,7 +470,7 @@ class _MapsScreenState extends State<MapsScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.wineColor,
                   border: Border.all(color: AppColors.purpleColor, width: 2.0),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
                 child: Row(
                   children: [
@@ -493,7 +489,7 @@ class _MapsScreenState extends State<MapsScreen> {
                           ),
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.calendar_month,
                                 color: AppColors.lightPurpleColor,
                               ),
@@ -506,7 +502,7 @@ class _MapsScreenState extends State<MapsScreen> {
                                 ),
                               ),
                               SizedBox(width: 16.w),
-                              Icon(
+                              const Icon(
                                 Icons.location_on_outlined,
                                 color: AppColors.lightPurpleColor,
                               ),

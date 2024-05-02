@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, unused_local_variable, use_key_in_widget_constructors, unused_field, unnecessary_null_comparison, prefer_const_literals_to_create_immutables
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -27,7 +25,7 @@ class MyProfileEditForm extends StatefulWidget {
 }
 
 class _MyProfileEditFormState extends State<MyProfileEditForm> {
-  Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
+  Color miittiColor = const Color.fromRGBO(255, 136, 27, 1);
 
   final _formKey = GlobalKey<FormState>();
 
@@ -148,7 +146,7 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                       color: Colors.white,
                     ),
                   ),
-                  Expanded(child: SizedBox()),
+                  const Expanded(child: SizedBox()),
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
@@ -184,7 +182,8 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                   child: Column(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
                         child: image == null
                             ? Image.network(
                                 ap.miittiUser.profilePicture,
@@ -264,7 +263,8 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                   height: 400.h,
                   child: GridView.builder(
                     itemCount: filteredActivities.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 4.0,
                       mainAxisSpacing: 4.0,
@@ -281,8 +281,8 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                               color: isSelected
                                   ? AppColors.purpleColor
                                   : Colors.transparent,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10.0))),
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(10.0))),
                           child: Column(
                             children: [
                               Text(
@@ -432,7 +432,7 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                           .then((value) => ap.setSignIn().then((value) {
                                 pushNRemoveUntil(
                                     context,
-                                    IndexPage(
+                                    const IndexPage(
                                       initialPage: 3,
                                     ));
                               }));
@@ -445,7 +445,7 @@ class _MyProfileEditFormState extends State<MyProfileEditForm> {
                   }
                 },
                 child: isLoading == true
-                    ? CircularProgressIndicator(
+                    ? const CircularProgressIndicator(
                         color: AppColors.lightPurpleColor,
                       )
                     : Text(

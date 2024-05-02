@@ -46,8 +46,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-
     super.dispose();
   }
 
@@ -64,7 +62,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final joinedActivities = await ap.fetchUserActivities();
     final comingRequests = await ap.fetchActivitiesRequests();
 
-    if (ap.isAnonymous && context.mounted) {
+    if (ap.isAnonymous && mounted) {
       showDialog(
           context: context, builder: (context) => ConstantsAnonymousDialog());
     }

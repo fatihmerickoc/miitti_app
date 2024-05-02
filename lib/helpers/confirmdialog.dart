@@ -13,8 +13,8 @@ class ConfirmDialog extends StatelessWidget {
     required this.mainText,
     this.leftButtonText = 'Poista',
     this.rightButtonText = 'Peruuta',
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class ConfirmDialog extends StatelessWidget {
             ),
           ),
           child: Text(
-            rightButtonText!,
+            rightButtonText,
             style: const TextStyle(
               fontFamily: 'Rubik',
               fontSize: 16.0,

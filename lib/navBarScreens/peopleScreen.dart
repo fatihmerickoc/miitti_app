@@ -63,7 +63,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       }
       return [];
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return [];
     }
   }
@@ -83,7 +83,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
         lastDocuments[type] = null;
       } else {
         lastDocuments[type] = snapshot.docs.last;
-        print("updatedLastDoc");
+        debugPrint("updatedLastDoc");
       }
 
       setState(() {

@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/adminPanel/admin_homePage.dart';
@@ -9,7 +7,6 @@ import 'package:miitti_app/constants/constants_anonymousUser.dart';
 import 'package:miitti_app/helpers/activity.dart';
 import 'package:miitti_app/myProfileEditForm.dart';
 import 'package:miitti_app/utils/utils.dart';
-import 'package:miitti_app/widgets/myElevatedButton.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/auth_provider.dart';
@@ -26,14 +23,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     filteredActivities = getActivities();
-    Future.delayed(Duration(seconds: 1)).then((value) {
+    Future.delayed(const Duration(seconds: 1)).then((value) {
       final ap = Provider.of<AuthProvider>(context, listen: false);
       if (ap.isAnonymous) {
         showDialog(
-            context: context, builder: (context) => ConstantsAnonymousDialog());
+            context: context,
+            builder: (context) => const ConstantsAnonymousDialog());
       }
     });
   }
@@ -47,8 +44,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (adminId.contains(ap.miittiUser.uid)) {
       return GestureDetector(
         onTap: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AdminHomePage()));
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const AdminHomePage()));
         },
         child: Container(
           margin: EdgeInsets.only(left: 20.w),
@@ -74,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .toList();
 
     return isAnonymous
-        ? ConstantsAnonymousUser()
+        ? const ConstantsAnonymousUser()
         : Scaffold(
             appBar: buildAppBar(ap),
             body: buildBody(isLoading, ap, answeredQuestions),
@@ -97,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.white,
             ),
           ),
-          Expanded(child: SizedBox()),
+          const Expanded(child: SizedBox()),
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
