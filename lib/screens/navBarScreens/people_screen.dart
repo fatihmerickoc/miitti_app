@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +19,7 @@ class PeopleScreen extends StatefulWidget {
 }
 
 class _PeopleScreenState extends State<PeopleScreen> {
-  Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
+  Color miittiColor = const Color.fromRGBO(255, 136, 27, 1);
 
   final batchSize = 6;
 
@@ -139,7 +137,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       decoration: BoxDecoration(
         color: AppColors.wineColor,
         border: Border.all(color: AppColors.purpleColor, width: 2.0),
-        borderRadius: BorderRadius.all(
+        borderRadius: const BorderRadius.all(
           Radius.circular(10),
         ),
       ),
