@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -72,7 +70,7 @@ class _AP1ParticipantsState extends State<AP1Participants> {
                 widget.onActivityDataChanged(widget.activity);
                 // Move to the next page using the controller
                 widget.controller.nextPage(
-                  duration: Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                   curve: Curves.linear,
                 );
               },

@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -303,13 +301,24 @@ bool validateBirthdayDate(
         DateTime(today.year - 18, today.month, today.day);
     DateTime hunredYearsAgo =
         DateTime(today.year - 100, today.month, today.day);
-    DateFormat formatter = DateFormat('ddMMyyyy');
-    DateTime birthDate = formatter.parse(birthday);
+    int day = int.parse(birthday.substring(0, 2));
+    int month = int.parse(birthday.substring(2, 4));
+    int year = int.parse(birthday.substring(4, 8));
+    DateTime birthDate = DateTime(
+      year,
+      month,
+      day,
+    );
     if (birthDate.isAfter(eighteenYearsAgo) ||
         birthDate.isBefore(hunredYearsAgo)) {
       debugPrint("Too old or young");
       return false;
     }
+    if (day < 1 || day > 31 || month < 1 || month > 12) {
+      debugPrint("Invalid day or month");
+      return false;
+    }
+    debugPrint("$birthDate is a valid birthdate");
     return true;
   } catch (e) {
     debugPrint("Error with birthdate ${e.toString()}");
@@ -431,11 +440,11 @@ Widget getMyFloatingButton({required void Function()? onPressed}) {
     onPressed: onPressed,
     backgroundColor: Colors.transparent,
     elevation: 0,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(50)),
     ),
     child: Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(50)),
         gradient: LinearGradient(
           colors: [
@@ -545,7 +554,7 @@ Widget createMainToggleSwitch({
       ),
     ],
     labels: [text1, text2],
-    activeBgColors: [
+    activeBgColors: const [
       [
         AppColors.lightRedColor,
         AppColors.orangeColor,

@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/data/commercial_user.dart';
@@ -18,7 +16,7 @@ class CommercialProfileScreen extends StatefulWidget {
 }
 
 class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
-  Color miittiColor = Color.fromRGBO(255, 136, 27, 1);
+  Color miittiColor = const Color.fromRGBO(255, 136, 27, 1);
 
   @override
   void initState() {
@@ -70,7 +68,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
             child: Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  borderRadius: const BorderRadius.all(Radius.circular(15)),
                   child: Image.network(
                     widget.user.profilePicture,
                     height: 400.h,
@@ -90,7 +88,7 @@ class _CommercialProfileScreenState extends State<CommercialProfileScreen> {
                       padding: EdgeInsets.all(15.w),
                       decoration: BoxDecoration(
                         color: miittiColor,
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [
                             AppColors.lightRedColor,
                             AppColors.orangeColor,

@@ -5,6 +5,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -37,7 +38,11 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
 
   File? myImage;
 
-  late List<TextEditingController> _formControllers;
+  late TextEditingController _emailController;
+  late TextEditingController _nameController;
+
+  final FocusNode nameFocusNode = FocusNode();
+  final FocusNode emailFocusNode = FocusNode();
 
   final List<ConstantsOnboarding> onboardingScreens = [
     ConstantsOnboarding(
@@ -221,22 +226,27 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   void initState() {
     super.initState();
     selectedList = questionsAboutMe;
-    String userEmail = Provider.of<AuthProvider>(context).getUserEmail();
-    _formControllers = List.generate(onboardingScreens.length - 1, (index) {
-      if (index == 1 && userEmail.isNotEmpty) {
-        return TextEditingController(text: userEmail);
+    /*_formControllers = List.generate(onboardingScreens.length - 1, (index) {
+      if (index == 1) {
+        var ap = Provider.of<AuthProvider>(context, listen: false);
+        return TextEditingController(text: ap.getUserEmail());
       }
       return TextEditingController();
-    });
+    });*/
+    var ap = Provider.of<AuthProvider>(context, listen: false);
+    _emailController = TextEditingController(text: ap.getUserEmail());
+    _nameController = TextEditingController();
     _pageController = PageController();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    for (var controller in _formControllers) {
+    /*for (var controller in _formControllers) {
       controller.dispose();
-    }
+    }*/
+    _emailController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -256,6 +266,20 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   Widget mainWidgetsForScreens(int page) {
     ConstantsOnboarding screen = onboardingScreens[page];
     switch (page) {
+      case 0:
+        return ConstantsCustomTextField(
+          hintText: screen.hintText!,
+          controller: _nameController,
+          keyboardType: screen.keyboardType,
+          focusNode: nameFocusNode,
+        );
+      case 1:
+        return ConstantsCustomTextField(
+          hintText: screen.hintText!,
+          controller: _emailController,
+          keyboardType: screen.keyboardType,
+          focusNode: emailFocusNode,
+        );
       case 2:
         //Pin input for birthdate
         return Pinput(
@@ -854,11 +878,12 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
 
       default:
         {
-          return ConstantsCustomTextField(
+          return Container();
+          /*return ConstantsCustomTextField(
             hintText: screen.hintText!,
             controller: _formControllers[page],
             keyboardType: screen.keyboardType,
-          );
+          );*/
         }
     }
   }
@@ -907,7 +932,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
 
     switch (currentPage) {
       case 0:
-        if (_formControllers[0].text.isEmpty) {
+        if (_nameController.text.isEmpty) {
           showSnackBar(
             context,
             'Kysymys "${onboardingScreens[0].title}" ei voi olla tyhjä!',
@@ -917,7 +942,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         }
         break;
       case 1:
-        if (!EmailValidator.validate(_formControllers[1].text)) {
+        if (!EmailValidator.validate(_emailController.text)) {
           showSnackBar(
             context,
             'Sähköposti on tyhjä tai se on väärä sähköposti!!',
@@ -1010,14 +1035,19 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
     }
 
     if (page != 9) {
+      if (page == 0 && nameFocusNode.hasFocus) {
+        nameFocusNode.unfocus();
+      } else if (page == 1 && emailFocusNode.hasFocus) {
+        emailFocusNode.unfocus();
+      }
       _pageController.nextPage(
         duration: const Duration(milliseconds: 500),
         curve: Curves.linear,
       );
     } else {
       MiittiUser miittiUser = MiittiUser(
-        userName: _formControllers[0].text.trim(),
-        userEmail: _formControllers[1].text.trim(),
+        userName: _nameController.text.trim(),
+        userEmail: _emailController.text.trim(),
         uid: '',
         userPhoneNumber: '',
         userBirthday: editiedVersionOfBirthdayText,

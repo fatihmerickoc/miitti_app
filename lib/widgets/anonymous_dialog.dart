@@ -13,65 +13,69 @@ class AnonymousDialog extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: Container(
-          //height: 400.h,
-          alignment: Alignment.bottomCenter,
-          width: MediaQuery.of(context).size.width,
-          decoration: const BoxDecoration(
-            color: ConstantStyles.black,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              alignment: Alignment.bottomCenter,
+              decoration: const BoxDecoration(
+                color: ConstantStyles.black,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(10.w),
+                child: Column(
+                  children: [
+                    const Divider(
+                      color: Colors.white,
+                      thickness: 2.0,
+                      indent: 100,
+                      endIndent: 100,
+                    ),
+                    Text(
+                      'Hups!',
+                      style: ConstantStyles.title,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: Text(
+                        'Näyttää siltä, ettet ole vielä viimeistellyt profiiliasi, joten et voi käyttää vielä\n sovelluksen kaikkia ominaisuuksia.\n\n Korjataanko asia?',
+                        style: ConstantStyles.body,
+                      ),
+                    ),
+                    getSomeSpace(10),
+                    CustomButton(
+                      buttonText: 'Viimeistele profiili',
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const CompleteProfileOnboard()));
+                      },
+                    ), //Removed extra padding in ConstantsCustomButton
+                    ConstantStyles().gapH10,
+                    CustomButton(
+                      buttonText: 'Ei vielä',
+                      isWhiteButton: true,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ), //Removed extra padding in ConstantsCustomButton
+                    getSomeSpace(10.h),
+                    Text(
+                      'Voit myös viimeistellä profiilisi myöhemmin asetussivulla!',
+                      style: ConstantStyles.warning,
+                    ),
+                    getSomeSpace(10.h),
+                  ],
+                ),
+              ),
             ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(10.w),
-            child: Column(
-              children: [
-                const Divider(
-                  color: Colors.white,
-                  thickness: 2.0,
-                  indent: 100,
-                  endIndent: 100,
-                ),
-                Text(
-                  'Hups!',
-                  style: ConstantStyles.title,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: Text(
-                    'Näyttää siltä, ettet ole vielä viimeistellyt profiiliasi, joten et voi käyttää vielä\n sovelluksen kaikkia ominaisuuksia.\n\n Korjataanko asia?',
-                    style: ConstantStyles.body,
-                  ),
-                ),
-                CustomButton(
-                  buttonText: 'Viimeistele profiili',
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const CompleteProfileOnboard()));
-                  },
-                ), //Removed extra padding in ConstantsCustomButton
-                ConstantStyles().gapH10,
-                CustomButton(
-                  buttonText: 'Ei vielä',
-                  isWhiteButton: true,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ), //Removed extra padding in ConstantsCustomButton
-                getSomeSpace(10.h),
-                Text(
-                  'Voit myös viimeistellä profiilisi myöhemmin asetussivulla!',
-                  style: ConstantStyles.warning,
-                ),
-                getSomeSpace(10.h),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );

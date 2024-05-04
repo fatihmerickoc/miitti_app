@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -87,9 +85,9 @@ class _MyAppState extends State<MyApp> {
         //If the user is signed in to our app  before, we redirect them into our main screen, otherwise they go to home screen to register or sign up
         if (ap.isSignedIn) {
           ap.getDataFromSp();
-          return IndexPage();
+          return const IndexPage();
         } else {
-          return LoginIntro();
+          return const LoginIntro();
         }
       },
     );

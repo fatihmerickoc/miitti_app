@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_null_comparison, prefer_const_constructors
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
