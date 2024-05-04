@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:miitti_app/screens/login/login_decide_screen.dart';
 import 'package:miitti_app/widgets/custom_button.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/screens/index_page.dart';
-import 'package:miitti_app/screens/login/completeProfile/complete_profile_onboard.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:pinput/pinput.dart';
@@ -55,7 +55,7 @@ class _PhoneSmsState extends State<PhoneSms> {
             } else {
               showSnackBar(context, "Vahvistaminen onnistui, tervetuloa!",
                   Colors.green.shade400);
-              pushNRemoveUntil(context, const CompleteProfileOnboard());
+              pushNRemoveUntil(context, const LoginDecideScreen());
             }
           });
         });

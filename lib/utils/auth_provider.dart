@@ -51,7 +51,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  bool _isAnonymous = false;
+  bool _isAnonymous = true;
   bool get isAnonymous => _isAnonymous;
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -95,13 +95,13 @@ class AuthProvider extends ChangeNotifier {
     return _isSignedIn;
   }
 
-  Future<bool> checkAnon() async {
+  /*Future<bool> checkAnon() async {
     final SharedPreferences s = await SharedPreferences.getInstance();
-    _isAnonymous = s.getBool('is_anonymous') ?? false;
+    _isAnonymous = s.getBool('is_anonymous') ?? true;
 
     notifyListeners();
     return _isAnonymous;
-  }
+  }*/
 
   Future setSignIn() async {
     SharedPreferences s = await SharedPreferences.getInstance();
@@ -269,13 +269,13 @@ class AuthProvider extends ChangeNotifier {
                 ),
               );
             } else {
-              getDataFromFirestore().then(
-                (value) => saveUserDataToSP().then(
-                  (value) => setSignIn().then(
-                    (value) => pushNRemoveUntil(context, const IndexPage()),
-                  ),
-                ),
-              );
+              getDataFromFirestore().then((value) => saveUserDataToSP().then(
+                    (value) => setSignIn().then(
+                      (value) => setAnonymousModeOf().then(
+                        (value) => pushNRemoveUntil(context, const IndexPage()),
+                      ),
+                    ),
+                  ));
             }
           });
 
@@ -285,11 +285,8 @@ class AuthProvider extends ChangeNotifier {
         }
       });
     } catch (error) {
-      Navigator.of(context).pop();
       showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
       debugPrint('Got error signing with Google $error');
-    } finally {
-      Navigator.of(context).pop();
     }
   }
 
@@ -337,6 +334,16 @@ class AuthProvider extends ChangeNotifier {
       showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
       debugPrint('Got error signing with Apple $error');
       Navigator.of(context).pop();
+    }
+  }
+
+  String getUserEmail() {
+    try {
+      User? user = _firebaseAuth.currentUser;
+      return user?.email ?? "";
+    } catch (e) {
+      debugPrint('Error getting user email: $e');
+      return "";
     }
   }
 
@@ -1100,6 +1107,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future getDataFromSp() async {
     SharedPreferences s = await SharedPreferences.getInstance();
+    _isAnonymous = s.getBool('is_anonymous') ?? true;
     String data = s.getString('user_model') ?? '';
     _miittiUser = MiittiUser.fromMap(jsonDecode(data));
     _uid = _miittiUser!.uid;

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/miitti_user.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/widgets/confirmdialog.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';

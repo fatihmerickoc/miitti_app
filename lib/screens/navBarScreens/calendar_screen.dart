@@ -11,7 +11,7 @@ import 'package:miitti_app/data/miitti_activity.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/miitti_user.dart';
 import 'package:miitti_app/screens/createMiittiActivity/activity_details_page.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/widgets/confirmdialog.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';

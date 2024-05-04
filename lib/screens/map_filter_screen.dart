@@ -1,10 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 
-import 'filter_settings.dart';
+import '../utils/filter_settings.dart';
 
 class MapFilter extends StatefulWidget {
   const MapFilter({super.key});
@@ -19,7 +17,7 @@ class _MapFilterState extends State<MapFilter> {
 
   FilterSettings filterSettings = FilterSettings();
 
-  RangeValues _values = RangeValues(18, 60);
+  RangeValues _values = const RangeValues(18, 60);
 
   @override
   void initState() {
@@ -70,7 +68,7 @@ class _MapFilterState extends State<MapFilter> {
               fontFamily: 'Rubik',
             ),
           ),
-          Expanded(child: SizedBox()),
+          const Expanded(child: SizedBox()),
           Switch(
             value: value,
             onChanged: (comingValue) {
@@ -104,7 +102,7 @@ class _MapFilterState extends State<MapFilter> {
                       width: 60.w,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [
                             AppColors.lightRedColor,
                             AppColors.orangeColor,
@@ -165,7 +163,7 @@ class _MapFilterState extends State<MapFilter> {
                       fontFamily: 'Rubik',
                     ),
                   ),
-                  Expanded(child: SizedBox()),
+                  const Expanded(child: SizedBox()),
                   Text(
                     "${_values.start.toStringAsFixed(0)} - ${_values.end.toStringAsFixed(0)}",
                     style: TextStyle(

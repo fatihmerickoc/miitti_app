@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,17 +11,18 @@ import 'package:intl/intl.dart';
 import 'package:miitti_app/constants/constants.dart';
 
 import 'package:miitti_app/widgets/custom_button.dart';
-import 'package:miitti_app/utils/custom_textfield.dart';
+import 'package:miitti_app/widgets/custom_textfield.dart';
 import 'package:miitti_app/data/onboarding_part.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/widgets/other_widgets.dart';
 import 'package:miitti_app/data/miitti_user.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/screens/index_page.dart';
 import 'package:miitti_app/screens/login/completeProfile/complete_profile_answerpage.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 
 import 'package:miitti_app/utils/utils.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
 class CompleteProfileOnboard extends StatefulWidget {
@@ -219,8 +221,13 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   void initState() {
     super.initState();
     selectedList = questionsAboutMe;
-    _formControllers = List.generate(
-        onboardingScreens.length - 1, (_) => TextEditingController());
+    String userEmail = Provider.of<AuthProvider>(context).getUserEmail();
+    _formControllers = List.generate(onboardingScreens.length - 1, (index) {
+      if (index == 1 && userEmail.isNotEmpty) {
+        return TextEditingController(text: userEmail);
+      }
+      return TextEditingController();
+    });
     _pageController = PageController();
   }
 
@@ -250,7 +257,48 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
     ConstantsOnboarding screen = onboardingScreens[page];
     switch (page) {
       case 2:
-        return Row(
+        //Pin input for birthdate
+        return Pinput(
+          length: 8,
+          autofocus: true,
+          separatorBuilder: (index) {
+            if (index == 1 || index == 3) {
+              return SizedBox(width: 16.w);
+            }
+            return SizedBox(
+              width: 8.w,
+            );
+          },
+          defaultPinTheme: PinTheme(
+            height: 45.h,
+            width: 40.w,
+            textStyle:
+                ConstantStyles.body.copyWith(fontWeight: FontWeight.w800),
+            decoration: const BoxDecoration(
+              color: Color.fromRGBO(152, 28, 228, 0.10),
+              border: Border(
+                bottom: BorderSide(width: 1.0, color: Colors.white),
+              ),
+            ),
+          ),
+          onCompleted: (String value) {
+            if (value.length == 8 && validateBirthdayDate(value)) {
+              setState(() {
+                editiedVersionOfBirthdayText = "${value.substring(0, 2)}/"
+                    "${value.substring(2, 4)}/"
+                    "${value.substring(4, 8)}";
+                birthdayText = value;
+              });
+            } else {
+              showSnackBar(
+                context,
+                'Syntymäpäivä ei kelpaa!',
+                ConstantStyles.red,
+              );
+            }
+          },
+        );
+      /*Row(
           children: [
             for (int i = 0; i <= 7; i++)
               GestureDetector(
@@ -293,7 +341,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                 ),
               ),
           ],
-        );
+        );*/
       case 3:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -882,7 +930,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         if (birthdayText == 'DDMMYYYY') {
           showSnackBar(
             context,
-            'Kysymys "${onboardingScreens[2].title}" ei voi olla tyhjä!',
+            'Syntymäpäivä ei kelpaa!',
             ConstantStyles.red,
           );
           return;
@@ -1041,6 +1089,8 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                                 duration: const Duration(milliseconds: 500),
                                 curve: Curves.linear,
                               );
+                            } else {
+                              Navigator.pop(context);
                             }
                           },
                         ),

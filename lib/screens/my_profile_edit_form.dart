@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/miitti_user.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 
 import 'package:miitti_app/utils/auth_provider.dart';
-import 'package:miitti_app/utils/question_answer.dart';
+import 'package:miitti_app/widgets/question_answer.dart';
 import 'package:miitti_app/utils/utils.dart';
 
 import 'package:provider/provider.dart';

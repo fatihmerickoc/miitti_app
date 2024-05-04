@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/widgets/custom_button.dart';
-import 'package:miitti_app/utils/custom_textfield.dart';
+import 'package:miitti_app/widgets/custom_textfield.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/widgets/other_widgets.dart';
 import 'package:miitti_app/utils/auth_provider.dart';

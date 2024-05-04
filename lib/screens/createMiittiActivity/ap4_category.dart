@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:miitti_app/data/person_activity.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/my_elevated_button.dart';
 

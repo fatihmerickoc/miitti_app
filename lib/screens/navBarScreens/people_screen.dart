@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/miitti_user.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/screens/user_profile_edit_screen.dart';
 import 'package:miitti_app/utils/utils.dart';
+import 'package:miitti_app/widgets/anonymous_dialog.dart';
 import 'package:miitti_app/widgets/my_elevated_button.dart';
 import 'package:provider/provider.dart';
 
@@ -205,12 +206,18 @@ class _PeopleScreenState extends State<PeopleScreen> {
       height: 35.h,
       width: 110.w,
       onPressed: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => UserProfileEditScreen(
-                      user: user,
-                    )));
+        final ap = Provider.of<AuthProvider>(context, listen: false);
+        if (ap.isAnonymous) {
+          showDialog(
+              context: context, builder: (context) => const AnonymousDialog());
+        } else {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => UserProfileEditScreen(
+                        user: user,
+                      )));
+        }
       },
       child: Text(
         'Tutustu',

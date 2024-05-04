@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -293,15 +294,29 @@ Widget createListTile(String title) {
   );
 }
 
-void pickBirthdayDate({
-  required BuildContext context,
-  required Function(DateTime) onDateTimeChanged,
-}) {
-  DateTime today = DateTime.now();
-  DateTime eighteenYearsAgo = DateTime(today.year - 18, today.month,
-      today.day); // This method accounts for leap years.
+bool validateBirthdayDate(
+  String birthday,
+) {
+  try {
+    DateTime today = DateTime.now();
+    DateTime eighteenYearsAgo =
+        DateTime(today.year - 18, today.month, today.day);
+    DateTime hunredYearsAgo =
+        DateTime(today.year - 100, today.month, today.day);
+    DateFormat formatter = DateFormat('ddMMyyyy');
+    DateTime birthDate = formatter.parse(birthday);
+    if (birthDate.isAfter(eighteenYearsAgo) ||
+        birthDate.isBefore(hunredYearsAgo)) {
+      debugPrint("Too old or young");
+      return false;
+    }
+    return true;
+  } catch (e) {
+    debugPrint("Error with birthdate ${e.toString()}");
+    return false;
+  }
 
-  if (Platform.isIOS) {
+  /*if (Platform.isIOS) {
     showCupertinoModalPopup<DateTime>(
       context: context,
       builder: (context) {
@@ -342,7 +357,7 @@ void pickBirthdayDate({
         onDateTimeChanged(selectedDateTime);
       }
     });
-  }
+  }*/
 }
 
 void pickDate({

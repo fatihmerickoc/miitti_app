@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -10,7 +8,7 @@ import 'package:miitti_app/screens/commercialScreens/commercial_user_profile.dar
 import 'package:miitti_app/data/commercial_activity.dart';
 import 'package:miitti_app/data/commercial_user.dart';
 import 'package:miitti_app/constants/constants.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/screens/user_profile_edit_screen.dart';
@@ -115,7 +113,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                         width: 60.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [
                               AppColors.lightRedColor,
                               AppColors.orangeColor,
@@ -135,7 +133,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
             ),
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
@@ -301,7 +299,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.people,
                           color: AppColors.lightPurpleColor,
                         ),
@@ -312,7 +310,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                         SizedBox(
                           width: 20.w,
                         ),
-                        Icon(
+                        const Icon(
                           Icons.location_on_outlined,
                           color: AppColors.lightPurpleColor,
                         ),
@@ -325,7 +323,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.airplane_ticket_outlined,
                           color: AppColors.lightPurpleColor,
                         ),
@@ -338,7 +336,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
                         SizedBox(
                           width: 20.w,
                         ),
-                        Icon(
+                        const Icon(
                           Icons.calendar_month,
                           color: AppColors.lightPurpleColor,
                         ),

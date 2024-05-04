@@ -6,7 +6,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/screens/chat_page.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/person_activity.dart';
-import 'package:miitti_app/utils/activity.dart';
+import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/widgets/confirmdialog.dart';
 import 'package:miitti_app/screens/navBarScreens/profile_screen.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
