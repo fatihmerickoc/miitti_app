@@ -901,10 +901,11 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             (value) => ap.saveUserDataToSP().then(
                   (value) => ap.setSignIn().then(
                         (value) => ap.setAnonymousModeOf().then(
-                              (value) => pushNRemoveUntil(
+                            (value) => Navigator.pop(
+                                context) /*pushNRemoveUntil(
                                 context,
                                 const IndexPage(),
-                              ),
+                              ),*/
                             ),
                       ),
                 ),
