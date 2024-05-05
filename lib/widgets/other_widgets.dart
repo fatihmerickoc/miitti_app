@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class OtherWidgets {
-  //MAIN PAGE WIDGETS
+  //LOGIN INTRO PAGE WIDGETS
   Widget getLanguagesButtons() {
     Set<String> appLanguages = {
       'Suomi',
@@ -127,6 +129,93 @@ class OtherWidgets {
           ),
         );
       }),
+    );
+  }
+
+  //MAPS PAGE
+  Widget createToggleSwitch({
+    required initialLabelIndex,
+    required void Function(int?)? onToggle,
+  }) {
+    return ToggleSwitch(
+      minWidth: 200.w,
+      initialLabelIndex: initialLabelIndex,
+      cornerRadius: 7,
+      totalSwitches: 2,
+      curve: Curves.linear,
+      customTextStyles: [
+        ConstantStyles.body.copyWith(fontSize: 16.sp),
+      ],
+      labels: const ['Näytä kartalla', 'Näytä listana'],
+      activeBgColors: const [
+        [Color(0XFFF34696), Color(0xFFF36269)],
+        [Color(0XFFF34696), Color(0xFFF36269)],
+      ],
+      onToggle: onToggle,
+    );
+  }
+
+  //INDEX PAGE
+  Widget getFloatingButton({required void Function()? onPressed}) {
+    return FloatingActionButton(
+      onPressed: onPressed,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Container(
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          gradient: LinearGradient(
+            colors: [
+              ConstantStyles.pink,
+              ConstantStyles.red,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Icon(Icons.add,
+            size: 60.r, color: ConstantStyles.black.withOpacity(0.9)),
+      ),
+    );
+  }
+
+  //CREATE MIITTI PAGE
+  Widget getCustomTextFormField(
+      {required TextEditingController controller,
+      required int maxLength,
+      required int maxLines,
+      required String hintText}) {
+    return TextFormField(
+      maxLength: maxLength,
+      maxLines: maxLines,
+      controller: controller,
+      style: ConstantStyles.hintText.copyWith(color: Colors.white),
+      keyboardType: TextInputType.text,
+      decoration: InputDecoration(
+        hintText: hintText,
+        counterStyle: ConstantStyles.warning,
+        hintStyle: ConstantStyles.hintText,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 10,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+            color: ConstantStyles.pink,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+            color: ConstantStyles.pink,
+            width: 2.0,
+          ),
+        ),
+      ),
     );
   }
 }

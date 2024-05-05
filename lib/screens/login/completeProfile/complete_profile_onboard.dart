@@ -1,11 +1,9 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -492,21 +490,24 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                         });
                       }
                     },
-                    child: Container(
-                      padding: EdgeInsets.all(10.w),
-                      margin: EdgeInsets.only(bottom: 8.h),
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(224, 84, 148, 0.05),
-                        border: Border.all(
-                          color: selectedLifeOption == option
-                              ? ConstantStyles.pink
-                              : Colors.transparent,
+                    child: Opacity(
+                      opacity: !noLifeSituation ? 1.0 : 0.2,
+                      child: Container(
+                        padding: EdgeInsets.all(10.w),
+                        margin: EdgeInsets.only(bottom: 8.h),
+                        decoration: BoxDecoration(
+                          color: const Color.fromRGBO(224, 84, 148, 0.05),
+                          border: Border.all(
+                            color: selectedLifeOption == option
+                                ? ConstantStyles.pink
+                                : Colors.transparent,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        option,
-                        style: ConstantStyles.body,
+                        child: Text(
+                          option,
+                          style: ConstantStyles.body,
+                        ),
                       ),
                     ),
                   );
@@ -1095,7 +1096,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                           style: ConstantStyles.title,
                         ),
                         Text(
-                          screen.warningText,
+                          screen.warningText!,
                           style: ConstantStyles.warning,
                         ),
                         ConstantStyles().gapH20,

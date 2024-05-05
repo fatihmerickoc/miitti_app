@@ -44,6 +44,17 @@ class ConstantStyles {
     fontWeight: FontWeight.w600,
     color: Colors.white,
   );
+  static TextStyle activityName = TextStyle(
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+  );
+
+  static TextStyle activitySubName = TextStyle(
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w300,
+    color: Colors.white,
+  );
 
   final gapW5 = SizedBox(width: 5.w);
   final gapW8 = SizedBox(width: 8.w);

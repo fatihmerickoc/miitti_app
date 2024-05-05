@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:miitti_app/screens/activity_details_page.dart';
 import 'package:miitti_app/screens/chat_page.dart';
 import 'package:miitti_app/screens/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/data/commercial_activity.dart';
@@ -8,7 +9,6 @@ import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/data/miitti_activity.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/miitti_user.dart';
-import 'package:miitti_app/screens/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/screens/index_page.dart';
 import 'package:miitti_app/screens/user_profile_edit_screen.dart';
 import 'dart:convert';

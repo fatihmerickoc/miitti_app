@@ -1,6 +1,8 @@
+import 'package:custom_navigation_bar/custom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
+
 import 'package:miitti_app/screens/adminPanel/admin_notifications.dart';
 import 'package:miitti_app/screens/adminPanel/admin_search_miitti.dart';
 import 'package:miitti_app/screens/adminPanel/admin_search_user.dart';
@@ -16,7 +18,7 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   //Index defined to change between different screen
-  int pageIndex = 0;
+  int _pageIndex = 0;
 
   static const List<Widget> pages = <Widget>[
     AdminSearchUser(),
@@ -26,28 +28,32 @@ class _AdminHomePageState extends State<AdminHomePage> {
   ];
 
   Widget _buildBottomNavBar() {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 5.h,
-      ),
-      color: Colors.grey,
-      child: GNav(
-        gap: 8.0,
-        color: Colors.white,
-        selectedIndex: pageIndex,
-        activeColor: AppColors.purpleColor,
-        onTabChange: (index) {
-          setState(() {
-            pageIndex = index;
-          });
-        },
-        tabs: [
-          GButton(icon: Icons.search, iconSize: 35.sp),
-          GButton(icon: Icons.window_rounded, iconSize: 35.sp),
-          GButton(icon: Icons.notifications_active, iconSize: 35.sp),
-          GButton(icon: Icons.settings, iconSize: 35.sp),
-        ],
-      ),
+    return CustomNavigationBar(
+      iconSize: 35.sp,
+      selectedColor: ConstantStyles.pink,
+      unSelectedColor: Colors.white,
+      strokeColor: ConstantStyles.black.withOpacity(0.9),
+      backgroundColor: ConstantStyles.black.withOpacity(0.9),
+      items: [
+        CustomNavigationBarItem(
+          icon: const Icon(Icons.search),
+        ),
+        CustomNavigationBarItem(
+          icon: const Icon(Icons.window_rounded),
+        ),
+        CustomNavigationBarItem(
+          icon: const Icon(Icons.notifications_active),
+        ),
+        CustomNavigationBarItem(
+          icon: const Icon(Icons.settings),
+        ),
+      ],
+      currentIndex: _pageIndex,
+      onTap: (index) {
+        setState(() {
+          _pageIndex = index;
+        });
+      },
     );
   }
 
@@ -56,7 +62,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     return Scaffold(
       backgroundColor: Colors.grey[300],
       bottomNavigationBar: _buildBottomNavBar(),
-      body: pages[pageIndex],
+      body: pages[_pageIndex],
     );
   }
 }

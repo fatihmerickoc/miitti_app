@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
 
 class CommercialSpot {
   double long;
@@ -33,23 +34,22 @@ class CommercialSpot {
   Card getWidget(bool highlight) {
     return Card(
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
-      margin: EdgeInsets.symmetric(
-          vertical: 10.h, horizontal: highlight ? 16.w : 20.w),
       child: Container(
         height: highlight ? 90.h : 80.h,
         decoration: BoxDecoration(
-          color: AppColors.wineColor,
+          color: ConstantStyles.black,
           border: Border.all(
-              color: AppColors.purpleColor, width: highlight ? 2.0 : 1.0),
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
+            color: ConstantStyles.pink,
+            width: highlight ? 2.0 : 1.0,
+          ),
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
         child: Stack(
-          alignment: Alignment.topLeft,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
               child: SizedBox(
                 width: double.maxFinite,
                 child: Image.network(
@@ -59,9 +59,9 @@ class CommercialSpot {
               ),
             ),
             ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
               child: Container(
-                color: const Color.fromARGB(120, 0, 0, 0),
+                color: const Color.fromARGB(200, 0, 0, 0),
                 width: double.maxFinite,
                 height: double.maxFinite,
               ),
@@ -73,21 +73,25 @@ class CommercialSpot {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Rubik",
-                        color: Colors.white),
+                    style: ConstantStyles.activityName,
                   ),
-                  SizedBox(height: 6.h),
-                  Text(
-                    address,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.normal,
-                      fontFamily: "Rubik",
-                      color: Colors.grey.shade200,
-                    ),
+                  ConstantStyles().gapH10,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.map_outlined,
+                        color: ConstantStyles.pink,
+                      ),
+                      ConstantStyles().gapW10,
+                      Text(
+                        address,
+                        style: ConstantStyles.activitySubName.copyWith(
+                            fontWeight: FontWeight.w500,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white),
+                      ),
+                    ],
                   )
                 ],
               ),
@@ -100,10 +104,11 @@ class CommercialSpot {
                 width: 100.h,
                 alignment: Alignment.center,
                 decoration: const BoxDecoration(
-                  color: AppColors.transparentPurple,
+                  color: ConstantStyles.pink,
                   borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10)),
+                    topLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
                 ),
                 child: Text(
                   "Sponsoroitu",

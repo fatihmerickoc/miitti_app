@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_map_supercluster/flutter_map_supercluster.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:miitti_app/screens/activity_details_page.dart';
 //import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/screens/commercialScreens/comact_detailspage.dart';
 import 'package:miitti_app/data/ad_banner.dart';
@@ -13,12 +16,10 @@ import 'package:miitti_app/data/commercial_activity.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/miitti_activity.dart';
 import 'package:miitti_app/data/person_activity.dart';
-import 'package:miitti_app/screens/createMiittiActivity/activity_details_page.dart';
 import 'package:miitti_app/data/activity.dart';
-import 'package:miitti_app/screens/map_filter_screen.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
-import 'package:miitti_app/widgets/my_elevated_button.dart';
+import 'package:miitti_app/widgets/other_widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
@@ -302,73 +303,30 @@ class _MapsScreenState extends State<MapsScreen> {
     return Stack(
       children: [
         showOnMap == 1 ? showOnList() : showMap(),
-        /*MapboxMap(
-                styleString: MapboxStyles.MAPBOX_STREETS,
-                myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
-                onMapCreated: _onMapCreated,
-                onMapClick: (point, latLng) =>
-                    _onFeatureTapped(coordinates: latLng),
-                onStyleLoadedCallback: () => fetchActivities(),
-                initialCameraPosition: myCameraPosition,
-                trackCameraPosition: true,
-                tiltGesturesEnabled: false,
-                myLocationEnabled: true,
-                rotateGesturesEnabled: false,
-              ),*/
+        //top switch
         SafeArea(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              createMainToggleSwitch(
-                text1: 'Näytä kartalla',
-                text2: 'Näytä listalla',
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              height: 40.h,
+              width: 260.w,
+              padding: EdgeInsets.all(3.w),
+              decoration: BoxDecoration(
+                color: ConstantStyles.black.withOpacity(0.8),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              child: OtherWidgets().createToggleSwitch(
                 initialLabelIndex: showOnMap,
                 onToggle: (index) {
-                  setState(
-                    () {
-                      showOnMap = index!;
-                      if (index == 1) {
-                        fetchAd();
-                      }
-                    },
-                  );
+                  setState(() {
+                    showOnMap = index!;
+                    if (index == 1) {
+                      fetchAd();
+                    }
+                  });
                 },
               ),
-              GestureDetector(
-                onTap: () async {
-                  Map<String, dynamic>? result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MapFilter(),
-                    ),
-                  );
-                  if (result != null) {
-                    setState(() {
-                      fetchActivities();
-                    });
-                  }
-                },
-                child: Container(
-                  height: 60.h,
-                  width: 60.h,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    gradient: const LinearGradient(
-                      colors: [
-                        AppColors.lightRedColor,
-                        AppColors.orangeColor,
-                      ],
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.edit_location_alt,
-                    color: Colors.white,
-                    size: 30.r,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ],
@@ -445,101 +403,133 @@ class _MapsScreenState extends State<MapsScreen> {
 
   Widget showOnList() {
     return Container(
-      margin: EdgeInsets.only(top: 60.h),
-      child: ListView.builder(
-        itemCount: _activities.length + (_ads.isNotEmpty ? 1 : 0),
-        itemBuilder: (BuildContext context, int index) {
-          if (index == 1 && _ads.isNotEmpty) {
-            return _ads[0].getWidget(context); // Display ad widget at index 1
-          } else {
-            int activityIndex =
-                _ads.isNotEmpty && index > 1 ? index - 1 : index;
-            MiittiActivity activity = _activities[activityIndex];
-            String activityAddress = activity.activityAdress;
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('images/blurredMap.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        child: Container(
+          margin: EdgeInsets.only(top: 60.h),
+          child: ListView.builder(
+            itemCount: _activities.length + (_ads.isNotEmpty ? 1 : 0),
+            itemBuilder: (BuildContext context, int index) {
+              if (index == 1 && _ads.isNotEmpty) {
+                return _ads[0]
+                    .getWidget(context); // Display ad widget at index 1
+              } else {
+                int activityIndex =
+                    _ads.isNotEmpty && index > 1 ? index - 1 : index;
 
-            List<String> addressParts = activityAddress.split(',');
-            String cityName = addressParts[0].trim();
+                MiittiActivity activity = _activities[activityIndex];
+                String activityAddress = activity.activityAdress;
 
-            return Card(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              margin: EdgeInsets.all(10.0.w),
-              child: Container(
-                height: 150.h,
-                decoration: BoxDecoration(
-                  color: AppColors.wineColor,
-                  border: Border.all(color: AppColors.purpleColor, width: 2.0),
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Row(
-                  children: [
-                    Activity.getSymbol(activity),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                List<String> addressParts = activityAddress.split(',');
+                String cityName = addressParts[0].trim();
+
+                int participants = activity.participants.isEmpty
+                    ? 0
+                    : activity.participants.length;
+
+                return InkWell(
+                  onTap: () => goToActivityDetailsPage(activity),
+                  child: Card(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    margin: EdgeInsets.all(10.0.w),
+                    child: Container(
+                      height: 125.h,
+                      decoration: BoxDecoration(
+                        color: ConstantStyles.black.withOpacity(0.8),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                      ),
+                      child: Row(
                         children: [
-                          Flexible(
-                            child: Text(
-                              activity.activityTitle,
-                              overflow: TextOverflow.ellipsis,
-                              style: Styles.activityNameTextStyle,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_month,
-                                color: AppColors.lightPurpleColor,
-                              ),
-                              SizedBox(width: 4.w),
-                              Flexible(
-                                child: Text(
-                                  activity.timeString,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Styles.sectionSubtitleStyle,
+                          Activity.getSymbol(activity),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    activity.activityTitle,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: ConstantStyles.activityName,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 16.w),
-                              const Icon(
-                                Icons.location_on_outlined,
-                                color: AppColors.lightPurpleColor,
-                              ),
-                              SizedBox(width: 4.w),
-                              Flexible(
-                                child: Text(
-                                  cityName,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Styles.sectionSubtitleStyle,
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.calendar_month,
+                                      color: ConstantStyles.pink,
+                                    ),
+                                    ConstantStyles().gapW5,
+                                    Text(
+                                      activity.timeString,
+                                      style: ConstantStyles.activitySubName,
+                                    ),
+                                    ConstantStyles().gapW10,
+                                    const Icon(
+                                      Icons.map_outlined,
+                                      color: ConstantStyles.pink,
+                                    ),
+                                    ConstantStyles().gapW5,
+                                    Flexible(
+                                      child: Text(
+                                        cityName,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: ConstantStyles.activitySubName
+                                            .copyWith(
+                                          decoration: TextDecoration.underline,
+                                          decorationColor: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          MyElevatedButton(
-                            width: 250.w,
-                            height: 40.h,
-                            onPressed: () {
-                              goToActivityDetailsPage(activity);
-                            },
-                            child: Text(
-                              "Näytä enemmän",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontFamily: 'Rubik',
-                              ),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.account_balance_wallet_outlined,
+                                      color: ConstantStyles.pink,
+                                    ),
+                                    ConstantStyles().gapW5,
+                                    Text(
+                                      activity.isMoneyRequired
+                                          ? 'Pääsymaksu'
+                                          : 'Maksuton',
+                                      textAlign: TextAlign.center,
+                                      style: ConstantStyles.activitySubName,
+                                    ),
+                                    ConstantStyles().gapW10,
+                                    const Icon(
+                                      Icons.people_outline,
+                                      color: ConstantStyles.pink,
+                                    ),
+                                    ConstantStyles().gapW5,
+                                    Text(
+                                      '$participants/${activity.personLimit} osallistujaa',
+                                      style: ConstantStyles.activitySubName,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          }
-        },
+                  ),
+                );
+              }
+            },
+          ),
+        ),
       ),
     );
   }

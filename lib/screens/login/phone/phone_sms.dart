@@ -42,16 +42,32 @@ class _PhoneSmsState extends State<PhoneSms> {
         onSuccess: () {
           ap.checkExistingUser().then((value) async {
             if (value == true) {
-              showSnackBar(context, "Vahvistaminen onnistui, kiva nähdä taas!",
-                  Colors.green.shade400);
-              ap.getDataFromFirestore().then(
-                    (value) => ap.saveUserDataToSP().then(
-                          (value) => ap.setSignIn().then(
-                                (value) => pushNRemoveUntil(
-                                    context, const IndexPage()),
-                              ),
-                        ),
-                  );
+              //check if the user is anonymous
+              ap.checkAnonymousUser().then((value) {
+                if (value == true) {
+                  ap.getDataFromFirestore().then(
+                        (value) => ap.saveUserDataToSP().then(
+                              (value) => ap.setSignIn().then(
+                                    (value) => ap.setAnonymousModeOn().then(
+                                          (value) => pushNRemoveUntil(
+                                              context, const IndexPage()),
+                                        ),
+                                  ),
+                            ),
+                      );
+                } else {
+                  ap.getDataFromFirestore().then(
+                        (value) => ap.saveUserDataToSP().then(
+                              (value) => ap.setSignIn().then(
+                                    (value) => pushNRemoveUntil(
+                                        context, const IndexPage()),
+                                  ),
+                            ),
+                      );
+                }
+              });
+
+              return;
             } else {
               showSnackBar(context, "Vahvistaminen onnistui, tervetuloa!",
                   Colors.green.shade400);

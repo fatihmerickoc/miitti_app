@@ -27,8 +27,7 @@ import 'package:miitti_app/data/miitti_activity.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/miitti_user.dart';
 import 'package:miitti_app/data/report.dart';
-import 'package:miitti_app/screens/createMiittiActivity/activity_details_page.dart';
-import 'package:miitti_app/screens/createMiittiActivity/activity_page_final.dart';
+import 'package:miitti_app/screens/activity_details_page.dart';
 import 'package:miitti_app/utils/filter_settings.dart';
 import 'package:miitti_app/screens/index_page.dart';
 
@@ -482,7 +481,7 @@ class AuthProvider extends ChangeNotifier {
 
 // #region Activities
 
-  void saveMiittiActivityDataToFirebase({
+  Future<void> saveMiittiActivityDataToFirebase({
     required BuildContext context,
     required PersonActivity activityModel,
   }) async {
@@ -499,15 +498,12 @@ class AuthProvider extends ChangeNotifier {
       await _activityDocRef(activityModel.activityUid)
           .set(activityModel.toMap())
           .then((value) {
-        pushReplacement(
-          context,
-          ActivityPageFinal(
-            miittiActivity: _miittiActivity!,
-          ),
-        );
+        showSnackBar(context, 'Miittisi on luotu onnistuneesti!', Colors.green);
+
+        pushReplacement(context, const IndexPage());
       });
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString(), Colors.red.shade800);
+      showSnackBar(context, e.message.toString(), ConstantStyles.red);
       pushReplacement(context, const IndexPage());
     }
   }

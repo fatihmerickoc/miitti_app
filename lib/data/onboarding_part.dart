@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ConstantsOnboarding {
   String title;
-  String warningText;
+  String? warningText;
   String? hintText;
 
   TextInputType? keyboardType;
@@ -11,7 +11,7 @@ class ConstantsOnboarding {
 
   ConstantsOnboarding({
     required this.title,
-    required this.warningText,
+    this.warningText,
     this.hintText,
     this.keyboardType,
     this.isFullView,

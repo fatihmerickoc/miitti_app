@@ -254,10 +254,10 @@ String timestampToString(Timestamp time, {bool justClock = false}) {
   final now = DateTime.now();
   final date = DateTime(dateTime.year, dateTime.month, dateTime.day);
   final today = DateTime(now.year, now.month, now.day);
-  if (date == today) return "Tänään $clockString";
+  if (date == today) return "Tänään klo $clockString";
   final tomorrow = DateTime(now.year, now.month, now.day + 1);
-  if (date == tomorrow) return "Huomenna $clockString";
-  return "${dateTime.day}.${dateTime.month}. $clockString";
+  if (date == tomorrow) return "Huomenna klo $clockString";
+  return "${dateTime.day}.${dateTime.month}. klo $clockString";
 }
 
 bool validatePhoneNumber(String value) {

@@ -215,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         horizontal: 15.w,
       ),
       child: Container(
-        height: 320.w,
+        height: ap.miittiUser.userSchool.isNotEmpty ? 330.w : 240.w,
         margin: EdgeInsets.only(
           left: 5.w,
           top: 10.h,
@@ -231,8 +231,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             buildDivider(),
             buildUserDetailTile(
                 Icons.g_translate, ap.miittiUser.userLanguages.join(', ')),
-            buildDivider(),
-            buildUserDetailTile(Icons.next_week, 'Opiskelija'),
+            ap.miittiUser.userSchool.isNotEmpty ? buildDivider() : Container(),
+            ap.miittiUser.userSchool.isNotEmpty
+                ? buildUserDetailTile(Icons.next_week, ap.miittiUser.userSchool)
+                : Container(),
           ],
         ),
       ),
