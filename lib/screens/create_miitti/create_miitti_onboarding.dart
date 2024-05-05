@@ -527,7 +527,7 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
 
-      if (placemarks != null && placemarks.isNotEmpty) {
+      if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks[0];
         String address = placemark.subLocality!.isEmpty
             ? '${placemark.locality}'
