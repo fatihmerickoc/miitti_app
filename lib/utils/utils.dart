@@ -397,7 +397,7 @@ void pickDate({
                 ),
               ),
               CupertinoButton(
-                child: Text('Done'),
+                child: const Text('Done'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
