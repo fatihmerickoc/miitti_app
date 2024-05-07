@@ -7,13 +7,13 @@ class ConstantsOnboarding {
 
   TextInputType? keyboardType;
 
-  bool? isFullView = false;
+  bool isFullView = false;
 
   ConstantsOnboarding({
     required this.title,
     this.warningText,
     this.hintText,
     this.keyboardType,
-    this.isFullView,
+    this.isFullView = false,
   });
 }

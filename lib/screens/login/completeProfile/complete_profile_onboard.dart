@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/utils/push_notifications.dart';
+import 'package:miitti_app/widgets/choice_button.dart';
+import 'package:miitti_app/widgets/confirm_notifications_dialog.dart';
 
 import 'package:miitti_app/widgets/custom_button.dart';
 import 'package:miitti_app/widgets/custom_textfield.dart';
@@ -96,6 +99,12 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
       title: 'Mitä tykkäät tehdä?',
       warningText:
           'Valitse enintään yhdeksän lempiaktiviteettia, joista pidät!',
+      isFullView: true,
+    ),
+    ConstantsOnboarding(
+      title: 'Älä missaa yhtäkään miittiä',
+      warningText:
+          'Tiedämme, että sovellusilmoitukset voivat olla ärsyttäviä, mutta niiden avulla, et missaa yhtäkään miitti-kutsua tai viestiä!',
       isFullView: true,
     ),
     ConstantsOnboarding(
@@ -210,7 +219,10 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
   //PAGE 10 ACTIVITIES
   Set<String> favoriteActivities = <String>{};
 
-  //PAGE 11 RULES
+  //PAGE 11 NOTIFICATIONS
+  bool notificationsEnabled = true;
+
+  //PAGE 12 RULES
   List<String> miittiRules = <String>[
     'Käyttäydyn muita ihmisiä kohtaan ystävällisesti ja kunnioittavasti',
     'Esiinnyn sovelluksessa omana itsenäni, enkä käytä muiden kuvia tai henkilötietoja.',
@@ -369,69 +381,40 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (String gender in genders)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedGender = gender;
-                  });
+              ChoiceButton(
+                text: "Olen $gender",
+                onSelected: (bool selected) {
+                  if (!selected) {
+                    setState(
+                      () {
+                        selectedGender = gender;
+                      },
+                    );
+                  }
                 },
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 15.h),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2A1026),
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(
-                      color: selectedGender == gender
-                          ? ConstantStyles.pink
-                          : Colors.transparent,
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Text(
-                    'Olen $gender',
-                    style: ConstantStyles.warning,
-                  ),
-                ),
-              ),
+                isSelected: gender == selectedGender,
+              )
           ],
         );
       case 4:
         return Wrap(
           children: [
             for (String language in languages)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (!selectedLanguages.contains(language) &&
-                        selectedLanguages.length < 4) {
+              ChoiceButton(
+                text: language,
+                isSelected: selectedLanguages.contains(language),
+                onSelected: (bool selected) {
+                  if (!selectedLanguages.contains(language)) {
+                    setState(() {
                       selectedLanguages.add(language);
-                    } else {
+                    });
+                  } else {
+                    setState(() {
                       selectedLanguages.remove(language);
-                    }
-                  });
+                    });
+                  }
                 },
-                child: Container(
-                  margin: EdgeInsets.only(right: 15.w, bottom: 15.h),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2A1026),
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(
-                      color: selectedLanguages.contains(language)
-                          ? ConstantStyles.pink
-                          : Colors.transparent,
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Text(
-                    language,
-                    style: ConstantStyles.warning,
-                  ),
-                ),
-              ),
+              )
           ],
         );
       case 5:
@@ -828,8 +811,40 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             },
           ),
         );
-
       case 10:
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ChoiceButton(
+              text: "Hyväksyn push-ilmoitukset",
+              onSelected: (bool selected) {
+                if (!selected) {
+                  PushNotifications.requestPermission();
+                  setState(
+                    () {
+                      notificationsEnabled = true;
+                    },
+                  );
+                }
+              },
+              isSelected: notificationsEnabled,
+            ),
+            ChoiceButton(
+              text: "En hyväksy",
+              onSelected: (bool selected) {
+                if (!selected) {
+                  setState(
+                    () {
+                      notificationsEnabled = false;
+                    },
+                  );
+                }
+              },
+              isSelected: !notificationsEnabled,
+            ),
+          ],
+        );
+      case 11:
         return Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -876,17 +891,14 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
             ],
           ),
         );
-
-      default:
-        {
-          return Container();
-          /*return ConstantsCustomTextField(
-            hintText: screen.hintText!,
-            controller: _formControllers[page],
-            keyboardType: screen.keyboardType,
-          );*/
-        }
     }
+    //Error
+    return Center(
+      child: Text(
+        'Error',
+        style: ConstantStyles.warning,
+      ),
+    );
   }
 
   Future<void> registerUser(BuildContext context, MiittiUser user) async {
@@ -1028,6 +1040,45 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           return;
         }
       case 10:
+        if (!notificationsEnabled) {
+          showDialog(
+            context: context,
+            builder: (context) => ConfirmNotificationsDialog(
+              nextPage: () {
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.linear,
+                );
+              },
+            ),
+          );
+        } else {
+          PushNotifications.checkPermission().then((granted) {
+            if (granted) {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.linear,
+              );
+            } else {
+              PushNotifications.requestPermission().then((grantFixed) {
+                if (grantFixed) {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.linear,
+                  );
+                } else {
+                  showSnackBar(
+                    context,
+                    'Hyväksy push-ilmoitukset myös laitteeltasi jatkaaksesi!',
+                    ConstantStyles.red,
+                  );
+                }
+              });
+            }
+          });
+        }
+        return;
+      case 11:
         if (userAcceptedRules.length != miittiRules.length) {
           setState(() {
             warningSignVisible = true;
@@ -1036,7 +1087,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         }
     }
 
-    if (page != 9) {
+    if (page != onboardingScreens.length - 1) {
       if (page == 0 && nameFocusNode.hasFocus) {
         nameFocusNode.unfocus();
       } else if (page == 1 && emailFocusNode.hasFocus) {
@@ -1046,6 +1097,19 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
         duration: const Duration(milliseconds: 500),
         curve: Curves.linear,
       );
+      if (page == 9) {
+        //Next page is notification page, if push notifications are already enabled, skip this page
+        PushNotifications.checkPermission().then((granted) {
+          if (granted) {
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.linear,
+            );
+          } else {
+            PushNotifications.requestPermission();
+          }
+        });
+      }
     } else {
       MiittiUser miittiUser = MiittiUser(
         userName: _nameController.text.trim(),

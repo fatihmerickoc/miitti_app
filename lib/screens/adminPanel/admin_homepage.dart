@@ -7,7 +7,6 @@ import 'package:miitti_app/screens/adminPanel/admin_notifications.dart';
 import 'package:miitti_app/screens/adminPanel/admin_search_miitti.dart';
 import 'package:miitti_app/screens/adminPanel/admin_search_user.dart';
 import 'package:miitti_app/screens/adminPanel/admin_settings.dart';
-import 'package:miitti_app/constants/constants.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});

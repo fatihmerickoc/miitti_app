@@ -10,10 +10,20 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:convert';
 
+import 'package:permission_handler/permission_handler.dart';
+
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  static Future<bool> checkPermission() async {
+    return await Permission.notification.isGranted;
+  }
+
+  static Future<bool> requestPermission() async {
+    return await Permission.notification.request().isGranted;
+  }
 
   static Future init(AuthProvider ap) async {
     //on background notification tapped
