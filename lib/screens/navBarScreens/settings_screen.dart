@@ -95,6 +95,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   );
                 },
+                style: ButtonStyle(
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  backgroundColor: WidgetStateProperty.all<Color>(
+                      AppColors.mixGradientColor),
+                  minimumSize: WidgetStateProperty.all<Size>(const Size(
+                      double.infinity, 140)), // Makes the button 100% wide
+                ),
                 child: Column(
                   mainAxisAlignment:
                       MainAxisAlignment.center, // Center the text vertically
@@ -116,17 +127,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ],
-                ),
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      AppColors.mixGradientColor),
-                  minimumSize: MaterialStateProperty.all<Size>(
-                      Size(double.infinity, 140)), // Makes the button 100% wide
                 ),
               ),
               SizedBox(height: 10.h),
