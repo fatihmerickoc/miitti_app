@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:miitti_app/screens/login/login_decide_screen.dart';
 import 'package:miitti_app/widgets/custom_button.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
-import 'package:miitti_app/screens/index_page.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:pinput/pinput.dart';
@@ -36,45 +34,13 @@ class _PhoneSmsState extends State<PhoneSms> {
   void verifyOtp(BuildContext context, String userOtp) {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     ap.verifyOtp(
-        context: context,
-        verificationId: widget.verificationId,
-        userOtp: userOtp,
-        onSuccess: () {
-          ap.checkExistingUser().then((value) async {
-            if (value == true) {
-              //check if the user is anonymous
-              ap.checkAnonymousUser().then((value) {
-                if (value == true) {
-                  ap.getDataFromFirestore().then(
-                        (value) => ap.saveUserDataToSP().then(
-                              (value) => ap.setSignIn().then(
-                                    (value) => ap.setAnonymousModeOn().then(
-                                          (value) => pushNRemoveUntil(
-                                              context, const IndexPage()),
-                                        ),
-                                  ),
-                            ),
-                      );
-                } else {
-                  ap.getDataFromFirestore().then(
-                        (value) => ap.saveUserDataToSP().then(
-                              (value) => ap.setSignIn().then(
-                                    (value) => pushNRemoveUntil(
-                                        context, const IndexPage()),
-                                  ),
-                            ),
-                      );
-                }
-              });
-
-              return;
-            } else {
-              showSnackBar(context, "Vahvistaminen onnistui, tervetuloa!",
-                  Colors.green.shade400);
-              pushNRemoveUntil(context, const LoginDecideScreen());
-            }
-          });
-        });
+      context: context,
+      verificationId: widget.verificationId,
+      userOtp: userOtp,
+      onSuccess: () {
+        ap.afterSigning(context);
+      },
+    );
   }
 
   @override

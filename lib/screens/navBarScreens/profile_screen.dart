@@ -24,19 +24,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    filteredActivities = getActivities();
     Future.delayed(const Duration(milliseconds: 500)).then((value) {
       final ap = Provider.of<AuthProvider>(context, listen: false);
       if (ap.isAnonymous) {
         showDialog(
             context: context, builder: (context) => const AnonymousDialog());
+      } else {
+        filteredActivities = ap.miittiUser.userFavoriteActivities.toList();
       }
     });
-  }
-
-  List<String> getActivities() {
-    final ap = Provider.of<AuthProvider>(context, listen: false);
-    return ap.miittiUser.userFavoriteActivities.toList();
   }
 
   Widget getAdminButton(AuthProvider ap) {
@@ -65,16 +61,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool isLoading = ap.isLoading;
     bool isAnonymous = ap.isAnonymous;
 
-    List<String> answeredQuestions = questionOrder
-        .where((question) => ap.miittiUser.userChoices.containsKey(question))
-        .toList();
-
-    return isAnonymous
-        ? const ConstantsAnonymousUser()
-        : Scaffold(
-            appBar: buildAppBar(ap),
-            body: buildBody(isLoading, ap, answeredQuestions),
-          );
+    if (isAnonymous) {
+      return const AnonymousUserScreen();
+    } else {
+      List<String> answeredQuestions = questionOrder
+          .where((question) => ap.miittiUser.userChoices.containsKey(question))
+          .toList();
+      return Scaffold(
+        appBar: buildAppBar(ap),
+        body: buildBody(isLoading, ap, answeredQuestions),
+      );
+    }
   }
 
   AppBar buildAppBar(AuthProvider ap) {

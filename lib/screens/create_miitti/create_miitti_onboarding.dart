@@ -125,10 +125,8 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
       );
     });
 
-    if (mapController != null) {
-      mapController
-          .animateCamera(CameraUpdate.newCameraPosition(myCameraPosition));
-    }
+    mapController
+        .animateCamera(CameraUpdate.newCameraPosition(myCameraPosition));
   }
 
   void onStyleLoadedCallBack() {

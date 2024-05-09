@@ -11,6 +11,7 @@ import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/miitti_user.dart';
 import 'package:miitti_app/screens/index_page.dart';
 import 'package:miitti_app/screens/user_profile_edit_screen.dart';
+import 'package:miitti_app/utils/utils.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 
@@ -68,8 +69,16 @@ Future<Widget> getPage(
 
         case ("request"):
           debugPrint("Request clicked ${payload["myData"]}");
-          MiittiUser user = await provider.getUser(payload["myData"]);
-          return UserProfileEditScreen(user: user);
+          MiittiUser? user = await provider.getUser(payload["myData"]);
+          if (user != null) {
+            return UserProfileEditScreen(user: user);
+          } else {
+            if (context.mounted) {
+              showSnackBar(
+                  context, "Käyttäjää ei löytynyt", ConstantStyles.red);
+            }
+            return const IndexPage();
+          }
 
         case ("accept"):
           debugPrint("Accept clicked ${payload["myData"]}");

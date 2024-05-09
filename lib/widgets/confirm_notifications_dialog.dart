@@ -53,9 +53,19 @@ class ConfirmNotificationsDialog extends StatelessWidget {
                       buttonText: 'Hyväksy ilmoitukset',
                       onPressed: () async {
                         bool granted =
-                            await PushNotifications.requestPermission();
+                            await PushNotifications.requestPermission(true);
                         if (granted) {
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                           nextPage();
+                        } else {
+                          if (context.mounted) {
+                            showSnackBar(
+                                context,
+                                "Sinun täytyy sallia ilmoitukset myös laitteeltasi jatkaaksesi",
+                                ConstantStyles.red);
+                          }
                         }
                       },
                     ), //Removed extra padding in ConstantsCustomButton
@@ -64,6 +74,7 @@ class ConfirmNotificationsDialog extends StatelessWidget {
                       buttonText: 'Ei vielä',
                       isWhiteButton: true,
                       onPressed: () {
+                        Navigator.pop(context);
                         nextPage();
                       },
                     ), //Removed extra padding in ConstantsCustomButton

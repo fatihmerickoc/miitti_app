@@ -199,7 +199,6 @@ class _AdminSearchMiittiState extends State<AdminSearchMiitti> {
                                                     is PersonActivity
                                                 ? ActivityDetailsPage(
                                                     myActivity: activity,
-                                                    comingFromAdmin: true,
                                                   )
                                                 : ComActDetailsPage(
                                                     myActivity: activity

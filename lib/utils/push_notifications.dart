@@ -21,8 +21,14 @@ class PushNotifications {
     return await Permission.notification.isGranted;
   }
 
-  static Future<bool> requestPermission() async {
-    return await Permission.notification.request().isGranted;
+  static Future<bool> requestPermission(bool requestEvenDenied) async {
+    bool permanentlyDenied = await Permission.notification.isPermanentlyDenied;
+    if (permanentlyDenied && requestEvenDenied) {
+      await openAppSettings();
+      return await Permission.notification.isGranted;
+    } else {
+      return await Permission.notification.request().isGranted;
+    }
   }
 
   static Future init(AuthProvider ap) async {
@@ -50,9 +56,11 @@ class PushNotifications {
     debugPrint("############################################################");
 
     //Save token to user data(needed to access other users tokens in code)
-    if (ap.miittiUser.fcmToken != token) {
-      ap.miittiUser.fcmToken = token!;
-      ap.updateUserInfo(updatedUser: ap.miittiUser);
+    if (!ap.isAnonymous) {
+      if (ap.miittiUser.fcmToken != token) {
+        ap.miittiUser.fcmToken = token!;
+        ap.updateUserInfo(updatedUser: ap.miittiUser);
+      }
     }
   }
 
@@ -147,14 +155,18 @@ class PushNotifications {
 
   static Future sendRequestNotification(
       AuthProvider ap, PersonActivity activity) async {
-    MiittiUser admin = await ap.getUser(activity.admin);
-    sendNotification(
-      admin.fcmToken,
-      "Pääsiskö miittiin mukaan?",
-      "${ap.miittiUser.userName} pyysi päästä miittiin: ${activity.activityTitle}",
-      "request",
-      ap.miittiUser.uid,
-    );
+    MiittiUser? admin = await ap.getUser(activity.admin);
+    if (admin != null) {
+      sendNotification(
+        admin.fcmToken,
+        "Pääsiskö miittiin mukaan?",
+        "${ap.miittiUser.userName} pyysi päästä miittiin: ${activity.activityTitle}",
+        "request",
+        ap.miittiUser.uid,
+      );
+    } else {
+      debugPrint("Couldn't find admin to send request notification to.");
+    }
   }
 
   static void sendAcceptedNotification(

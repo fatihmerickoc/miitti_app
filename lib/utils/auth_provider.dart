@@ -76,7 +76,9 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> checkSign(BuildContext context) async {
     final SharedPreferences s = await SharedPreferences.getInstance();
     _isSignedIn = s.getBool('is_signedin') ?? false;
-
+    if (_isSignedIn) {
+      await getDataFromSp();
+    }
     /* if (signedIn) {
       bool exists = await checkExistingUser();
       if (exists) {
@@ -116,7 +118,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future setAnonymousModeOf() async {
+  Future setAnonymousModeOff() async {
     SharedPreferences s = await SharedPreferences.getInstance();
     await s.setBool('is_anonymous', false);
     _isAnonymous = false;
@@ -137,37 +139,7 @@ class AuthProvider extends ChangeNotifier {
           showSnackBar(
               context, "Koodi saatu automaattisesti!", Colors.green.shade600);
 
-          checkExistingUser().then((value) async {
-            if (value == true) {
-              //check if the user is anonymous
-              checkAnonymousUser().then((value) {
-                if (value == true) {
-                  getDataFromFirestore().then(
-                    (value) => saveUserDataToSP().then(
-                      (value) => setSignIn().then(
-                        (value) => setAnonymousModeOn().then(
-                          (value) =>
-                              pushNRemoveUntil(context, const IndexPage()),
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  getDataFromFirestore().then(
-                    (value) => saveUserDataToSP().then(
-                      (value) => setSignIn().then(
-                        (value) => pushNRemoveUntil(context, const IndexPage()),
-                      ),
-                    ),
-                  );
-                }
-              });
-
-              return;
-            } else {
-              pushNRemoveUntil(context, const LoginDecideScreen());
-            }
-          });
+          afterSigning(context);
           Navigator.of(context).pop();
           debugPrint("$phoneNumber signed in");
         },
@@ -253,38 +225,10 @@ class AuthProvider extends ChangeNotifier {
       //assign _uid to user id
       _uid = user?.uid;
 
-      checkExistingUser().then((value) async {
-        if (value == true) {
-          //check if the user is anonymous
-          checkAnonymousUser().then((value) {
-            if (value == true) {
-              getDataFromFirestore().then(
-                (value) => saveUserDataToSP().then(
-                  (value) => setSignIn().then(
-                    (value) => setAnonymousModeOn().then(
-                      (value) => pushNRemoveUntil(context, const IndexPage()),
-                    ),
-                  ),
-                ),
-              );
-            } else {
-              getDataFromFirestore().then((value) => saveUserDataToSP().then(
-                    (value) => setSignIn().then(
-                      (value) => setAnonymousModeOf().then(
-                        (value) => pushNRemoveUntil(context, const IndexPage()),
-                      ),
-                    ),
-                  ));
-            }
-          });
-
-          return;
-        } else {
-          pushNRemoveUntil(context, const LoginDecideScreen());
-        }
-      });
+      afterSigning(context);
     } catch (error) {
-      showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
+      showSnackBar(
+          context, "Kirjautuminen epäonnistui: $error!", ConstantStyles.red);
       debugPrint('Got error signing with Google $error');
     }
   }
@@ -299,40 +243,44 @@ class AuthProvider extends ChangeNotifier {
 
       _uid = user?.uid;
 
+      afterSigning(context);
+    } catch (error) {
+      showSnackBar(
+          context, "Kirjautuminen epäonnistui: $error!", ConstantStyles.red);
+      debugPrint('Got error signing with Apple $error');
+      Navigator.of(context).pop();
+    }
+  }
+
+  void afterSigning(BuildContext context) async {
+    try {
       checkExistingUser().then((value) async {
         if (value == true) {
           //check if the user is anonymous
-          checkAnonymousUser().then((value) {
+          checkAnonymousUser().then((value) async {
             if (value == true) {
-              getDataFromFirestore().then(
-                (value) => saveUserDataToSP().then(
-                  (value) => setSignIn().then(
-                    (value) => setAnonymousModeOn().then(
-                      (value) => pushNRemoveUntil(context, const IndexPage()),
-                    ),
-                  ),
-                ),
-              );
+              await setSignIn();
+              await setAnonymousModeOn();
+              pushNRemoveUntil(context, const IndexPage());
             } else {
-              getDataFromFirestore().then(
-                (value) => saveUserDataToSP().then(
-                  (value) => setSignIn().then(
-                    (value) => pushNRemoveUntil(context, const IndexPage()),
-                  ),
-                ),
-              );
+              await setAnonymousModeOff();
+              await getDataFromFirestore();
+              await saveUserDataToSP();
+              await setSignIn();
+              pushNRemoveUntil(context, const IndexPage());
             }
           });
-
           return;
         } else {
+          await setSignIn();
+          await setAnonymousModeOn();
           pushNRemoveUntil(context, const LoginDecideScreen());
         }
       });
     } catch (error) {
-      showSnackBar(context, "Tuli virhe: $error!", ConstantStyles.red);
-      debugPrint('Got error signing with Apple $error');
-      Navigator.of(context).pop();
+      showSnackBar(context, "Kirjautumisen käsittelyssä sattui virhe: $error!",
+          ConstantStyles.red);
+      debugPrint('Got error after signing $error');
     }
   }
 
@@ -451,7 +399,12 @@ class AuthProvider extends ChangeNotifier {
           .map((doc) => AdBanner.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
 
-      return AdBanner.sortBanners(list, miittiUser);
+      if (_miittiUser != null) {
+        return AdBanner.sortBanners(list, miittiUser);
+      } else {
+        list.shuffle();
+        return list;
+      }
     } catch (e) {
       debugPrint("Error fetching ads $e");
       return [];
@@ -518,27 +471,23 @@ class AuthProvider extends ChangeNotifier {
       List<MiittiActivity> activities = querySnapshot.docs
           .map((doc) => PersonActivity.fromDoc(doc))
           .where((activity) {
-        if (_miittiUser == null) {
-          debugPrint("User is null");
-        } else {
-          debugPrint("Checking filters of ${_miittiUser?.userName}");
-          if (daysSince(activity.activityTime) <
-              (activity.timeDecidedLater ? -30 : -7)) {
-            removeActivity(activity.activityUid);
-            return false;
-          }
+        if (daysSince(activity.activityTime) <
+            (activity.timeDecidedLater ? -30 : -7)) {
+          removeActivity(activity.activityUid);
+          return false;
+        }
 
-          if (filterSettings.sameGender &&
-              activity.adminGender != miittiUser.userGender) {
-            return false;
-          }
-          if (!filterSettings.multiplePeople && activity.personLimit > 2) {
-            return false;
-          }
-          if (activity.adminAge < filterSettings.minAge ||
-              activity.adminAge > filterSettings.maxAge) {
-            return false;
-          }
+        if (_miittiUser != null &&
+            filterSettings.sameGender &&
+            activity.adminGender != miittiUser.userGender) {
+          return false;
+        }
+        if (!filterSettings.multiplePeople && activity.personLimit > 2) {
+          return false;
+        }
+        if (activity.adminAge < filterSettings.minAge ||
+            activity.adminAge > filterSettings.maxAge) {
+          return false;
         }
 
         return true;
@@ -767,7 +716,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> joinActivity(String activityId) async {
+  Future<void> joinCommercialActivity(String activityId) async {
     try {
       await _comActivityDocRef(activityId).update({
         'participants': FieldValue.arrayUnion([_uid])
@@ -778,6 +727,16 @@ class AuthProvider extends ChangeNotifier {
       });
     } catch (e) {
       debugPrint('Error while joining activity: $e');
+    }
+  }
+
+  Future<UserStatusInActivity> joinOrRequestActivity(String activityId) async {
+    if (miittiUser.invitedActivities.contains(activityId)) {
+      await reactToInvite(activityId, true);
+      return UserStatusInActivity.joined;
+    } else {
+      await sendActivityRequest(activityId);
+      return UserStatusInActivity.requested;
     }
   }
 
@@ -993,8 +952,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> checkAnonymousUser() async {
-    MiittiUser user = await getUser(uid);
-    if (user.userArea.isEmpty) {
+    MiittiUser? user = await getUser(uid);
+    if (user == null) {
+      return true;
+    } else if (user.userArea.isEmpty) {
       return true;
     } else {
       return false;
@@ -1005,7 +966,7 @@ class AuthProvider extends ChangeNotifier {
     required BuildContext context,
     required MiittiUser userModel,
     required File? image,
-    required Function onSucess,
+    required Function onSuccess,
   }) async {
     try {
       OtherWidgets().showLoadingDialog(context);
@@ -1015,25 +976,34 @@ class AuthProvider extends ChangeNotifier {
       }).onError((error, stackTrace) {});
       userModel.userRegistrationDate =
           DateFormat('dd/MM/yyyy').format(DateTime.now());
-      userModel.userPhoneNumber =
-          _firebaseAuth.currentUser!.phoneNumber ?? '+358000000000';
+      userModel.userPhoneNumber = _firebaseAuth.currentUser!.phoneNumber ?? '';
       userModel.uid = _firebaseAuth.currentUser!.uid;
+      _uid = userModel.uid;
       _miittiUser = userModel;
 
-      await _userDocRef(uid).set(userModel.toMap()).then((value) async {
-        onSucess();
+      await _userDocRef(userModel.uid)
+          .set(userModel.toMap())
+          .then((value) async {
+        onSuccess();
       }).onError(
-        (error, stackTrace) {},
+        (error, stackTrace) {
+          debugPrint('Error saving user data: $error');
+        },
       );
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, e.message.toString(), Colors.red.shade800);
+      showSnackBar(
+          context,
+          "Datan tallennus epäonnistui: ${e.message.toString()}",
+          ConstantStyles.red);
+      debugPrint("Userdata to firebase error: $e");
+    } catch (e) {
       debugPrint("Userdata to firebase error: $e");
     } finally {
-      Navigator.of(context);
+      Navigator.of(context).pop();
     }
   }
 
-  Future<void> saveAnonUserToFirebase({
+  /*Future<void> saveAnonUserToFirebase({
     required BuildContext context,
     required Function onSucess,
   }) async {
@@ -1072,7 +1042,7 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       Navigator.of(context);
     }
-  }
+  }*/
 
   Future<String> uploadUserImage(String uid, File? image) async {
     final metadata = SettableMetadata(
@@ -1104,9 +1074,13 @@ class AuthProvider extends ChangeNotifier {
   Future getDataFromSp() async {
     SharedPreferences s = await SharedPreferences.getInstance();
     _isAnonymous = s.getBool('is_anonymous') ?? true;
-    String data = s.getString('user_model') ?? '';
-    _miittiUser = MiittiUser.fromMap(jsonDecode(data));
-    _uid = _miittiUser!.uid;
+    if (!isAnonymous) {
+      String data = s.getString('user_model') ?? '';
+      _miittiUser = MiittiUser.fromMap(jsonDecode(data));
+      _uid = _miittiUser!.uid;
+    } else {
+      _uid = _firebaseAuth.currentUser!.uid;
+    }
     notifyListeners();
   }
 
@@ -1145,6 +1119,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> setUserStatus() async {
+    if (_isAnonymous) return;
     try {
       DateTime now = DateTime.now().toUtc();
       String timestampString = now.toIso8601String();
@@ -1161,7 +1136,6 @@ class AuthProvider extends ChangeNotifier {
     SharedPreferences s = await SharedPreferences.getInstance();
     await _firebaseAuth.signOut();
     _isSignedIn = false;
-    _isAnonymous = false;
     notifyListeners();
     s.clear();
   }
@@ -1252,7 +1226,6 @@ class AuthProvider extends ChangeNotifier {
       if (!adminId.contains(userId)) {
         SharedPreferences s = await SharedPreferences.getInstance();
         _isSignedIn = false;
-        _isAnonymous = false;
         await s.clear().then((v) {
           if (v) {
             debugPrint("deleted from shared pref");
@@ -1307,10 +1280,12 @@ class AuthProvider extends ChangeNotifier {
     return query.limit(batchSize).get();
   }
 
-  Future<MiittiUser> getUser(String id) async {
+  Future<MiittiUser?> getUser(String id) async {
     DocumentSnapshot doc = await _getUserDoc(id);
+    if (!doc.exists) {
+      return null;
+    }
     MiittiUser user = MiittiUser.fromDoc(doc);
-
     return user;
   }
 

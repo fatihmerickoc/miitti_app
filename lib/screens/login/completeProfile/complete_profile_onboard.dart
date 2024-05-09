@@ -105,7 +105,6 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
       title: 'Älä missaa yhtäkään miittiä',
       warningText:
           'Tiedämme, että sovellusilmoitukset voivat olla ärsyttäviä, mutta niiden avulla, et missaa yhtäkään miitti-kutsua tai viestiä!',
-      isFullView: true,
     ),
     ConstantsOnboarding(
       title: 'Vielä lopuksi!',
@@ -405,9 +404,17 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                 isSelected: selectedLanguages.contains(language),
                 onSelected: (bool selected) {
                   if (!selectedLanguages.contains(language)) {
-                    setState(() {
-                      selectedLanguages.add(language);
-                    });
+                    if (selectedLanguages.length < 4) {
+                      setState(() {
+                        selectedLanguages.add(language);
+                      });
+                    } else {
+                      showSnackBar(
+                        context,
+                        'Voit valita enintään neljä kieltä!',
+                        ConstantStyles.red,
+                      );
+                    }
                   } else {
                     setState(() {
                       selectedLanguages.remove(language);
@@ -812,14 +819,22 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
           ),
         );
       case 10:
-        Column(
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ChoiceButton(
               text: "Hyväksyn push-ilmoitukset",
               onSelected: (bool selected) {
                 if (!selected) {
-                  PushNotifications.requestPermission();
+                  PushNotifications.requestPermission(true)
+                      .then((bool granted) {
+                    if (granted) {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.linear,
+                      );
+                    }
+                  });
                   setState(
                     () {
                       notificationsEnabled = true;
@@ -901,8 +916,9 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
     );
   }
 
-  Future<void> registerUser(BuildContext context, MiittiUser user) async {
+  void registerUser(BuildContext context, MiittiUser user) {
     final ap = Provider.of<AuthProvider>(context, listen: false);
+    /*user.uid = ap.uid;
     if (ap.isAnonymous) {
       ap
           .updateUserInfo(
@@ -923,22 +939,24 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                       ),
                 ),
           );
-    } else {
-      ap.saveUserDatatoFirebase(
-        context: context,
-        userModel: user,
-        image: image,
-        onSucess: () {
-          ap.saveUserDataToSP().then(
-                (value) => ap.setSignIn().then(
-                  (value) {
-                    pushNRemoveUntil(context, const IndexPage());
-                  },
-                ),
-              );
-        },
-      );
-    }
+    } else {*/
+    ap.saveUserDatatoFirebase(
+      context: context,
+      userModel: user,
+      image: image,
+      onSuccess: () {
+        ap.saveUserDataToSP().then(
+              (value) => ap.setAnonymousModeOff().then(
+                    (value) => ap.setSignIn().then(
+                      (value) {
+                        pushNRemoveUntil(context, const IndexPage());
+                      },
+                    ),
+                  ),
+            );
+      },
+    );
+    //}
   }
 
   void errorHandlingScreens(int page) {
@@ -1060,7 +1078,7 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
                 curve: Curves.linear,
               );
             } else {
-              PushNotifications.requestPermission().then((grantFixed) {
+              PushNotifications.requestPermission(true).then((grantFixed) {
                 if (grantFixed) {
                   _pageController.nextPage(
                     duration: const Duration(milliseconds: 500),
@@ -1093,22 +1111,36 @@ class _CompleteProfileOnboard extends State<CompleteProfileOnboard> {
       } else if (page == 1 && emailFocusNode.hasFocus) {
         emailFocusNode.unfocus();
       }
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.linear,
-      );
+
       if (page == 9) {
         //Next page is notification page, if push notifications are already enabled, skip this page
-        PushNotifications.checkPermission().then((granted) {
-          if (granted) {
-            _pageController.nextPage(
+        PushNotifications.checkPermission().then((enabled) {
+          if (enabled) {
+            _pageController.animateToPage(
+              11,
               duration: const Duration(milliseconds: 500),
               curve: Curves.linear,
             );
           } else {
-            PushNotifications.requestPermission();
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.linear,
+            );
+            PushNotifications.requestPermission(false).then((bool granted) {
+              if (granted) {
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.linear,
+                );
+              }
+            });
           }
         });
+      } else {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.linear,
+        );
       }
     } else {
       MiittiUser miittiUser = MiittiUser(

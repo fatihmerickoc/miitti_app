@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/miitti_user.dart';
 import 'package:miitti_app/data/activity.dart';
+import 'package:miitti_app/screens/anonymous_user_screen.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/screens/user_profile_edit_screen.dart';
 import 'package:miitti_app/utils/utils.dart';
@@ -38,6 +39,15 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
   void initLists() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
+
+    if (ap.isAnonymous) {
+      Future.delayed(const Duration(milliseconds: 500)).then((value) {
+        showDialog(
+            context: context, builder: (context) => const AnonymousDialog());
+      });
+
+      return;
+    }
 
     List responses =
         await Future.wait([initList(0, ap), initList(1, ap), initList(2, ap)]);
@@ -99,18 +109,23 @@ class _PeopleScreenState extends State<PeopleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: ListView(
-      padding: EdgeInsets.only(left: 20.w),
-      children: [
-        _buildSectionHeader("Löydä kavereita läheltä"),
-        myListView(0),
-        _buildSectionHeader("Yhteisiä kiinnostuksen kohteita"),
-        myListView(1),
-        _buildSectionHeader("Miitin uudet käyttäjät"),
-        myListView(2),
-      ],
-    ));
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    if (ap.isAnonymous) {
+      return const AnonymousUserScreen();
+    } else {
+      return SafeArea(
+          child: ListView(
+        padding: EdgeInsets.only(left: 20.w),
+        children: [
+          _buildSectionHeader("Löydä kavereita läheltä"),
+          myListView(0),
+          _buildSectionHeader("Yhteisiä kiinnostuksen kohteita"),
+          myListView(1),
+          _buildSectionHeader("Miitin uudet käyttäjät"),
+          myListView(2),
+        ],
+      ));
+    }
   }
 
   Widget _buildSectionHeader(String text) {

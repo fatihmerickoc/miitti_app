@@ -20,7 +20,7 @@ class ChoiceButton extends StatelessWidget {
         onSelected(isSelected);
       },
       child: Container(
-        margin: EdgeInsets.only(bottom: 15.h),
+        margin: EdgeInsets.only(bottom: 15.h, right: 10.w),
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: const Color(0xFF2A1026),

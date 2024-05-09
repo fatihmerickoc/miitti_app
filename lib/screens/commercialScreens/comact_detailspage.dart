@@ -381,7 +381,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
     checkIfJoined();
     if (!isAlreadyJoined) {
       final ap = Provider.of<AuthProvider>(context, listen: false);
-      await ap.joinActivity(widget.myActivity.activityUid);
+      await ap.joinCommercialActivity(widget.myActivity.activityUid);
       PushNotifications.sendAcceptedNotification(
           ap.miittiUser, widget.myActivity);
       setState(() {

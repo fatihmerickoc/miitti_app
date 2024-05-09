@@ -83,8 +83,14 @@ class _MyAppState extends State<MyApp> {
       future: ap.checkSign(context),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         //If the user is signed in to our app  before, we redirect them into our main screen, otherwise they go to home screen to register or sign up
-        if (ap.isSignedIn) {
-          ap.getDataFromSp();
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        } else if (snapshot.connectionState == ConnectionState.done &&
+            ap.isSignedIn) {
           return const IndexPage();
         } else {
           return const LoginIntro();

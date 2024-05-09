@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -100,7 +99,7 @@ Widget getOurTextField({
         floatingLabelBehavior: FloatingLabelBehavior.always,
         contentPadding: EdgeInsets.all(22.w),
         hintText: hintText,
-        counterStyle: TextStyle(
+        counterStyle: const TextStyle(
           color: Colors.white,
         ),
         focusedBorder: OutlineInputBorder(
@@ -112,7 +111,7 @@ Widget getOurTextField({
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(
+          borderSide: const BorderSide(
             color: AppColors.purpleColor,
             width: 1.5,
           ),
@@ -137,7 +136,7 @@ Widget getChatBubble(String text) {
       border: Border.all(
         color: AppColors.lightPurpleColor,
       ),
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(10.0),
         topRight: Radius.circular(5),
         bottomRight: Radius.circular(10.0),
@@ -482,7 +481,7 @@ Widget createExitButton(BuildContext context) {
         margin: EdgeInsets.only(left: 10.w),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50),
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [
               AppColors.lightRedColor,
               AppColors.orangeColor,

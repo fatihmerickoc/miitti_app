@@ -18,7 +18,6 @@ import 'package:miitti_app/data/miitti_activity.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/activity.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
-import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/other_widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -51,8 +50,6 @@ class _MapsScreenState extends State<MapsScreen> {
   //late MapboxMapController controller;
 
   int showOnMap = 0;
-
-  bool isAnonymous = false;
 
   @override
   void initState() {
@@ -120,7 +117,6 @@ class _MapsScreenState extends State<MapsScreen> {
     AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
     List<MiittiActivity> activities = await ap.fetchActivities();
     setState(() {
-      isAnonymous = ap.isAnonymous;
       _activities = activities.reversed.toList();
     });
     clusterController.addAll(_activities.map(activityMarker).toList());
@@ -242,23 +238,16 @@ class _MapsScreenState extends State<MapsScreen> {
   }*/
 
   goToActivityDetailsPage(MiittiActivity activity) {
-    if (!isAnonymous) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => activity is PersonActivity
-              ? ActivityDetailsPage(
-                  myActivity: activity,
-                )
-              : ComActDetailsPage(myActivity: activity as CommercialActivity),
-        ),
-      );
-    } else {
-      showSnackBar(
-          context,
-          'Et ole vielä viimeistellyt profiiliasi, joten\n et voi käyttää vielä sovelluksen kaikkia ominaisuuksia.',
-          ConstantStyles.orange);
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => activity is PersonActivity
+            ? ActivityDetailsPage(
+                myActivity: activity,
+              )
+            : ComActDetailsPage(myActivity: activity as CommercialActivity),
+      ),
+    );
   }
 
   /* void _onFeatureTapped({required LatLng coordinates}) {
@@ -344,6 +333,7 @@ class _MapsScreenState extends State<MapsScreen> {
           }
           return FlutterMap(
               options: MapOptions(
+                  keepAlive: true,
                   backgroundColor: AppColors.backgroundColor,
                   initialCenter: myPosition,
                   initialZoom: 13.0,

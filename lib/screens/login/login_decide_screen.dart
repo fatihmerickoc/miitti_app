@@ -52,25 +52,10 @@ class LoginDecideScreen extends StatelessWidget {
 
                   //get to know the app button
                   TextButton(
-                    onPressed: () {
-                      ap.saveAnonUserToFirebase(
-                        context: context,
-                        onSucess: () {
-                          ap.saveUserDataToSP().then(
-                                (value) => ap.setSignIn().then(
-                                  (value) {
-                                    ap.setAnonymousModeOn().then(
-                                          (value) => pushNRemoveUntil(
-                                            context,
-                                            const IndexPage(),
-                                          ),
-                                        );
-                                  },
-                                ),
-                              );
-                        },
-                      );
-                    },
+                    onPressed: () => pushNRemoveUntil(
+                      context,
+                      const IndexPage(),
+                    ),
                     child: Text(
                       'Tutustu sovellukseen',
                       style: ConstantStyles.body,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 
-class ConstantsAnonymousUser extends StatelessWidget {
-  const ConstantsAnonymousUser({super.key});
+class AnonymousUserScreen extends StatelessWidget {
+  const AnonymousUserScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

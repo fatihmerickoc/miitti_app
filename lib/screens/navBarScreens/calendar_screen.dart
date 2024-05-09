@@ -56,14 +56,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future fetchDataFromFirebase() async {
     //This method ensures that all the data is coming successfully from Database through AuthProvider and then updates the State
     final ap = Provider.of<AuthProvider>(context, listen: false);
+    if (ap.isAnonymous) {
+      Future.delayed(const Duration(milliseconds: 500)).then((value) {
+        showDialog(
+            context: context, builder: (context) => const AnonymousDialog());
+      });
+      return;
+    }
 
     final joinedActivities = await ap.fetchUserActivities();
     final comingRequests = await ap.fetchActivitiesRequests();
 
-    if (ap.isAnonymous && mounted) {
-      showDialog(
-          context: context, builder: (context) => const AnonymousDialog());
-    }
+    if (ap.isAnonymous && mounted) {}
     _myJoinedActivities = joinedActivities;
     _otherRequests = comingRequests;
     isLoading = false;
@@ -117,7 +121,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   builder: (context) => activity is PersonActivity
                       ? ActivityDetailsPage(
                           myActivity: activity,
-                          didGotInvited: isInvited,
                         )
                       : ComActDetailsPage(
                           myActivity: activity as CommercialActivity),
@@ -597,7 +600,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
 
     return ap.isAnonymous
-        ? const ConstantsAnonymousUser()
+        ? const AnonymousUserScreen()
         : SafeArea(
             child: Stack(
               children: [

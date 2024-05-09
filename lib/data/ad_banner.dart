@@ -75,10 +75,13 @@ class AdBanner {
     return targetUser(user) && targetUser(another);
   }*/
 
-  static List<AdBanner> sortBanners(List<AdBanner> banners, MiittiUser user) {
+  static List<AdBanner> sortBanners(List<AdBanner> banners, MiittiUser? user) {
     banners.shuffle();
-    banners
-        .sort((a, b) => b.targetWeight(user).compareTo(a.targetWeight(user)));
+    if (user != null) {
+      banners
+          .sort((a, b) => b.targetWeight(user).compareTo(a.targetWeight(user)));
+    }
+
     return banners;
   }
 

@@ -7,6 +7,7 @@ import 'package:miitti_app/screens/chat_page.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/data/person_activity.dart';
 import 'package:miitti_app/data/activity.dart';
+import 'package:miitti_app/widgets/anonymous_dialog.dart';
 import 'package:miitti_app/widgets/confirmdialog.dart';
 import 'package:miitti_app/screens/navBarScreens/profile_screen.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
@@ -20,13 +21,8 @@ import 'package:provider/provider.dart';
 import '../../data/miitti_user.dart';
 
 class ActivityDetailsPage extends StatefulWidget {
-  final bool didGotInvited;
-  final bool? comingFromAdmin;
-
   const ActivityDetailsPage({
     required this.myActivity,
-    this.comingFromAdmin,
-    this.didGotInvited = false,
     super.key,
   });
 
@@ -45,20 +41,19 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   late Future<List<MiittiUser>> filteredUsers;
 
   int participantCount = 0;
-
-  bool didGotInvited = false;
+  bool isAnonymous = false;
 
   @override
   void initState() {
     super.initState();
-    didGotInvited = widget.didGotInvited;
     userStatus = getStatusInActivity();
     filteredUsers = fetchUsersJoinedActivity();
-    fetchUsersJoinedActivity().then((users) {
+    filteredUsers.then((users) {
       setState(() {
         participantCount = users.length;
       });
     });
+
     myCameraPosition = CameraPosition(
       target: LatLng(
         widget.myActivity.activityLati,
@@ -181,14 +176,22 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                                   padding: EdgeInsets.only(left: 16.0.w),
                                   child: GestureDetector(
                                     onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ap.miittiUser.uid == user.uid
-                                                      ? const ProfileScreen()
-                                                      : UserProfileEditScreen(
-                                                          user: user)));
+                                      if (isAnonymous) {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                const AnonymousDialog());
+                                      } else {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ap.miittiUser.uid ==
+                                                            user.uid
+                                                        ? const ProfileScreen()
+                                                        : UserProfileEditScreen(
+                                                            user: user)));
+                                      }
                                     },
                                     child: CircleAvatar(
                                       backgroundImage:
@@ -280,9 +283,7 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
                 ),
               ),
             ),
-            widget.comingFromAdmin == true
-                ? Container()
-                : getMyButton(isLoading),
+            getMyButton(isLoading),
             reportActivity(ap)
           ],
         ),
@@ -335,18 +336,25 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   }
 
   void sendActivityRequest() async {
-    if (userStatus == UserStatusInActivity.none) {
-      final ap = Provider.of<AuthProvider>(context, listen: false);
-      await ap.sendActivityRequest(widget.myActivity.activityUid);
-      PushNotifications.sendRequestNotification(ap, widget.myActivity);
-      setState(() {
-        userStatus = UserStatusInActivity.requested;
-        widget.myActivity.requests.add(ap.uid);
-      });
-    }
+    if (userStatus != UserStatusInActivity.none) return;
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    ap.joinOrRequestActivity(widget.myActivity.activityUid).then((newStatus) {
+      if (newStatus == UserStatusInActivity.requested) {
+        PushNotifications.sendRequestNotification(ap, widget.myActivity);
+        setState(() {
+          userStatus = UserStatusInActivity.requested;
+          widget.myActivity.requests.add(ap.uid);
+        });
+      } else if (newStatus == UserStatusInActivity.joined) {
+        setState(() {
+          userStatus = UserStatusInActivity.joined;
+          widget.myActivity.participants.add(ap.uid);
+        });
+      }
+    });
   }
 
-  void joinIfInvited() async {
+  /*void joinIfInvited() async {
     final ap = Provider.of<AuthProvider>(context, listen: false);
     bool operationCompleted =
         await ap.reactToInvite(widget.myActivity.activityUid, true);
@@ -357,34 +365,23 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
         didGotInvited = false;
       });
     }
-  }
+  }*/
 
   Widget getMyButton(bool isLoading) {
     String buttonText = getButtonText();
-    if (didGotInvited == true) {
-      return Opacity(
-        opacity: 0.5,
-        child: MyElevatedButton(
-          height: 50.h,
-          onPressed: () {},
-          child: Text(
-            'Osallistun',
-            style: TextStyle(
-              fontSize: 19.sp,
-              color: Colors.white,
-              fontFamily: 'Rubik',
-            ),
-          ),
-        ),
-      );
-    }
 
     return MyElevatedButton(
       height: 50.h,
       onPressed: () {
         if (userStatus == UserStatusInActivity.none &&
             participantCount < widget.myActivity.personLimit) {
-          sendActivityRequest();
+          if (isAnonymous) {
+            showDialog(
+                context: context,
+                builder: (context) => const AnonymousDialog());
+          } else {
+            sendActivityRequest();
+          }
         } else if (userStatus == UserStatusInActivity.joined) {
           Navigator.push(
             context,
@@ -416,7 +413,12 @@ class _ActivityDetailsPageState extends State<ActivityDetailsPage> {
   }
 
   UserStatusInActivity getStatusInActivity() {
-    final userId = Provider.of<AuthProvider>(context, listen: false).uid;
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+    if (ap.isAnonymous) {
+      isAnonymous = true;
+      return UserStatusInActivity.none;
+    }
+    final userId = ap.uid;
     return widget.myActivity.participants.contains(userId)
         ? UserStatusInActivity.joined
         : widget.myActivity.requests.contains(userId)
