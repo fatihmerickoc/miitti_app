@@ -2,16 +2,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/constants/constants.dart';
+import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/widgets/confirmdialog.dart';
 import 'package:miitti_app/screens/login/completeProfile/complete_profile_onboard.dart';
 import 'package:miitti_app/screens/login/login_intro.dart';
 import 'package:miitti_app/utils/auth_provider.dart';
 import 'package:miitti_app/utils/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:miitti_app/screens/canny_web_view.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget createHyperLink(String text, String url) {
     return InkWell(
-      onTap: () => launchUrlString(url),
+      onTap: () => launchUrl(Uri.parse(url)),
       child: Text(
         text,
         style: TextStyle(
@@ -41,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Text(
       title,
       style: TextStyle(
-        fontSize: 22.sp,
+        fontSize: 13.sp,
         fontFamily: 'Poppins',
         color: Colors.white,
       ),
@@ -80,31 +79,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SizedBox(height: 20.h),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CannyWebView(
-                        controller: controller,
-                        userEmail: ap.miittiUser.userEmail,
-                        userName: ap.miittiUser.userName,
-                        userId: ap.miittiUser.uid,
-                        userAvatarURL: ap.miittiUser.profilePicture,
-                        userCreated: ap.miittiUser.userRegistrationDate,
-                      ),
-                    ),
-                  );
-                },
+                onPressed: () =>
+                    launchUrl(Uri.parse('https://miittiapp.canny.io/')),
                 style: ButtonStyle(
                   shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                   ),
-                  backgroundColor: WidgetStateProperty.all<Color>(
-                      AppColors.mixGradientColor),
+                  backgroundColor:
+                      WidgetStateProperty.all<Color>(ConstantStyles.pink),
                   minimumSize: WidgetStateProperty.all<Size>(const Size(
-                      double.infinity, 140)), // Makes the button 100% wide
+                      double.infinity, 120)), // Makes the button 100% wide
                 ),
                 child: Column(
                   mainAxisAlignment:
@@ -140,52 +126,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   children: <TextSpan>[
                     const TextSpan(
-                      text: 'Voit myös liittyä Discord kanavallemme ',
+                      text: 'Voit myös liittyä keskusteluun ',
                     ),
                     TextSpan(
-                      text: 'täällä',
+                      text: 'Discord-kanavallamme.',
                       style: const TextStyle(
                         color: AppColors.lightPurpleColor,
                         fontFamily: 'Rubik',
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          launchUrl(Uri.parse('https://discord.gg/TwPNwwad'));
+                          launchUrl(Uri.parse('https://discord.gg/aagEzSetdC'));
                         },
                     ),
                   ],
                 ),
               ),
               SizedBox(height: 30.h),
-              createSectionTitle('Asiakaspalvelun yhteystiedot'),
+              createSectionTitle('Yhteystiedot:'),
+              getSomeSpace(10),
               createHyperLink(
                 "Seuraa meitä Instagramissa",
                 'https://www.instagram.com/miittiapp/',
               ),
+              getSomeSpace(10),
               createHyperLink(
                 "info@miitti.app",
-                'https://mail.google.com/mail/u/0/?fs=1&tf=cm&source=mailto&su=Yhteydenotto+sovellukselta&to=touko@miitti.app',
+                'mailto:info@miitti.app',
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 30.h),
               createSectionTitle(
-                'Sovelluksen käyttöehdot & tietosuojaselostet',
+                'Dokumentit ja ehdot:',
               ),
+              getSomeSpace(10),
               createHyperLink(
-                "Lue sovelluksen käyttöehdot",
+                "Käyttöehdot",
                 'https://www.miitti.app/kayttoehdot',
               ),
+              getSomeSpace(10),
               createHyperLink(
-                "Tutustu tietosuojaselosteeseen",
+                "Tietosuojaseloste",
                 'https://www.miitti.app/tietosuojaseloste',
               ),
               SizedBox(height: 20.h),
-              createSectionTitle('Tilin asetukset'),
+              createSectionTitle('Tili:'),
+              getSomeSpace(10),
               GestureDetector(
                   onTap: () => ap.userSignOut().then(
                         (value) =>
                             pushNRemoveUntil(context, const LoginIntro()),
                       ),
                   child: createText('Kirjaudu ulos')),
+              getSomeSpace(10),
               ap.isAnonymous
                   ? GestureDetector(
                       onTap: () {
@@ -222,10 +214,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                       child: createText('Poista tili'),
                     ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 30.h),
               createSectionTitle('Versio'),
               Text(
-                '1.5.3',
+                '1.5.4',
                 style: TextStyle(
                   fontSize: 17.sp,
                   fontFamily: 'Rubik',
