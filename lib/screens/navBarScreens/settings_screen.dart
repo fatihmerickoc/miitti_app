@@ -11,18 +11,18 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:miitti_app/cannyWebView.dart';
+import 'package:miitti_app/screens/canny_web_view.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({required this.controller, super.key});
-
-  final WebViewController controller;
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  final WebViewController controller = WebViewController();
+
   Widget createHyperLink(String text, String url) {
     return InkWell(
       onTap: () => launchUrlString(url),
@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => CannyWebView(
-                        controller: widget.controller,
+                        controller: controller,
                         userEmail: ap.miittiUser.userEmail,
                         userName: ap.miittiUser.userName,
                         userId: ap.miittiUser.uid,
@@ -139,18 +139,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Colors.white,
                   ),
                   children: <TextSpan>[
-                    TextSpan(
+                    const TextSpan(
                       text: 'Voit myös liittyä Discord kanavallemme ',
                     ),
                     TextSpan(
                       text: 'täällä',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.lightPurpleColor,
                         fontFamily: 'Rubik',
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          launch('https://discord.gg/TwPNwwad');
+                          launchUrl(Uri.parse('https://discord.gg/TwPNwwad'));
                         },
                     ),
                   ],

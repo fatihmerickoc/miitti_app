@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class CannyWebView extends StatefulWidget {
-
   final String userEmail;
   final String userName;
   final String userId;
@@ -10,14 +9,14 @@ class CannyWebView extends StatefulWidget {
   final String userCreated;
 
   const CannyWebView({
-    required this.controller, 
+    required this.controller,
     super.key,
     required this.userEmail,
     required this.userName,
     required this.userId,
     required this.userAvatarURL,
     required this.userCreated,
-    });
+  });
 
   final WebViewController controller;
 
@@ -31,8 +30,7 @@ class _CannyWebViewState extends State<CannyWebView> {
   @override
   void initState() {
     super.initState();
-    _controller.loadHtmlString(
-        '''
+    _controller.loadHtmlString('''
         <!DOCTYPE html>
         <html>
         <head>
@@ -54,8 +52,7 @@ class _CannyWebViewState extends State<CannyWebView> {
         <a data-canny-link href="https://miittiapp.canny.io">Give feedback</a>
         </body>
         </html>
-        '''
-    );
+        ''');
   }
 
   @override
