@@ -61,7 +61,7 @@ void main() {
   test('timestampToString should return the correct string representation', () {
     // Arrange
     final timestamp = Timestamp.fromDate(DateTime(2022, 12, 25, 10, 30));
-    const expectedString = '25.12. 10:30';
+    const expectedString = '25.12. klo 10:30';
 
     // Act
     final result = timestampToString(timestamp);

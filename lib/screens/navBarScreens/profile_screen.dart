@@ -24,11 +24,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    final ap = Provider.of<AuthProvider>(context, listen: false);
     Future.delayed(const Duration(milliseconds: 500)).then((value) {
-      final ap = Provider.of<AuthProvider>(context, listen: false);
       if (ap.isAnonymous) {
-        showDialog(
-            context: context, builder: (context) => const AnonymousDialog());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            builder: (context) => const AnonymousDialog(),
+          );
+        });
       } else {
         filteredActivities = ap.miittiUser.userFavoriteActivities.toList();
       }
@@ -57,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
+    AuthProvider ap = Provider.of<AuthProvider>(context, listen: true);
     bool isLoading = ap.isLoading;
     bool isAnonymous = ap.isAnonymous;
 
