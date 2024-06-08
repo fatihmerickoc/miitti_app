@@ -196,7 +196,9 @@ const List<String> cities = [
   "Rovaniemi",
   "Mikkeli",
   "Kotka",
-  "Salo"
+  "Salo",
+  "Muu Suomi",
+  "Ulkomaat",
 ];
 
 const List<String> adminId = [
@@ -205,6 +207,7 @@ const List<String> adminId = [
   'PCgz01aA7nbGAQigFsKyFnrHpMF2',
   'cyn5uJdDskdwGaZDvmNtztfxsRm2',
   'TI4jAfRnjnUWM46zwsL4pYUrF3Z2',
+  'sGCB8PQbluYD8iD5xMx0bdwTrVE2',
 ];
 
 const String mapboxAccess =
