@@ -27,7 +27,7 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 flutter_ios_podfile_setup
 
 	
-ENV['MAPBOX_DOWNLOADS_TOKEN'] = 'sk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTFqdTJxZzAyMzgzbG1scnFkaXBzdmoifQ.qzMDjlrnbE_uWsoZyyS8ng'
+ENV['MAPBOX_DOWNLOADS_TOKEN'] ||= 'sk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTFqdTJxZzAyMzgzbG1scnFkaXBzdmoifQ.qzMDjlrnbE_uWsoZyyS8ng'
 
 target 'Runner' do
   use_frameworks!
