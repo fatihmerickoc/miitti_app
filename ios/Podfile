@@ -43,7 +43,7 @@ target 'Runner' do
   pod 'GoogleSignIn', '7.1.0'
   pod 'Firebase/Functions', '10.25.0'
   pod 'Firebase/Auth', '10.25.0'
-  pod 'Mapbox-iOS-SDK', '6.4.1', :http => "https://api.mapbox.com/downloads/v2/mobile-maps/releases/ios/packages/6.4.1/mapbox-ios-sdk-dynamic.zip", :type => :zip, :authorization => { :token => mapbox_token }
+  pod 'Mapbox-iOS-SDK', :http => "https://api.mapbox.com/downloads/v2/mobile-maps/releases/ios/packages/6.4.1/mapbox-ios-sdk-dynamic.zip", :type => :zip, :authorization => { :token => mapbox_token }
 
 end
 
