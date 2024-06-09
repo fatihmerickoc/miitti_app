@@ -39,6 +39,7 @@ target 'Runner' do
   pod 'Firebase/Crashlytics', '10.25.0'
   pod 'GoogleSignIn', '7.1.0'
   pod 'Firebase/Functions', '10.25.0'
+  pod 'Firebase/Auth', '10.25.0'
 end
 
 post_install do |installer|
