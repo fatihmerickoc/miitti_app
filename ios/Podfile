@@ -1,4 +1,3 @@
-# Uncomment this line to define a global platform for your project
 platform :ios, '12.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
@@ -35,6 +34,10 @@ target 'Runner' do
   target 'RunnerTests' do
     inherit! :search_paths
   end
+
+  # Add dependencies here
+  pod 'Firebase/Crashlytics', '10.25.0'
+  pod 'GoogleSignIn', '7.1.0'
 end
 
 post_install do |installer|
