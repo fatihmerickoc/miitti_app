@@ -78,6 +78,7 @@ class _LoginAuthState extends State<LoginAuth> {
                 OtherWidgets().createPinkDivider('Tai'),
 
                 //sign with phone
+                //TODO: Refactor button to own component
                 GestureDetector(
                   onTap: () => Navigator.push(
                     context,

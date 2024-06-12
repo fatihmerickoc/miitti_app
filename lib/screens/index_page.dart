@@ -17,6 +17,7 @@ import 'navBarScreens/maps_screen.dart';
 import 'navBarScreens/people_screen.dart';
 import 'navBarScreens/profile_screen.dart';
 
+//TODO: Refactor
 class IndexPage extends StatefulWidget {
   final int? initialPage;
 

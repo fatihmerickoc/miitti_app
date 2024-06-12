@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/constants/constants.dart';
 import 'package:miitti_app/constants/constants_styles.dart';
 import 'package:miitti_app/data/commercial_spot.dart';
@@ -18,6 +21,7 @@ import 'package:miitti_app/utils/utils.dart';
 import 'package:miitti_app/widgets/custom_button.dart';
 import 'package:location/location.dart' as location;
 import 'package:miitti_app/widgets/other_widgets.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 class CreateMiittiOnboarding extends StatefulWidget {
@@ -49,13 +53,10 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
   String favoriteActivity = "";
 
   //PAGE 1 PICK ACTIVITY LOCATION
-  late MapboxMapController mapController;
+  late MapController mapController;
   final location.Location _location = location.Location();
 
-  CameraPosition myCameraPosition = const CameraPosition(
-    target: LatLng(60.166082, 24.939744),
-    zoom: 16,
-  );
+  LatLng myCameraPosition = const LatLng(60.166082, 24.939744);
 
   LatLng? markerCoordinates;
 
@@ -78,7 +79,7 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
   Timestamp activityTime = Timestamp.fromDate(DateTime.now());
 
   //PAGE 3 SUMMARY
-  late MapboxMapController summaryMapController;
+  late MapController summaryMapController;
 
   @override
   void initState() {
@@ -119,17 +120,13 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
         LatLng(locationData.latitude!, locationData.longitude!);
 
     setState(() {
-      myCameraPosition = CameraPosition(
-        target: currentLatLng,
-        zoom: 16,
-      );
+      myCameraPosition = currentLatLng;
     });
 
-    mapController
-        .animateCamera(CameraUpdate.newCameraPosition(myCameraPosition));
+    mapController.move(myCameraPosition, 16);
   }
 
-  void onStyleLoadedCallBack() {
+  /*void onStyleLoadedCallBack() {
     summaryMapController.addSymbol(
       SymbolOptions(
         geometry: LatLng(
@@ -140,7 +137,7 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
         iconSize: 0.8.r,
       ),
     );
-  }
+  }*/
 
   void fetchSpots() {
     AuthProvider ap = Provider.of<AuthProvider>(context, listen: false);
@@ -223,7 +220,68 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
                   children: [
                     ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      child: MapboxMap(
+                      child: FutureBuilder(
+                          future: getPath(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                  child: Text('Error: ${snapshot.error}'));
+                            }
+                            return FlutterMap(
+                                options: MapOptions(
+                                  keepAlive: true,
+                                  backgroundColor: AppColors.backgroundColor,
+                                  initialCenter: myCameraPosition,
+                                  initialZoom: 13.0,
+                                  interactionOptions: const InteractionOptions(
+                                      flags: InteractiveFlag.pinchZoom |
+                                          InteractiveFlag.drag),
+                                  minZoom: 5.0,
+                                  maxZoom: 18.0,
+                                  onMapReady: () {},
+                                  onPositionChanged: (position, hasGesture) {
+                                    for (int i = 0; i < spots.length; i++) {
+                                      bool onSpot = (spots[i].lati -
+                                                      position.center!.latitude)
+                                                  .abs() <
+                                              0.0002 &&
+                                          (spots[i].long -
+                                                      position
+                                                          .center!.longitude)
+                                                  .abs() <
+                                              0.0002;
+                                      if (onSpot) {
+                                        setState(() {
+                                          selectedSpot = i;
+                                        });
+                                        return;
+                                      }
+                                    }
+
+                                    setState(() {
+                                      selectedSpot = -1;
+                                    });
+                                  },
+                                ),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate:
+                                        "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+                                    additionalOptions: const {
+                                      'accessToken': mapboxAccess,
+                                    },
+                                    tileProvider: CachedTileProvider(
+                                        store: HiveCacheStore(
+                                      snapshot.data.toString(),
+                                    )),
+                                  ),
+                                ]);
+                          }),
+                      /* MapboxMap(
                         styleString: MapboxStyles.MAPBOX_STREETS,
                         onMapCreated: (mapController) =>
                             this.mapController = mapController,
@@ -263,7 +321,7 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
                             selectedSpot = -1;
                           });
                         },
-                      ),
+                      ),*/
                     ),
                     Center(
                       child: Image.asset(
@@ -291,12 +349,10 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
                           return GestureDetector(
                               onTap: () => setState(() {
                                     selectedSpot = index;
-                                    mapController.animateCamera(
-                                      CameraUpdate.newLatLngZoom(
-                                        LatLng(spots[index].lati,
-                                            spots[index].long),
-                                        16,
-                                      ),
+                                    mapController.move(
+                                      LatLng(
+                                          spots[index].lati, spots[index].long),
+                                      16,
                                     );
                                   }),
                               child: spots[index]
@@ -417,20 +473,55 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
               SizedBox(
                 height: 300.w,
                 width: 350.w,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  child: MapboxMap(
-                    styleString: MapboxStyles.MAPBOX_STREETS,
-                    rotateGesturesEnabled: false,
-                    scrollGesturesEnabled: false,
-                    zoomGesturesEnabled: false,
-                    tiltGesturesEnabled: false,
-                    onMapCreated: (mapController) =>
-                        summaryMapController = mapController,
-                    onStyleLoadedCallback: onStyleLoadedCallBack,
-                    initialCameraPosition:
-                        CameraPosition(target: markerCoordinates!, zoom: 16),
-                  ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      child: FutureBuilder(
+                          future: getPath(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                  child: Text('Error: ${snapshot.error}'));
+                            }
+                            return FlutterMap(
+                                options: MapOptions(
+                                    keepAlive: true,
+                                    backgroundColor: AppColors.backgroundColor,
+                                    initialCenter: myCameraPosition,
+                                    initialZoom: 13.0,
+                                    interactionOptions:
+                                        const InteractionOptions(
+                                            flags: InteractiveFlag.pinchZoom),
+                                    minZoom: 5.0,
+                                    maxZoom: 18.0,
+                                    onMapReady: () {}),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate:
+                                        "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+                                    additionalOptions: const {
+                                      'accessToken': mapboxAccess,
+                                    },
+                                    tileProvider: CachedTileProvider(
+                                        store: HiveCacheStore(
+                                      snapshot.data.toString(),
+                                    )),
+                                  ),
+                                ]);
+                          }),
+                    ),
+                    Center(
+                      child: Image.asset(
+                        'images/${Activity.solveActivityId(favoriteActivity)}.png',
+                        height: 65.h,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               ConstantStyles().gapH20,
@@ -562,7 +653,7 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
           return;
         }
       case 1:
-        markerCoordinates ??= mapController.cameraPosition!.target;
+        markerCoordinates ??= mapController.camera.center;
         activityCity = selectedSpot > -1
             ? spots[selectedSpot].address
             : await getAddressFromCoordinates(
@@ -677,6 +768,11 @@ class _CreateMiittiOnboardingState extends State<CreateMiittiOnboarding> {
         ),
       ),
     );
+  }
+
+  Future<String> getPath() async {
+    final cacheDirectory = await getTemporaryDirectory();
+    return cacheDirectory.path;
   }
 }
 

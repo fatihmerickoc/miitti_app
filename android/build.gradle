@@ -7,7 +7,7 @@ allprojects {
                 force "com.google.android.gms:play-services-location:20.0.0"
             }
         }
-        maven {
+        /*maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
             authentication {
                 basic(BasicAuthentication)
@@ -19,7 +19,7 @@ allprojects {
                 // Use the secret token you stored in gradle.properties as the password
                 password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
             }
-        }
+        }*/
     }
 }
 

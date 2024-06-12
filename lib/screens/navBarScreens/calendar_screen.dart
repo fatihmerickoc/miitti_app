@@ -1,3 +1,5 @@
+//TODO: Implement new UI
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:miitti_app/screens/activity_details_page.dart';

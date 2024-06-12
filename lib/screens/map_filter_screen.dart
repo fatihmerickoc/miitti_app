@@ -4,6 +4,7 @@ import 'package:miitti_app/constants/constants.dart';
 
 import '../utils/filter_settings.dart';
 
+//TODO: New UI
 class MapFilter extends StatefulWidget {
   const MapFilter({super.key});
 

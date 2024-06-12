@@ -1,8 +1,11 @@
+import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:miitti_app/screens/commercialScreens/comchat_page.dart';
 import 'package:miitti_app/screens/commercialScreens/commercial_user_profile.dart';
 import 'package:miitti_app/data/commercial_activity.dart';
@@ -14,6 +17,7 @@ import 'package:miitti_app/utils/push_notifications.dart';
 import 'package:miitti_app/screens/user_profile_edit_screen.dart';
 
 import 'package:miitti_app/widgets/my_elevated_button.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,8 +39,7 @@ class ComActDetailsPage extends StatefulWidget {
 }
 
 class _ActivityDetailsPageState extends State<ComActDetailsPage> {
-  late CameraPosition myCameraPosition;
-  late MapboxMapController myController;
+  late LatLng myCameraPosition;
 
   bool isAlreadyJoined = false;
 
@@ -50,20 +53,13 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
     checkIfJoined();
     fetchAdmin();
     fetchUsersJoinedActivity();
-    myCameraPosition = CameraPosition(
-      target: LatLng(
-        widget.myActivity.activityLati,
-        widget.myActivity.activityLong,
-      ),
-      zoom: 15,
+    myCameraPosition = LatLng(
+      widget.myActivity.activityLati,
+      widget.myActivity.activityLong,
     );
   }
 
-  _onMapCreated(MapboxMapController controller) {
-    myController = controller;
-  }
-
-  _onStyleLoadedCallBack() {
+  /*_onStyleLoadedCallBack() {
     myController.addSymbol(
       SymbolOptions(
         geometry: LatLng(
@@ -75,7 +71,7 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
         iconSize: 0.8.r,
       ),
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +88,42 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
             Expanded(
               child: Stack(
                 children: [
-                  MapboxMap(
-                    styleString: MapboxStyles.MAPBOX_STREETS,
-                    onMapCreated: _onMapCreated,
-                    onStyleLoadedCallback: _onStyleLoadedCallBack,
-                    rotateGesturesEnabled: false,
-                    scrollGesturesEnabled: false,
-                    zoomGesturesEnabled: false,
-                    initialCameraPosition: myCameraPosition,
-                  ),
+                  FutureBuilder(
+                      future: getPath(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        }
+                        return FlutterMap(
+                            options: MapOptions(
+                                keepAlive: true,
+                                backgroundColor: AppColors.backgroundColor,
+                                initialCenter: myCameraPosition,
+                                initialZoom: 13.0,
+                                interactionOptions: const InteractionOptions(
+                                    flags: InteractiveFlag.pinchZoom),
+                                minZoom: 5.0,
+                                maxZoom: 18.0,
+                                onMapReady: () {}),
+                            children: [
+                              TileLayer(
+                                urlTemplate:
+                                    "https://api.mapbox.com/styles/v1/miittiapp/clt1ytv8s00jz01qzfiwve3qm/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}",
+                                additionalOptions: const {
+                                  'accessToken': mapboxAccess,
+                                },
+                                tileProvider: CachedTileProvider(
+                                    store: HiveCacheStore(
+                                  snapshot.data.toString(),
+                                )),
+                              ),
+                            ]);
+                      }),
                   Align(
                     alignment: Alignment.topLeft,
                     child: GestureDetector(
@@ -449,5 +472,10 @@ class _ActivityDetailsPageState extends State<ComActDetailsPage> {
         : (participantCount < widget.myActivity.personLimit)
             ? 'Osallistun'
             : 'Täynnä';
+  }
+
+  Future<String> getPath() async {
+    final cacheDirectory = await getTemporaryDirectory();
+    return cacheDirectory.path;
   }
 }

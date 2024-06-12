@@ -14,6 +14,8 @@ import 'package:provider/provider.dart';
 
 import 'package:intl/intl.dart'; // Add this line for the DateFormat class
 
+//TODO: New UI
+
 class ChatPage extends StatefulWidget {
   const ChatPage({required this.activity, super.key});
 

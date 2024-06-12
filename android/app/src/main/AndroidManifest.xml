@@ -9,9 +9,9 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <meta-data
+        <!-- <meta-data
             android:name="com.mapbox.token"
-            android:value="sk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTFqdTJxZzAyMzgzbG1scnFkaXBzdmoifQ.qzMDjlrnbE_uWsoZyyS8ng"/>
+            android:value="sk.eyJ1IjoibWlpdHRpYXBwIiwiYSI6ImNsaTFqdTJxZzAyMzgzbG1scnFkaXBzdmoifQ.qzMDjlrnbE_uWsoZyyS8ng"/> -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
